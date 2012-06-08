@@ -6,7 +6,7 @@ import Dependencies._
 import Resolvers._
 
 object BuildSettings {
-  lazy val buildOrganization = "com.github.ea"
+  lazy val buildOrganization = "com.github.scalevalgo"
   lazy val buildVersion      = "0.1.0-SNAPSHOT"
   lazy val buildScalaVersion = "2.9.1"
 
@@ -20,7 +20,7 @@ object BuildSettings {
 
 object ClusterKitBuild extends Build {
   lazy val root = Project (
-    id        = "ea",
+    id        = "scalevalgo",
     base      = file ("."),
     settings  = baseSettings ++ Seq (
       libraryDependencies ++= Seq ( graph, scalaz ),
