@@ -64,7 +64,7 @@ object tsp {
               (psize: Int = 10, generations: Int = 2000, csize: Int = 40, cprop: Double = 0.3) = {
 
     def evolve(oldGen: IndexedSeq[Graph[N,WDiEdge]], generations: Int): Graph[N,WDiEdge] = generations match {
-      case 0 ⇒ oldGen minBy { weight(_) }
+      case 0 ⇒ oldGen minBy weight
 
       case _ ⇒
         val children = for {
@@ -116,8 +116,8 @@ object tsp {
     c -- (rmes) ++ (nstart :: nend :: nedges.toList)
   }
 
-  def findChild[N](g: Graph[N,WUnDiEdge], ps: IndexedSeq[Graph[N,WDiEdge]]) = {
-    val adj = ps.map(neighbors(_)).fold(Map())(_ |+| _)
+  def findChild[N](g: Graph[N,WUnDiEdge], ps: IndexedSeq[Graph[N,WDiEdge]]): Graph[N,WDiEdge] = {
+    val adj = ps.map(neighbors).fold(Map()) { _ |+| _ }
 
     val startNode: N = ps.head.nodes.head.value
 
@@ -125,12 +125,11 @@ object tsp {
       if (have.size == g.nodes.size) {
         child + (currentNode ~> startNode % (g.get(currentNode ~ startNode % 0).weight))
       } else {
-        val set = adj(currentNode)
+        val set = adj(currentNode) filterNot have.contains
+
         val filtered = adj filterNot { case (k,_) ⇒ have.contains(k) }
 
-        val nextNode = set filterNot have.contains map { node ⇒
-          node → ( filtered(node) filterNot have.contains )
-        } minBy { _._2.size } _1
+        val nextNode = set minBy { node ⇒ filtered(node) filterNot have.contains size }
 
         val nextEdge = currentNode ~> nextNode % (g.get(currentNode ~ nextNode % 0).weight)
 
@@ -138,13 +137,11 @@ object tsp {
       }
     }
 
-    val child = recurse(List(startNode), startNode, Graph.from(g.nodes.toNodeInSet,Nil))
-
-    child
+    recurse(List(startNode), startNode, Graph.from(g.nodes.toNodeInSet,Nil))
   }
 
   def weight(g: Graph[_,WDiEdge]): Long =
-    g.edges.toList map { _.weight } sum
+    g.edges.foldLeft(0L) { _ + _.weight }
 
   def circle[N](g: Graph[N,WUnDiEdge]): Graph[N,WDiEdge] = {
     val ns = shuffle(g.nodes.toNodeInSet.toIndexedSeq)
