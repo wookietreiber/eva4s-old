@@ -63,10 +63,8 @@ object tsp {
   def apply[N](g: Graph[N,WUnDiEdge])
               (populationSize: Int = 10, generations: Int = 2000, rsize: Int = 40, rprop: Double = 0.3) = {
 
-    def evolve(population: IndexedSeq[Graph[N,WDiEdge]], generations: Int): (Graph[N,WDiEdge],Long) = generations match {
-      case 0 ⇒ population map { individual ⇒
-        individual → weight(individual)
-      } minBy { _._2 }
+    def evolve(population: IndexedSeq[Graph[N,WDiEdge]], generations: Int): Graph[N,WDiEdge] = generations match {
+      case 0 ⇒ population minBy { weight(_) }
 
       case _ ⇒
         val youngsters = for {
