@@ -40,6 +40,16 @@ import Scalaz._
 
 object tsp {
 
+  def rndWDiComplete(n: Int, maxW: Int): Graph[Int,WDiEdge] = {
+    val edges = for {
+      i ← (  1) to (n-1)
+      j ← (i+1) to (n  )
+      w = nextInt(maxW) + 1
+    } yield List(i ~> j % w, j ~> i % w)
+
+    Graph.from(1 to n, edges.flatten)
+  }
+
   def rndWUnDiComplete(n: Int, maxW: Int): Graph[Int,WUnDiEdge] = {
     val edges = for {
       i ← (  1) to (n-1)
