@@ -2,12 +2,12 @@
  *                                                                          *
  *  Copyright (C)  2012  Nils Foken, Christian Krause                       *
  *                                                                          *
- *  Nils Foken       <nils.foken@it2009.ba-leipzig.de>                      *
- *  Christian Krause <christian.krause@it2009.ba-leipzig.de>                *
+ *  Nils Foken        <nils.foken@it2009.ba-leipzig.de>                     *
+ *  Christian Krause  <christian.krause@it2009.ba-leipzig.de>               *
  *                                                                          *
  ****************************************************************************
  *                                                                          *
- *  This file is part of 'ea'.                                              *
+ *  This file is part of 'scalevalgo'.                                      *
  *                                                                          *
  *  This project is free software: you can redistribute it and/or modify    *
  *  it under the terms of the GNU General Public License as published by    *
@@ -83,8 +83,6 @@ object tsp {
     val start = nodes.head
     val end   = nodes.last
 
-    printf("start: %s   end: %s\n", start, end)
-
     if (start == end)
       return c
 
@@ -99,8 +97,6 @@ object tsp {
 
     val pred  = start.diPredecessors.head
     val succ  = end.diSuccessors.head
-
-    printf("start: %s   end: %s\n", start, end)
 
     val nend   = start.value ~> succ.value % (g.get(start.value ~ succ.value % 0).weight)
     val nstart = pred.value  ~> end.value  % (g.get(pred.value  ~ end.value  % 0).weight)
