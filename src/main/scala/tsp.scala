@@ -61,29 +61,28 @@ object tsp {
   }
 
   def apply[N](g: Graph[N,WUnDiEdge])
-              (populationSize: Int = 10, generations: Int = 2000, rsize: Int = 40, rprop: Double = 0.3) = {
+              (psize: Int = 10, generations: Int = 2000, csize: Int = 40, cprop: Double = 0.3) = {
 
-    def evolve(population: IndexedSeq[Graph[N,WDiEdge]], generations: Int): Graph[N,WDiEdge] = generations match {
-      case 0 ⇒ population minBy { weight(_) }
+    def evolve(oldGen: IndexedSeq[Graph[N,WDiEdge]], generations: Int): Graph[N,WDiEdge] = generations match {
+      case 0 ⇒ oldGen minBy { weight(_) }
 
       case _ ⇒
-        val youngsters = for {
-          i ← 1 to rsize if nextDouble < rprop
-          parents = choose(population)(2)
+        val children = for {
+          i ← 1 to csize if nextDouble < cprop
+          parents = choose(oldGen)(2)
           child   = findChild(g, parents)
         } yield child
 
-        val newPopulus = (population ++ youngsters) map { individual ⇒
-          individual → weight(individual)
-        } sortBy {
-          _._2
-        } take 10
+        val nextGen = (oldGen ++ children) sortBy weight take psize
 
-        evolve(newPopulus map { _._1 }, generations - 1)
+        evolve(nextGen, generations - 1)
     }
 
-    evolve(for (i ← 1 to populationSize) yield circle(g), generations)
+    evolve(initialPopulation(g, psize), generations)
   }
+
+  def initialPopulation[N](g: Graph[N,WUnDiEdge], psize: Int): IndexedSeq[Graph[N,WDiEdge]] =
+    for (i ← 1 to psize) yield circle(g)
 
   def mutate[N](g: Graph[N,WUnDiEdge], c: Graph[N,WDiEdge]): Graph[N,WDiEdge] = {
     val nodes = choose(c.nodes.toIndexedSeq)(2)
