@@ -18,7 +18,7 @@ object BuildSettings {
   )
 }
 
-object ClusterKitBuild extends Build {
+object ScalEvAlgoBuild extends Build {
   lazy val root = Project (
     id        = "scalevalgo",
     base      = file ("."),
@@ -27,7 +27,7 @@ object ClusterKitBuild extends Build {
       scalacOptions ++= Seq ( "-Xexperimental", "-Ydependent-method-types" ),
       initialCommands in Compile += """
         import scala.util.Random._
-        import scalax.collection.Graph
+        import scalax.collection._
         import scalax.collection.GraphPredef._
         import scalax.collection.GraphEdge._
         import scalax.collection.edge.Implicits._
