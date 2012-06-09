@@ -71,7 +71,7 @@ object tsp {
           i ← 1 to csize if nextDouble < cprop
           parents = choose(oldGen)(2)
           child   = findChild(g, parents)
-        } yield child
+        } yield mutate(g, child)
 
         val nextGen = (oldGen ++ children) sortBy weight take psize
 
