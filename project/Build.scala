@@ -26,7 +26,6 @@ object ScalEvAlgoBuild extends Build {
       libraryDependencies ++= Seq ( graph, scalaz ),
       scalacOptions ++= Seq ( "-Xexperimental", "-Ydependent-method-types" ),
       initialCommands in Compile += """
-        import scala.util.Random._
         import scalax.collection._
         import scalax.collection.GraphPredef._
         import scalax.collection.GraphEdge._
@@ -37,6 +36,7 @@ object ScalEvAlgoBuild extends Build {
       initialCommands in (Compile, consoleQuick) <<= initialCommands in Compile,
       initialCommands in Compile in console += """
         import ea._
+        import ea.util.graph._
         import ea.tsp._
       """
     )

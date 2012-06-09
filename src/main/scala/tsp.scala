@@ -27,7 +27,7 @@
 
 package ea
 
-import scala.util.Random._
+import ea.util.graph._
 
 import scalax.collection._
 import scalax.collection.GraphPredef._
@@ -40,36 +40,16 @@ import Scalaz._
 
 object tsp {
 
-  def rndWDiComplete(n: Int, maxW: Int): Graph[Int,WDiEdge] = {
-    val edges = for {
-      i ← (  1) to (n-1)
-      j ← (i+1) to (n  )
-      w = nextInt(maxW) + 1
-    } yield List(i ~> j % w, j ~> i % w)
-
-    Graph.from(1 to n, edges.flatten)
-  }
-
-  def rndWUnDiComplete(n: Int, maxW: Int): Graph[Int,WUnDiEdge] = {
-    val edges = for {
-      i ← (  1) to (n-1)
-      j ← (i+1) to (n  )
-      w = nextInt(maxW) + 1
-    } yield i ~ j % w
-
-    Graph.from(1 to n, edges)
-  }
-
   def apply[N](g: Graph[N,WUnDiEdge])
               (psize: Int = 10, generations: Int = 2000, csize: Int = 40, cprop: Double = 0.3) = {
 
-    def evolve(oldGen: IndexedSeq[Graph[N,WDiEdge]], generations: Int): Graph[N,WDiEdge] = generations match {
+    def evolve(oldGen: Seq[Graph[N,WDiEdge]], generations: Int): Graph[N,WDiEdge] = generations match {
       case 0 ⇒ oldGen minBy weight
 
       case _ ⇒
         val children = for {
-          i ← 1 to csize if nextDouble < cprop
-          parents = choose(oldGen)(2)
+          i ← 1 to csize if Random.nextDouble < cprop
+          parents = choose(2)(oldGen)
           child   = findChild(g, parents)
         } yield mutate(g, child)
 
@@ -81,11 +61,11 @@ object tsp {
     evolve(initialPopulation(g, psize), generations)
   }
 
-  def initialPopulation[N](g: Graph[N,WUnDiEdge], psize: Int): IndexedSeq[Graph[N,WDiEdge]] =
-    for (i ← 1 to psize) yield circle(g)
+  def initialPopulation[N](g: Graph[N,WUnDiEdge], psize: Int): Seq[Graph[N,WDiEdge]] =
+    for (i ← 1 to psize) yield cycle(g)
 
   def mutate[N](g: Graph[N,WUnDiEdge], c: Graph[N,WDiEdge]): Graph[N,WDiEdge] = {
-    val nodes = choose(c.nodes.toIndexedSeq)(2)
+    val nodes = choose(2)(c.nodes)
 
     val start = nodes.head
     val end   = nodes.last
@@ -116,7 +96,7 @@ object tsp {
     c -- (rmes) ++ (nstart :: nend :: nedges.toList)
   }
 
-  def findChild[N](g: Graph[N,WUnDiEdge], ps: IndexedSeq[Graph[N,WDiEdge]]): Graph[N,WDiEdge] = {
+  def findChild[N](g: Graph[N,WUnDiEdge], ps: Iterable[Graph[N,WDiEdge]]): Graph[N,WDiEdge] = {
     val adj = ps.map(neighbors).fold(Map()) { _ |+| _ }
 
     val startNode: N = ps.head.nodes.head.value
@@ -139,32 +119,5 @@ object tsp {
 
     recurse(List(startNode), startNode, Graph.from(g.nodes.toNodeInSet,Nil))
   }
-
-  def weight(g: Graph[_,WDiEdge]): Long =
-    g.edges.foldLeft(0L) { _ + _.weight }
-
-  def circle[N](g: Graph[N,WUnDiEdge]): Graph[N,WDiEdge] = {
-    val ns = shuffle(g.nodes.toNodeInSet.toIndexedSeq)
-
-    val cycle = for {
-      i ← 0 until ns.size
-      j = (i+1) % ns.size
-      s = ns(i)
-      e = ns(j)
-      w = g.get(s ~ e % 0).weight
-    } yield (s ~%> e)(w)
-
-    Graph.from(g.nodes.toNodeInSet, cycle)
-  }
-
-  def choose[A](as: IndexedSeq[A])(n: Int = 2): IndexedSeq[A] = {
-    val s = as.size
-
-    for (i ← 1 to n) yield as(nextInt(s-1))
-  }
-
-  def neighbors[N,E[X] <: EdgeLikeIn[X]](g: Graph[N,E]) = g.nodes map { node ⇒
-    node.value → (node.neighbors map { _.value })
-  } toMap
 
 }
