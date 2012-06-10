@@ -75,9 +75,8 @@ object tsp {
 
     val path = start.pathTo(end).get
 
-    if (path.edges.size == c.edges.size - 1) return Graph.from (
-      c.nodes.toNodeInSet,
-      c.edges map { e ⇒
+    if (path.edges.size == c.edges.size - 1) return Graph from (
+      edges = c.edges map { e ⇒
         e.edge._2.value ~> e.edge._1.value % (g.get(e.edge._2.value ~ e.edge._1.value % 0).weight)
       }
     )
