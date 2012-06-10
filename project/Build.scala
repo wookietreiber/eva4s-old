@@ -36,8 +36,6 @@ object ScalEvAlgoBuild extends Build {
       initialCommands in (Compile, consoleQuick) <<= initialCommands in Compile,
       initialCommands in Compile in console += """
         import ea._
-        import ea.util.graph._
-        import ea.tsp._
       """
     )
   )
