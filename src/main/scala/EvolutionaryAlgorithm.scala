@@ -31,7 +31,7 @@ import scala.annotation.tailrec
 
 /**
   *
-  * @tparam A input type, represents the problem data structure
+  * @tparam A input / problem type, represents the problem data structure
   * @tparam Individual result / output type, represents solutions of the problem - the individuals
   */
 trait EvolutionaryAlgorithm[A,Individual] {
@@ -88,7 +88,7 @@ trait EvolutionaryAlgorithm[A,Individual] {
   /** Returns a new individual by recombining the given individuals. */
   def recombine(individual: Iterable[Individual]): Individual
 
-  /** Returns a new child. */
+  /** Alias for recombine. */
   final def procreate(parents: Iterable[Individual]): Individual =
     recombine(parents)
 
