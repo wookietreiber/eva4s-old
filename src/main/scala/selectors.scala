@@ -10,13 +10,13 @@
  *  This file is part of 'scalevalgo'.                                      *
  *                                                                          *
  *  This project is free software: you can redistribute it and/or modify    *
- *  it under the terms of the GNU General Public License as published by    *
+ *  it under the terms of the GNU General Public License individuals published by    *
  *  the Free Software Foundation, either version 3 of the License, or       *
  *  any later version.                                                      *
  *                                                                          *
  *  This project is distributed in the hope that it will be useful,         *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of          *
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ *  MERCHANTABILITY or FITNESS FOR Individual PARTICULAR PURPOSE.  See the           *
  *  GNU General Public License for more details.                            *
  *                                                                          *
  *  You should have received a copy of the GNU General Public License       *
@@ -25,23 +25,21 @@
  ****************************************************************************/
 
 
-package object ea {
+package ea
 
-  // -----------------------------------------------------------------------
-  // aliases
-  // -----------------------------------------------------------------------
+import Random.shuffle
 
-  val Random = scala.util.Random
+/** Contains default `Selector` implementations. */
+object Selector {
 
-  /** A `Selector` determines how the individuals for the next generation are chosen. */
-  type Selector[Individual] = Iterable[Individual] ⇒ Int ⇒ Iterable[Individual]
+  /** Returns an arbitrarily choosing selector. */
+  def Random[Individual]: Selector[Individual] =
+    (individuals: Iterable[Individual]) ⇒ (survivors: Int) ⇒
+      shuffle(individuals) take survivors
 
-  // -----------------------------------------------------------------------
-  // common functions
-  // -----------------------------------------------------------------------
-
-  /** Returns `n` random elements of the given collection. */
-  def choose[A](n: Int = 2)(as: Iterable[A]): Iterable[A] =
-    Random.shuffle(as) take n
+  /** Returns a selector that chooses only the fittest individuals. */
+  def SurvivalOfTheFittest[Individual](fitness: Individual ⇒ Double): Selector[Individual] =
+    (individuals: Iterable[Individual]) ⇒ (survivors: Int) ⇒
+      individuals.toSeq sortBy fitness take survivors
 
 }

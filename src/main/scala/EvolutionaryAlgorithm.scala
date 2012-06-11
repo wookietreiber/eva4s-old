@@ -45,6 +45,7 @@ trait EvolutionaryAlgorithm[A,Individual] {
     * @param survivors amount of survivors per generation as well as initial population / ancestors
     * @param recombinations possible recombinations / children per generation
     * @param recombinationProbability chance of recombination / child per generation
+    * @param select determines how the individuals for the next generation are chosen
     * @param mutationProbability chance of child to mutate
     */
   def apply(
@@ -52,6 +53,7 @@ trait EvolutionaryAlgorithm[A,Individual] {
       survivors: Int = 10,
       recombinations: Int = 40,
       recombinationProbability: Double = 0.3,
+      select: Selector[Individual] = Selector.SurvivalOfTheFittest(fitness),
       mutationProbability: Double = 0.3
     ): Individual = {
 
@@ -68,17 +70,13 @@ trait EvolutionaryAlgorithm[A,Individual] {
       else
         child
 
-      val nextGen = (oldGen ++ children).toSeq sortBy fitness take survivors
+      val nextGen = select(oldGen ++ children)(survivors)
 
       evolve(nextGen, generations - 1)
     }
 
     evolve(ancestors(survivors), generations)
   }
-
-  /** Selects the fittest `n` individuals. */
-  def select(n: Int)(individuals: Iterable[Individual]): Iterable[Individual] =
-    individuals.toSeq sortBy fitness take n
 
   /** Returns a randomly generated ancestor solution. */
   def ancestor: Individual
