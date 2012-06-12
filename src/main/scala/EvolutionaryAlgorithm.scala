@@ -45,17 +45,17 @@ trait EvolutionaryAlgorithm[A,Individual] {
     * @param survivors amount of survivors per generation as well as initial population / ancestors
     * @param recombinations possible recombinations / children per generation
     * @param recombinationProbability chance of recombination / child per generation
-    * @param select determines how the individuals for the next generation are chosen
     * @param mutationProbability chance of child to mutate
+    * @param select determines, how the individuals for the next generation are chosen (strategy
+    * pattern, defaults to survival of the fittest)
     */
-  def apply(
-      generations: Int = 2000,
-      survivors: Int = 10,
-      recombinations: Int = 40,
-      recombinationProbability: Double = 0.3,
-      select: Selector[Individual] = Selector.SurvivalOfTheFittest(fitness),
-      mutationProbability: Double = 0.3
-    ): Individual = {
+  def apply(generations: Int = 2000,
+            survivors: Int = 10,
+            recombinations: Int = 40,
+            recombinationProbability: Double = 0.3,
+            mutationProbability: Double = 0.3)
+           (implicit select: Selector[Individual] = Selector.SurvivalOfTheFittest(fitness))
+            : Individual = {
 
     @tailrec
     def evolve(oldGen: Iterable[Individual], generations: Int): Individual = if (generations == 0) {
