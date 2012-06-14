@@ -30,6 +30,8 @@ package tsp
 
 import ea.util.graph._
 
+import scala.annotation.tailrec
+
 import scalax.collection._
 import scalax.collection.GraphPredef._
 import scalax.collection.GraphEdge._
@@ -48,21 +50,24 @@ class TravelingSalesmanProblem[N](
   def fitness(individual: Graph[N,WDiEdge]) = weight(individual)
 
   def recombine(parents: Iterable[Graph[N,WDiEdge]]) = {
-    val adj = parents.map(neighbors).fold(Map()) { _ |+| _ }
+    val adjacencies = parents.map(neighbors).fold(Map()) { _ |+| _ }
+    val startNode = parents.head.nodes.head.value
 
-    val startNode: N = parents.head.nodes.head.value
-
+    @tailrec
     def recurse(have: List[N], currentNode: N, child: Graph[N,WDiEdge]): Graph[N,WDiEdge] = {
       if (have.size == problem.nodes.size) {
-        child + (currentNode ~> startNode % (problem.get(currentNode ~ startNode % 0).weight))
+        child + (currentNode ~%> startNode)(problem.get(currentNode ~ startNode % 0).weight)
       } else {
-        val set = adj(currentNode) filterNot have.contains
+        val remainingNodes = adjacencies(currentNode) filterNot have.contains
 
-        val filtered = adj filterNot { case (k,_) ⇒ have.contains(k) }
+        val nextNode = if (remainingNodes.nonEmpty) remainingNodes minBy { node ⇒
+          adjacencies filterNot {
+            case (key,_) ⇒ have.contains(key)
+          } apply node filterNot have.contains size
+        } else // in case remainingNodes is empty choose some remaining node
+          parents.head.nodes.toNodeInSet filterNot have.contains head
 
-        val nextNode = set minBy { node ⇒ filtered(node) filterNot have.contains size }
-
-        val nextEdge = currentNode ~> nextNode % (problem.get(currentNode ~ nextNode % 0).weight)
+        val nextEdge = (currentNode ~%> nextNode)(problem.get(currentNode ~ nextNode % 0).weight)
 
         recurse(nextNode :: have, nextNode, child + nextEdge)
       }
@@ -86,17 +91,17 @@ class TravelingSalesmanProblem[N](
       if (path.edges.size == individual.edges.size - 1) {
         Graph from (
           edges = individual.edges map { e ⇒
-            e.edge._2.value ~> e.edge._1.value % (problem.get(e.edge._2.value ~ e.edge._1.value % 0).weight)
+            (e.edge._2.value ~%> e.edge._1.value)(problem.get(e.edge._2.value ~ e.edge._1.value % 0).weight)
           }
         )
       } else {
         val pred  = start.diPredecessors.head
         val succ  = end.diSuccessors.head
 
-        val nend   = start.value ~> succ.value % (problem.get(start.value ~ succ.value % 0).weight)
-        val nstart = pred.value  ~> end.value  % (problem.get(pred.value  ~ end.value  % 0).weight)
+        val nend   = (start.value ~%> succ.value)(problem.get(start.value ~ succ.value % 0).weight)
+        val nstart = (pred.value  ~%> end.value )(problem.get(pred.value  ~ end.value  % 0).weight)
         val nedges = path.edges map { e ⇒
-          e.edge._2.value ~> e.edge._1.value % (problem.get(e.edge._2.value ~ e.edge._1.value % 0).weight)
+          (e.edge._2.value ~%> e.edge._1.value)(problem.get(e.edge._2.value ~ e.edge._1.value % 0).weight)
         }
 
         val rmes = pred.pathTo(succ) map { _.edges } getOrElse { individual.edges }
