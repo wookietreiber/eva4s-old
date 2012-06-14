@@ -25,26 +25,18 @@
  ****************************************************************************/
 
 
-package object ea {
+package ea
 
-  // -----------------------------------------------------------------------
-  // aliases
-  // -----------------------------------------------------------------------
+import Random.shuffle
 
-  val Random = scala.util.Random
+/** Contains default `Matchmaker` implementations. */
+object Matchmaker {
 
-  /** A `Matchmaker` pairs individuals up with each other. */
-  type Matchmaker[Individual] = Iterable[Individual] ⇒ Int ⇒ Iterable[Pair[Individual,Individual]]
-
-  /** A `Selector` determines how the individuals for the next generation are chosen. */
-  type Selector[Individual] = Iterable[Individual] ⇒ Int ⇒ Iterable[Individual]
-
-  // -----------------------------------------------------------------------
-  // common functions
-  // -----------------------------------------------------------------------
-
-  /** Returns `n` random elements of the given collection. */
-  def choose[A](n: Int = 2)(as: Iterable[A]): Iterable[A] =
-    Random.shuffle(as) take n
+  /** Returns an arbitrarily choosing matchmaker. */
+  def Random[Individual]: Matchmaker[Individual] =
+    (individuals: Iterable[Individual]) ⇒ (offspring: Int) ⇒ for {
+      i ← 1 to offspring
+      parents = shuffle(individuals.toIndexedSeq)
+    } yield parents(0) → parents(1)
 
 }

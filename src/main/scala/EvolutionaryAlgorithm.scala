@@ -54,7 +54,8 @@ trait EvolutionaryAlgorithm[A,Individual] {
             recombinations: Int = 40,
             recombinationProbability: Double = 0.3,
             mutationProbability: Double = 0.3)
-           (implicit select: Selector[Individual] = Selector.SurvivalOfTheFittest(fitness))
+           (implicit matchmaker: Matchmaker[Individual] = Matchmaker.Random,
+                     select: Selector[Individual] = Selector.SurvivalOfTheFittest(fitness))
             : Individual = {
 
     @tailrec
@@ -62,13 +63,10 @@ trait EvolutionaryAlgorithm[A,Individual] {
       oldGen minBy fitness
     } else {
       val children = for {
-        i ← 1 to recombinations if Random.nextDouble < recombinationProbability
-        parents = choose(2)(oldGen)
-        child   = recombine(parents)
-      } yield if (Random.nextDouble < mutationProbability)
-        mutate(child)
-      else
-        child
+        pair   ← matchmaker(oldGen)(recombinations) if Random.nextDouble < recombinationProbability
+        child  = recombine(pair)
+        mutant = mutate(mutationProbability)(child)
+      } yield mutant
 
       val nextGen = select(oldGen ++ children)(survivors)
 
@@ -86,7 +84,12 @@ trait EvolutionaryAlgorithm[A,Individual] {
     for (i ← 1 to n) yield ancestor
 
   /** Returns a new individual by recombining the given individuals. */
-  def recombine(individual: Iterable[Individual]): Individual
+  def recombine(individuals: Iterable[Individual]): Individual
+
+  /** Returns a new individual by recombining the given individuals. */
+  final def recombine(individuals: Pair[Individual,Individual]): Individual = {
+    recombine(Iterable(individuals._1, individuals._2))
+  }
 
   /** Alias for recombine. */
   final def procreate(parents: Iterable[Individual]): Individual =
@@ -94,6 +97,13 @@ trait EvolutionaryAlgorithm[A,Individual] {
 
   /** Returns a mutated individual. */
   def mutate(individual: Individual): Individual
+
+  /** Returns a possibly mutated individual. */
+  final def mutate(mutationProbability: Double)(individual: Individual): Individual =
+    if (Random.nextDouble < mutationProbability)
+      mutate(individual)
+    else
+      individual
 
   /** Returns the fitness of an individual. */
   def fitness(individual: Individual): Double
