@@ -54,8 +54,8 @@ trait EvolutionaryAlgorithm[A,Individual] {
             recombinations: Int = 40,
             recombinationProbability: Double = 0.3,
             mutationProbability: Double = 0.3)
-           (implicit matchmaker: Matchmaker[Individual] = Matchmaker.Random,
-                     select: Selector[Individual] = Selector.SurvivalOfTheFittest(fitness))
+           (implicit matchmaker: Matchmaker[Individual] = Matchmakers.Random,
+                     select: Selector[Individual] = Selectors.SurvivalOfTheFittest(fitness))
             : Individual = {
 
     @tailrec

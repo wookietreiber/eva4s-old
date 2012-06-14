@@ -28,7 +28,7 @@
 package ea
 
 /** Contains default `Selector` implementations. */
-object Selector {
+object Selectors {
 
   /** Returns an arbitrarily choosing selector. */
   def Random[Individual]: Selector[Individual] =

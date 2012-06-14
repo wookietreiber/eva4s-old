@@ -28,7 +28,7 @@
 package ea
 
 /** Contains default `Matchmaker` implementations. */
-object Matchmaker {
+object Matchmakers {
 
   /** Returns an arbitrarily choosing matchmaker. */
   def Random[Individual]: Matchmaker[Individual] =

@@ -26,6 +26,7 @@
 
 
 package ea
+package tsp
 
 import ea.util.graph._
 
