@@ -13,7 +13,10 @@ object BuildSettings {
     organization   := buildOrganization,
     version        := buildVersion,
     scalaVersion   := buildScalaVersion,
-    initialCommands in (Compile, consoleQuick) <<= initialCommands in Compile
+    initialCommands in (Compile, consoleQuick) <<= initialCommands in Compile,
+    initialCommands in Compile in console += """
+      import ea._
+    """
   )
 }
 
@@ -30,10 +33,7 @@ object ScalEvAlgoBuild extends Build {
     id        = "scalevalgo-core",
     base      = file ("core"),
     settings  = baseSettings ++ Seq (
-      crossScalaVersions := Seq("2.9.0", "2.9.0-1", "2.9.1", "2.9.1-1", "2.9.2", "2.10.0-M4"),
-      initialCommands in Compile in console += """
-        import ea._
-      """
+      crossScalaVersions := Seq("2.9.0", "2.9.0-1", "2.9.1", "2.9.1-1", "2.9.2", "2.10.0-M4")
     )
   )
 
