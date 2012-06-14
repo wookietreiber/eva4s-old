@@ -71,10 +71,11 @@ class TravelingSalesmanProblem[N](
   }
 
   def mutate(individual: Graph[N,WDiEdge]) = {
-    val nodes = choose(2)(individual.nodes)
+    val nodes = individual.nodes.toIndexedSeq
+    val s = nodes.size
 
-    val start = nodes.head
-    val end   = nodes.last
+    val start = nodes(Random.nextInt(s))
+    val end   = nodes(Random.nextInt(s))
 
     if (start == end) {
       individual

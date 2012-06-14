@@ -56,7 +56,7 @@ object graph {
 
   /** Returns a random hamiltonian cycle of the given complete graph. */
   def cycle[N](g: Graph[N,WUnDiEdge]): Graph[N,WDiEdge] = {
-    val nodes = Random.shuffle(g.nodes.toNodeInSet.toIndexedSeq)
+    val nodes = g.nodes.toNodeInSet.toIndexedSeq.shuffle
 
     Graph from (
       edges = for {

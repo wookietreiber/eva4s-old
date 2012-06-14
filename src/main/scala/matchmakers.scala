@@ -27,8 +27,6 @@
 
 package ea
 
-import Random.shuffle
-
 /** Contains default `Matchmaker` implementations. */
 object Matchmaker {
 
@@ -36,7 +34,7 @@ object Matchmaker {
   def Random[Individual]: Matchmaker[Individual] =
     (individuals: Iterable[Individual]) ⇒ (offspring: Int) ⇒ for {
       i ← 1 to offspring
-      parents = shuffle(individuals.toIndexedSeq)
-    } yield parents(0) → parents(1)
+      parents = individuals.shuffle.iterator
+    } yield parents.next → parents.next
 
 }

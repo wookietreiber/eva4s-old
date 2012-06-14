@@ -27,15 +27,13 @@
 
 package ea
 
-import Random.shuffle
-
 /** Contains default `Selector` implementations. */
 object Selector {
 
   /** Returns an arbitrarily choosing selector. */
   def Random[Individual]: Selector[Individual] =
     (individuals: Iterable[Individual]) ⇒ (survivors: Int) ⇒
-      shuffle(individuals) take survivors
+      individuals choose survivors
 
   /** Returns a selector that chooses only the fittest individuals. */
   def SurvivalOfTheFittest[Individual](fitness: Individual ⇒ Double): Selector[Individual] =

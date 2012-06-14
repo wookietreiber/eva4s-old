@@ -25,6 +25,9 @@
  ****************************************************************************/
 
 
+import scala.collection.TraversableLike
+import scala.collection.generic.CanBuildFrom
+
 package object ea {
 
   // -----------------------------------------------------------------------
@@ -40,11 +43,19 @@ package object ea {
   type Selector[Individual] = Iterable[Individual] ⇒ Int ⇒ Iterable[Individual]
 
   // -----------------------------------------------------------------------
-  // common functions
+  // pimp my collections
   // -----------------------------------------------------------------------
 
-  /** Returns `n` random elements of the given collection. */
-  def choose[A](n: Int = 2)(as: Iterable[A]): Iterable[A] =
-    Random.shuffle(as) take n
+  implicit def collectionExtras[A,CC[A] <: TraversableLike[A,CC[A]]](xs: CC[A]) = new {
+
+    /** Returns a new collection with `n` randomly chosen elements. */
+    def choose(n: Int)(implicit bf: CanBuildFrom[CC[A],A,CC[A]]): CC[A] =
+      shuffle take n
+
+    /** Returns a new, shuffled collection. */
+    def shuffle(implicit bf: CanBuildFrom[CC[A],A,CC[A]]): CC[A] =
+      Random shuffle xs
+
+  }
 
 }
