@@ -49,9 +49,9 @@ class TravelingSalesmanProblem[N](
 
   def fitness(individual: Graph[N,WDiEdge]) = weight(individual)
 
-  def recombine(parents: Iterable[Graph[N,WDiEdge]]) = {
-    val adjacencies = parents.map(neighbors).fold(Map()) { _ |+| _ }
-    val startNode = parents.head.nodes.head.value
+  def recombine(parents: Pair[Graph[N,WDiEdge],Graph[N,WDiEdge]]) = {
+    val adjacencies = neighbors(parents._1) |+| neighbors(parents._2)
+    val startNode = parents._1.nodes.head.value
 
     @tailrec
     def recurse(have: List[N], currentNode: N, child: Graph[N,WDiEdge]): Graph[N,WDiEdge] = {
@@ -65,7 +65,7 @@ class TravelingSalesmanProblem[N](
             case (key,_) ⇒ have.contains(key)
           } apply node filterNot have.contains size
         } else // in case remainingNodes is empty choose some remaining node
-          parents.head.nodes.toNodeInSet filterNot have.contains head
+          parents._1.nodes.toNodeInSet filterNot have.contains head
 
         val nextEdge = (currentNode ~%> nextNode)(problem.get(currentNode ~ nextNode % 0).weight)
 

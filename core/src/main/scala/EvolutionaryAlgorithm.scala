@@ -84,16 +84,7 @@ trait EvolutionaryAlgorithm[A,Individual] {
     for (i ← 1 to n) yield ancestor
 
   /** Returns a new individual by recombining the given individuals. */
-  def recombine(individuals: Iterable[Individual]): Individual
-
-  /** Returns a new individual by recombining the given individuals. */
-  final def recombine(individuals: Pair[Individual,Individual]): Individual = {
-    recombine(Iterable(individuals._1, individuals._2))
-  }
-
-  /** Alias for recombine. */
-  final def procreate(parents: Iterable[Individual]): Individual =
-    recombine(parents)
+  def recombine(parents: Pair[Individual,Individual]): Individual
 
   /** Returns a mutated individual. */
   def mutate(individual: Individual): Individual
