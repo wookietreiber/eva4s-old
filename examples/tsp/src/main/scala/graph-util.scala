@@ -42,7 +42,7 @@ object graph {
       a ← nodes
       b ← nodes if a != b
       w = Random.nextInt(maxWeight) + 1
-    } yield a ~ b % w
+    } yield (a ~% b)(w)
   )
 
   /** Returns the total weight of the given graph. */
@@ -64,7 +64,7 @@ object graph {
         j = (i+1) % nodes.size
         s = nodes(i)
         e = nodes(j)
-        w = g.get(s ~ e % 0).weight
+        w = g get ((s ~% e)(0)) weight
       } yield (s ~%> e)(w)
     )
   }

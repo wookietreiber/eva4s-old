@@ -56,7 +56,7 @@ class TravelingSalesmanProblem[N](
     @tailrec
     def recurse(have: List[N], currentNode: N, child: Graph[N,WDiEdge]): Graph[N,WDiEdge] = {
       if (have.size == problem.nodes.size) {
-        child + (currentNode ~%> startNode)(problem.get(currentNode ~ startNode % 0).weight)
+        child + (currentNode ~%> startNode)(problem.get((currentNode ~% startNode)(0)).weight)
       } else {
         val remainingNodes = adjacencies(currentNode) filterNot have.contains
 
@@ -67,7 +67,7 @@ class TravelingSalesmanProblem[N](
         } else // in case remainingNodes is empty choose some remaining node
           parents._1.nodes.toNodeInSet filterNot have.contains head
 
-        val nextEdge = (currentNode ~%> nextNode)(problem.get(currentNode ~ nextNode % 0).weight)
+        val nextEdge = (currentNode ~%> nextNode)(problem.get((currentNode ~% nextNode)(0)).weight)
 
         recurse(nextNode :: have, nextNode, child + nextEdge)
       }
@@ -91,17 +91,17 @@ class TravelingSalesmanProblem[N](
       if (path.edges.size == individual.edges.size - 1) {
         Graph from (
           edges = individual.edges map { e ⇒
-            (e.edge._2.value ~%> e.edge._1.value)(problem.get(e.edge._2.value ~ e.edge._1.value % 0).weight)
+            (e.edge._2.value ~%> e.edge._1.value)(problem.get((e.edge._2.value ~% e.edge._1.value)(0)).weight)
           }
         )
       } else {
         val pred  = start.diPredecessors.head
         val succ  = end.diSuccessors.head
 
-        val nend   = (start.value ~%> succ.value)(problem.get(start.value ~ succ.value % 0).weight)
-        val nstart = (pred.value  ~%> end.value )(problem.get(pred.value  ~ end.value  % 0).weight)
+        val nend   = (start.value ~%> succ.value)(problem.get((start.value ~% succ.value)(0)).weight)
+        val nstart = (pred.value  ~%> end.value )(problem.get((pred.value  ~% end.value )(0)).weight)
         val nedges = path.edges map { e ⇒
-          (e.edge._2.value ~%> e.edge._1.value)(problem.get(e.edge._2.value ~ e.edge._1.value % 0).weight)
+          (e.edge._2.value ~%> e.edge._1.value)(problem.get((e.edge._2.value ~% e.edge._1.value)(0)).weight)
         }
 
         val rmes = pred.pathTo(succ) map { _.edges } getOrElse { individual.edges }
