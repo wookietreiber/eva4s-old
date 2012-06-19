@@ -34,7 +34,8 @@ import scala.annotation.tailrec
   * @tparam Problem input / problem type, represents the problem data structure
   * @tparam Individual result / output type, represents solutions of the problem - the individuals
   */
-trait EvolutionaryAlgorithm[Problem,Individual] {
+trait EvolutionaryAlgorithm[Problem,Individual]
+  extends Selection {
 
   /** Returns the data structure representing the problem that needs to be solved. */
   def problem: Problem
@@ -56,20 +57,24 @@ trait EvolutionaryAlgorithm[Problem,Individual] {
             recombinationProbability: Double = 0.3,
             mutationProbability: Double = 0.3)
            (implicit matchmaker: Matchmaker[Individual] = Matchmakers.Random,
-                     select: Selector[Individual] = Selectors.SurvivalOfTheFittest(fitness))
+                     select: Selector[Individual] = SurvivalOfTheFittest(fitness))
             : Individual = {
 
     @tailrec
-    def evolve(oldGen: Iterable[Individual], generations: Int): Individual = if (generations == 0) {
-      oldGen minBy fitness
+    def evolve(parents: Iterable[Individual], generations: Int): Individual = if (generations == 0) {
+      parents minBy fitness
     } else {
-      val children = for {
-        pair   ← matchmaker(oldGen)(recombinations) if Random.nextDouble < recombinationProbability
+      val offspring = for {
+        pair   ← matchmaker(parents)(recombinations) if Random.nextDouble < recombinationProbability
         child  = recombine(pair)
         mutant = mutate(mutationProbability)(child)
       } yield mutant
 
-      val nextGen = select(oldGen ++ children)(survivors)
+      val nextGen = select(parents, offspring)
+
+      // bail out if there is just one individual
+      if (nextGen.size == 1)
+        return nextGen.head
 
       evolve(nextGen, generations - 1)
     }

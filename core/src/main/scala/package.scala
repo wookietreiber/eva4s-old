@@ -39,14 +39,18 @@ package object ea {
   /** A `Matchmaker` pairs individuals up with each other.
     *
     * This function models parental selection.
+    *
+    * @tparam I the type of the individuals
     */
-  type Matchmaker[Individual] = Iterable[Individual] ⇒ Int ⇒ Iterable[Pair[Individual,Individual]]
+  type Matchmaker[I] = Iterable[I] ⇒ Int ⇒ Iterable[Pair[I,I]]
 
   /** A `Selector` determines how the individuals for the next generation are chosen.
     *
-    * This function models environmental selection.
+    * @tparam I the type of the individuals
+    *
+    * @see [[ea.Selection]]
     */
-  type Selector[Individual] = Iterable[Individual] ⇒ Int ⇒ Iterable[Individual]
+  type Selector[I] = (Iterable[I], Iterable[I]) ⇒ Iterable[I]
 
   // -----------------------------------------------------------------------
   // pimp my collections
