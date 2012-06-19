@@ -42,14 +42,14 @@ import scalaz._
 import Scalaz._
 
 class TravelingSalesmanProblem[N](
-    val problem: Graph[N,WUnDiEdge])
+    override val problem: Graph[N,WUnDiEdge])
   extends EvolutionaryAlgorithm[Graph[N,WUnDiEdge],Graph[N,WDiEdge]] {
 
-  def ancestor = cycle(problem)
+  override def ancestor = cycle(problem)
 
-  def fitness(individual: Graph[N,WDiEdge]) = weight(individual)
+  override def fitness(individual: Graph[N,WDiEdge]) = weight(individual)
 
-  def recombine(parents: Pair[Graph[N,WDiEdge],Graph[N,WDiEdge]]) = {
+  override def recombine(parents: Pair[Graph[N,WDiEdge],Graph[N,WDiEdge]]) = {
     val adjacencies = neighbors(parents._1) |+| neighbors(parents._2)
     val startNode = parents._1.nodes.head.value
 
@@ -76,7 +76,7 @@ class TravelingSalesmanProblem[N](
     recurse(List(startNode), startNode, Graph.from(problem.nodes.toNodeInSet,Nil))
   }
 
-  def mutate(individual: Graph[N,WDiEdge]) = {
+  override def mutate(individual: Graph[N,WDiEdge]) = {
     val nodes = individual.nodes.toIndexedSeq
     val s = nodes.size
 
