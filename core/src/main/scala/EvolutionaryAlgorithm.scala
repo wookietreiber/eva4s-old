@@ -31,13 +31,13 @@ import scala.annotation.tailrec
 
 /**
   *
-  * @tparam A input / problem type, represents the problem data structure
+  * @tparam Problem input / problem type, represents the problem data structure
   * @tparam Individual result / output type, represents solutions of the problem - the individuals
   */
-trait EvolutionaryAlgorithm[A,Individual] {
+trait EvolutionaryAlgorithm[Problem,Individual] {
 
   /** Returns the data structure representing the problem that needs to be solved. */
-  def problem: A
+  def problem: Problem
 
   /**
     *
