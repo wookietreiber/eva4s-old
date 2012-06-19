@@ -27,10 +27,16 @@
 
 package ea
 
-/** Contains default `Matchmaker` implementations. */
+/** Contains default `Matchmaker` implementations.
+  *
+  * A `Matchmaker` models parental selection.
+  */
 object Matchmakers {
 
-  /** Returns an arbitrarily choosing matchmaker. */
+  /** Returns an arbitrarily choosing matchmaker.
+    *
+    * This is the simplest form of probabilistic matchmaking.
+    */
   def Random[Individual]: Matchmaker[Individual] =
     (individuals: Iterable[Individual]) ⇒ (offspring: Int) ⇒ for {
       i ← 1 to offspring

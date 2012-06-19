@@ -46,6 +46,7 @@ trait EvolutionaryAlgorithm[Problem,Individual] {
     * @param recombinations possible recombinations / children per generation
     * @param recombinationProbability chance of recombination / child per generation
     * @param mutationProbability chance of child to mutate
+    * @param matchmaker determines, which parents reproduce new children
     * @param select determines, how the individuals for the next generation are chosen (strategy
     * pattern, defaults to survival of the fittest)
     */

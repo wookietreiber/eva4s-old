@@ -36,10 +36,16 @@ package object ea {
 
   val Random = scala.util.Random
 
-  /** A `Matchmaker` pairs individuals up with each other. */
+  /** A `Matchmaker` pairs individuals up with each other.
+    *
+    * This function models parental selection.
+    */
   type Matchmaker[Individual] = Iterable[Individual] ⇒ Int ⇒ Iterable[Pair[Individual,Individual]]
 
-  /** A `Selector` determines how the individuals for the next generation are chosen. */
+  /** A `Selector` determines how the individuals for the next generation are chosen.
+    *
+    * This function models environmental selection.
+    */
   type Selector[Individual] = Iterable[Individual] ⇒ Int ⇒ Iterable[Individual]
 
   // -----------------------------------------------------------------------

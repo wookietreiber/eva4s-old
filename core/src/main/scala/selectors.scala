@@ -27,15 +27,24 @@
 
 package ea
 
-/** Contains default `Selector` implementations. */
+/** Contains default `Selector` implementations.
+  *
+  * A `Selector` models environmental selection.
+  */
 object Selectors {
 
-  /** Returns an arbitrarily choosing selector. */
+  /** Returns an arbitrarily choosing selector.
+    *
+    * This is the simplest form of probabilistic selection.
+    */
   def Random[Individual]: Selector[Individual] =
     (individuals: Iterable[Individual]) ⇒ (survivors: Int) ⇒
       individuals choose survivors
 
-  /** Returns a selector that chooses only the fittest individuals. */
+  /** Returns a selector that chooses only the fittest individuals.
+    *
+    * This is also known as deterministic selection.
+    */
   def SurvivalOfTheFittest[Individual](fitness: Individual ⇒ Double): Selector[Individual] =
     (individuals: Iterable[Individual]) ⇒ (survivors: Int) ⇒
       individuals.toSeq sortBy fitness take survivors
