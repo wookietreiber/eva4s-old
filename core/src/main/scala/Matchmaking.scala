@@ -1,8 +1,7 @@
 /* **************************************************************************
  *                                                                          *
- *  Copyright (C)  2012  Nils Foken, Christian Krause                       *
+ *  Copyright (C)  2012  Christian Krause                                   *
  *                                                                          *
- *  Nils Foken        <nils.foken@it2009.ba-leipzig.de>                     *
  *  Christian Krause  <christian.krause@it2009.ba-leipzig.de>               *
  *                                                                          *
  ****************************************************************************
@@ -25,51 +24,60 @@
  ****************************************************************************/
 
 
-import scala.collection.TraversableLike
-import scala.collection.generic.CanBuildFrom
+package ea
 
-/**
+/** $matchmakinginfo */
+object Matchmaking extends Matchmaking
+
+/** $matchmakinginfo
   *
+  * @define matchmakinginfo Contains default [[ea.Matchmaker]] implementations which define parental
+  * selection.
+  *
+  * The idiomatic usage of the functions defined here is to input the parameters of the first
+  * parameter list(s) and use the remaining function as a [[ea.Matchmaker]].
+  *
+  * @see [[ea.Matchmaker]]
+  *
+  * @define acceptance chance of a pair accepting the match
   * @define individuals the type of the individuals
+  * @define pairs the amount of pairs generated
+  * @define parents the parents of the generation
   */
-package object ea {
+trait Matchmaking {
 
   // -----------------------------------------------------------------------
-  // aliases
+  // probabilistic matchmaking
   // -----------------------------------------------------------------------
 
-  val Random = scala.util.Random
-
-  /** A `Matchmaker` pairs individuals up with each other.
+  /** Returns a fixed amount of arbitrary pairs of individuals. This is the simplest form of
+    * probabilistic matchmaking.
     *
     * @tparam I $individuals
     *
-    * @see [[ea.Matchmaking]]
+    * @param pairs $pairs
+    * @param parents $parents
     */
-  type Matchmaker[I] = Iterable[I] ⇒ Iterable[Pair[I,I]]
+  def RandomForcedMatchmaker[I](pairs: Int)
+                               (parents: Iterable[I])
+                                : Iterable[Pair[I,I]] = for {
+    i ← 1 to pairs
+    shuffled = parents.shuffle.iterator
+  } yield shuffled.next → shuffled.next
 
-  /** A `Selector` determines how the individuals for the next generation are chosen.
+  /** Returns a varying amount of arbitrary pairs of individuals.
     *
     * @tparam I $individuals
     *
-    * @see [[ea.Selection]]
+    * @param pairs $pairs
+    * @param acceptance $acceptance
+    * @param parents $parents
     */
-  type Selector[I] = (Iterable[I], Iterable[I]) ⇒ Iterable[I]
-
-  // -----------------------------------------------------------------------
-  // pimp my collections
-  // -----------------------------------------------------------------------
-
-  implicit def collectionExtras[A,CC[A] <: TraversableLike[A,CC[A]]](xs: CC[A]) = new {
-
-    /** Returns a new collection with `n` randomly chosen elements. */
-    def choose(n: Int)(implicit bf: CanBuildFrom[CC[A],A,CC[A]]): CC[A] =
-      shuffle take n
-
-    /** Returns a new, shuffled collection. */
-    def shuffle(implicit bf: CanBuildFrom[CC[A],A,CC[A]]): CC[A] =
-      Random shuffle xs
-
-  }
+  def RandomAcceptanceMatchmaker[I](pairs: Int, acceptance: Double)
+                                   (parents: Iterable[I])
+                                    : Iterable[Pair[I,I]] = for {
+    i ← 1 to pairs if Random.nextDouble < acceptance
+    shuffled = parents.shuffle.iterator
+  } yield shuffled.next → shuffled.next
 
 }

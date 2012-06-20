@@ -35,7 +35,7 @@ import scala.annotation.tailrec
   * @tparam Individual result / output type, represents solutions of the problem - the individuals
   */
 trait EvolutionaryAlgorithm[Problem,Individual]
-  extends Selection {
+  extends Matchmaking with Selection {
 
   /** Returns the data structure representing the problem that needs to be solved. */
   def problem: Problem
@@ -44,28 +44,24 @@ trait EvolutionaryAlgorithm[Problem,Individual]
     *
     * @param generations amount of generations until the solution is chosen
     * @param survivors amount of survivors per generation as well as initial population / ancestors
-    * @param recombinations possible recombinations / children per generation
-    * @param recombinationProbability chance of recombination / child per generation
     * @param mutationProbability chance of child to mutate
     * @param matchmaker determines, which parents reproduce new children
     * @param select determines, how the individuals for the next generation are chosen (strategy
     * pattern, defaults to survival of the fittest)
     */
-  def apply(generations: Int = 2000,
-            survivors: Int = 10,
-            recombinations: Int = 40,
-            recombinationProbability: Double = 0.3,
+  def apply(generations: Int = 200,
+            survivors: Int = 23,
             mutationProbability: Double = 0.3)
-           (implicit matchmaker: Matchmaker[Individual] = Matchmakers.Random,
+           (implicit matchmaker: Matchmaker[Individual] = RandomAcceptanceMatchmaker(100, 0.7),
                      select: Selector[Individual] = SurvivalOfTheFittest(fitness))
             : Individual = {
 
     @tailrec
-    def evolve(parents: Iterable[Individual], generations: Int): Individual = if (generations == 0) {
+    def evolve(parents: Iterable[Individual], generation: Int): Individual = if (generation == generations) {
       parents minBy fitness
     } else {
       val offspring = for {
-        pair   ← matchmaker(parents)(recombinations) if Random.nextDouble < recombinationProbability
+        pair   ← matchmaker(parents)
         child  = recombine(pair)
         mutant = mutate(mutationProbability)(child)
       } yield mutant
@@ -76,10 +72,10 @@ trait EvolutionaryAlgorithm[Problem,Individual]
       if (nextGen.size == 1)
         return nextGen.head
 
-      evolve(nextGen, generations - 1)
+      evolve(parents = nextGen, generation = generation + 1)
     }
 
-    evolve(ancestors(survivors), generations)
+    evolve(parents = ancestors(survivors), generation = 1)
   }
 
   /** Returns a randomly generated ancestor solution. */

@@ -35,7 +35,7 @@ object Selection extends Selection
   * @define selectioninfo Contains default [[ea.Selector]] implementations which define environmental selection.
   *
   * The idiomatic usage of the functions defined here is to input the parameters of the first
-  * parameter list(s) and use the remaining function as a `Selector`.
+  * parameter list(s) and use the remaining function as a [[ea.Selector]].
   *
   * @see [[ea.Selector]]
   *
@@ -118,9 +118,9 @@ trait Selection {
     * @param parents $parents
     * @param offspring $offspring
     */
-  def Probabilistic[I](survivors: Int)
-                      (parents: Iterable[I], offspring: Iterable[I])
-                       : Iterable[I] =
+  def RandomSelection[I](survivors: Int)
+                        (parents: Iterable[I], offspring: Iterable[I])
+                         : Iterable[I] =
     (parents ++ offspring) choose survivors
 
 }
