@@ -1,8 +1,7 @@
 /* **************************************************************************
  *                                                                          *
- *  Copyright (C)  2012  Nils Foken, Christian Krause                       *
+ *  Copyright (C)  2012  Christian Krause                                   *
  *                                                                          *
- *  Nils Foken        <nils.foken@it2009.ba-leipzig.de>                     *
  *  Christian Krause  <christian.krause@it2009.ba-leipzig.de>               *
  *                                                                          *
  ****************************************************************************
@@ -32,18 +31,18 @@ object Selection extends Selection
 
 /** $selectioninfo
   *
-  * @define selectioninfo Contains default [[ea.Selector]] implementations which define environmental selection.
+  * @define selectioninfo Contains default [[ea.Selector]] implementations which define
+  * environmental selection.
   *
-  * The idiomatic usage of the functions defined here is to input the parameters of the first
+  * The idiomatic usage of the functions defined here is to fill in the parameters of the first
   * parameter list(s) and use the remaining function as a [[ea.Selector]].
   *
   * @see [[ea.Selector]]
   *
-  * @define individuals the type of the individuals
+  * @define genome the type of the genome of the individuals
   * @define mu the amount of chosen children
   * @define parents the parents of the generation
   * @define offspring the offspring of the generation
-  * @define fitness function to determine the fitness of individuals
   */
 trait Selection {
 
@@ -61,49 +60,45 @@ trait Selection {
     * '''Note:''' The parents (the survivors of the previous generation) are not considered with
     * this kind of selection.
     *
-    * @tparam I $individuals
+    * @tparam G $genome
     *
-    * @param fitness $fitness
     * @param survivors $mu, default is `μ = λ/6`
     * @param parents $parents
     * @param offspring $offspring, determines `λ = offspring.size`
     */
-  def CommaSelection[I,F:Ordering](fitness: I ⇒ F,
-                                   survivors: Int ⇒ Int = (λ: Int) ⇒ math.round(λ.toFloat / 6))
-                                  (parents: Iterable[I], offspring: Iterable[I])
-                                   : Iterable[I] =
-    offspring.toSeq sortBy fitness take survivors(offspring.size)
+  def CommaSelection[G](survivors: Int ⇒ Int = (λ: Int) ⇒ math.round(λ.toFloat / 6))
+                       (parents: Iterable[Individual[G]], offspring: Iterable[Individual[G]])
+                        : Iterable[Individual[G]] =
+    offspring.toSeq sortBy { _.fitness } take survivors(offspring.size)
 
   /** Returns the fittest individuals.
     *
     * Plus selection (aka (μ+λ) selection) represents an elitist selection, which deterministically
     * chooses the best μ individuals from all individuals (`parents ++ offspring`, i.e. `μ+λ`).
     *
-    * @tparam I $individuals
+    * @tparam G $genome
     *
-    * @param fitness $fitness
     * @param parents $parents, determines `μ = parents.size`
     * @param offspring $offspring, determines `λ = offspring.size`
     */
-  def PlusSelection[I,F:Ordering](fitness: I ⇒ F)
-                                 (parents: Iterable[I], offspring: Iterable[I])
-                                  : Iterable[I] =
-    (parents ++ offspring).toSeq sortBy fitness take parents.size
+  def PlusSelection[G](parents: Iterable[Individual[G]],
+                       offspring: Iterable[Individual[G]])
+                       : Iterable[Individual[G]] =
+    (parents ++ offspring).toSeq sortBy { _.fitness } take parents.size
 
   /** Returns the fittest individuals. This is an alias for [[ea.Selection#PlusSelection]].
     *
-    * @tparam I $individuals
+    * @tparam G $genome
     *
-    * @param fitness $fitness
     * @param parents $parents, determines `μ = parents.size`
     * @param offspring $offspring, determines `λ = offspring.size`
     *
     * @see [[ea.Selection#PlusSelection]]
     */
-  def SurvivalOfTheFittest[I,F:Ordering](fitness: I ⇒ F)
-                                        (parents: Iterable[I], offspring: Iterable[I])
-                                         : Iterable[I] =
-    PlusSelection(fitness)(parents,offspring)
+  def SurvivalOfTheFittest[G](parents: Iterable[Individual[G]],
+                              offspring: Iterable[Individual[G]])
+                              : Iterable[Individual[G]] =
+    PlusSelection(parents,offspring)
 
   // -----------------------------------------------------------------------
   // probabilistic selection
@@ -112,15 +107,15 @@ trait Selection {
   /** Returns individuals arbitrarily from both `parents` and `offspring`. This is the simplest form
     * of probabilistic selection.
     *
-    * @tparam I $individuals
+    * @tparam G $genome
     *
     * @param survivors $mu
     * @param parents $parents
     * @param offspring $offspring
     */
-  def RandomSelection[I](survivors: Int)
-                        (parents: Iterable[I], offspring: Iterable[I])
-                         : Iterable[I] =
+  def RandomSelection[G](survivors: Int)
+                        (parents: Iterable[Individual[G]], offspring: Iterable[Individual[G]])
+                         : Iterable[Individual[G]] =
     (parents ++ offspring) choose survivors
 
 }

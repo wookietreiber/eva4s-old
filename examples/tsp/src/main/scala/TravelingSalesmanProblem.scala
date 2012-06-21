@@ -43,7 +43,7 @@ import Scalaz._
 
 class TravelingSalesmanProblem[N](
     override val problem: Graph[N,WUnDiEdge])
-  extends EvolutionaryAlgorithm[Graph[N,WUnDiEdge],Graph[N,WDiEdge]] {
+  extends EvolutionaryAlgorithm[Graph[N,WDiEdge],Graph[N,WUnDiEdge]] {
 
   override def ancestor = cycle(problem)
 

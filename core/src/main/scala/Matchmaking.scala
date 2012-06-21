@@ -40,7 +40,7 @@ object Matchmaking extends Matchmaking
   * @see [[ea.Matchmaker]]
   *
   * @define acceptance chance of a pair accepting the match
-  * @define individuals the type of the individuals
+  * @define genome the type of the genome of the individuals
   * @define pairs the amount of pairs generated
   * @define parents the parents of the generation
   */
@@ -53,29 +53,29 @@ trait Matchmaking {
   /** Returns a fixed amount of arbitrary pairs of individuals. This is the simplest form of
     * probabilistic matchmaking.
     *
-    * @tparam I $individuals
+    * @tparam G $genome
     *
     * @param pairs $pairs
     * @param parents $parents
     */
-  def RandomForcedMatchmaker[I](pairs: Int)
-                               (parents: Iterable[I])
-                                : Iterable[Pair[I,I]] = for {
+  def RandomForcedMatchmaker[G](pairs: Int)
+                               (parents: Iterable[Individual[G]])
+                                : Iterable[Pair[Individual[G],Individual[G]]] = for {
     i ← 1 to pairs
     shuffled = parents.shuffle.iterator
   } yield shuffled.next → shuffled.next
 
   /** Returns a varying amount of arbitrary pairs of individuals.
     *
-    * @tparam I $individuals
+    * @tparam G $genome
     *
     * @param pairs $pairs
     * @param acceptance $acceptance
     * @param parents $parents
     */
-  def RandomAcceptanceMatchmaker[I](pairs: Int, acceptance: Double)
-                                   (parents: Iterable[I])
-                                    : Iterable[Pair[I,I]] = for {
+  def RandomAcceptanceMatchmaker[G](pairs: Int, acceptance: Double)
+                                   (parents: Iterable[Individual[G]])
+                                    : Iterable[Pair[Individual[G],Individual[G]]] = for {
     i ← 1 to pairs if Random.nextDouble < acceptance
     shuffled = parents.shuffle.iterator
   } yield shuffled.next → shuffled.next

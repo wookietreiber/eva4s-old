@@ -31,46 +31,53 @@ import scala.annotation.tailrec
 
 /**
   *
-  * @tparam Problem input / problem type, represents the problem data structure
-  * @tparam Individual result / output type, represents solutions of the problem - the individuals
+  * @tparam G the type of the genome of the individuals, represents a solution of the problem
+  * @tparam P input / problem type, represents the problem data structure
   */
-trait EvolutionaryAlgorithm[Problem,Individual]
+trait EvolutionaryAlgorithm[G,P]
   extends Matchmaking with Selection {
 
   /** Returns the data structure representing the problem that needs to be solved. */
-  def problem: Problem
+  def problem: P
 
   /**
     *
     * @param generations amount of generations until the solution is chosen
     * @param survivors amount of survivors per generation as well as initial population / ancestors
     * @param mutationProbability chance of child to mutate
-    * @param matchmaker determines, which parents reproduce new children
-    * @param select determines, how the individuals for the next generation are chosen (strategy
-    * pattern, defaults to survival of the fittest)
+    * @param matchmaker determines, which parents reproduce new children (strategy pattern, defaults
+    * to [[ea.Matchmaking#RandomAcceptanceMatchmaker]])
+    * @param selector determines, how the individuals for the next generation are chosen (strategy
+    * pattern, defaults to [[ea.Selection#SurvivalOfTheFittest]])
+    * @param debugger can be used to do some side effekt with the current generation and its optimal
+    * fitness, e.g. print it: `debugger = Some((g,f) ⇒ printf("gen: %5d     fit: %f\n", g, f))`
     */
   def apply(generations: Int = 200,
             survivors: Int = 23,
             mutationProbability: Double = 0.3)
-           (implicit matchmaker: Matchmaker[Individual] = RandomAcceptanceMatchmaker(100, 0.7),
-                     select: Selector[Individual] = SurvivalOfTheFittest(fitness))
-            : Individual = {
+           (implicit matchmaker: Matchmaker[G] = RandomAcceptanceMatchmaker(100, 0.7),
+                     selector: Selector[G] = SurvivalOfTheFittest,
+                     debugger: Option[(Int,Double) ⇒ Unit] = None)
+            : Individual[G] = {
 
     @tailrec
-    def evolve(parents: Iterable[Individual], generation: Int): Individual = if (generation == generations) {
-      parents minBy fitness
+    def evolve(parents: Iterable[Individual[G]], generation: Int): Individual[G] = if (generation == generations) {
+      parents minBy { _.fitness }
     } else {
       val offspring = for {
         pair   ← matchmaker(parents)
-        child  = recombine(pair)
-        mutant = mutate(mutationProbability)(child)
-      } yield mutant
+        child  = recombine(mutationProbability)(pair)
+      } yield child
 
-      val nextGen = select(parents, offspring)
+      val nextGen = selector(parents, offspring)
 
-      // bail out if there is just one individual
+      // bail out if there is just one individual left
       if (nextGen.size == 1)
         return nextGen.head
+
+      debugger foreach { debug ⇒
+        debug(generation, nextGen minBy { _.fitness } fitness)
+      }
 
       evolve(parents = nextGen, generation = generation + 1)
     }
@@ -79,26 +86,33 @@ trait EvolutionaryAlgorithm[Problem,Individual]
   }
 
   /** Returns a randomly generated ancestor solution. */
-  def ancestor: Individual
+  def ancestor: G
 
   /** Returns the initial population. */
-  def ancestors(n: Int): Iterable[Individual] =
-    for (i ← 1 to n) yield ancestor
+  final def ancestors(n: Int): Iterable[Individual[G]] = for {
+    i ← 1 to n
+    genome = ancestor
+  } yield Individual(genome, fitness(genome))
 
-  /** Returns a new individual by recombining the given individuals. */
-  def recombine(parents: Pair[Individual,Individual]): Individual
+  /** Returns a new genome by recombination. */
+  def recombine(parents: Pair[G,G]): G
 
-  /** Returns a mutated individual. */
-  def mutate(individual: Individual): Individual
+  /** Returns a new individual by recombination. */
+  final def recombine(mutationProbability: Double)
+                     (parents: Pair[Individual[G],Individual[G]])
+                      : Individual[G] = {
+    var genome = recombine(parents._1.genome → parents._2.genome)
 
-  /** Returns a possibly mutated individual. */
-  final def mutate(mutationProbability: Double)(individual: Individual): Individual =
     if (Random.nextDouble < mutationProbability)
-      mutate(individual)
-    else
-      individual
+      genome = mutate(genome)
 
-  /** Returns the fitness of an individual. */
-  def fitness(individual: Individual): Double
+    Individual(genome, fitness(genome))
+  }
+
+  /** Returns a mutated genome. */
+  def mutate(genome: G): G
+
+  /** Returns the fitness of a genome. */
+  def fitness(genome: G): Double
 
 }

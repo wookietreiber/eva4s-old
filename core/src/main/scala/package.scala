@@ -30,9 +30,18 @@ import scala.collection.generic.CanBuildFrom
 
 /**
   *
-  * @define individuals the type of the individuals
+  * @define genome the type of the genome of the individuals
   */
 package object ea {
+
+  /** Represents an individual with its genome and fitness.
+    *
+    * @tparam G the type of the genome of the individuals
+    *
+    * @param genome Returns the genome of this individual.
+    * @param fitness Returns the fitness of this individual.
+    */
+  case class Individual[G](genome: G, fitness: Double)
 
   // -----------------------------------------------------------------------
   // aliases
@@ -42,19 +51,19 @@ package object ea {
 
   /** A `Matchmaker` pairs individuals up with each other.
     *
-    * @tparam I $individuals
+    * @tparam G $genome
     *
     * @see [[ea.Matchmaking]]
     */
-  type Matchmaker[I] = Iterable[I] ⇒ Iterable[Pair[I,I]]
+  type Matchmaker[G] = Iterable[Individual[G]] ⇒ Iterable[Pair[Individual[G],Individual[G]]]
 
   /** A `Selector` determines how the individuals for the next generation are chosen.
     *
-    * @tparam I $individuals
+    * @tparam G $genome
     *
     * @see [[ea.Selection]]
     */
-  type Selector[I] = (Iterable[I], Iterable[I]) ⇒ Iterable[I]
+  type Selector[G] = (Iterable[Individual[G]], Iterable[Individual[G]]) ⇒ Iterable[Individual[G]]
 
   // -----------------------------------------------------------------------
   // pimp my collections
