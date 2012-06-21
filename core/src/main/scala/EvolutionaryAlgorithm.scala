@@ -85,7 +85,7 @@ trait EvolutionaryAlgorithm[G,P]
     evolve(parents = ancestors(survivors), generation = 1)
   }
 
-  /** Returns a randomly generated ancestor solution. */
+  /** Returns a randomly generated genome. */
   def ancestor: G
 
   /** Returns the initial population. */
