@@ -113,9 +113,8 @@ trait Selection {
     * @param parents $parents
     * @param offspring $offspring
     */
-  def RandomSelection[G](survivors: Int)
-                        (parents: Iterable[Individual[G]], offspring: Iterable[Individual[G]])
+  def RandomSelection[G](parents: Iterable[Individual[G]], offspring: Iterable[Individual[G]])
                          : Iterable[Individual[G]] =
-    (parents ++ offspring) choose survivors
+    (parents ++ offspring) choose parents.size
 
 }
