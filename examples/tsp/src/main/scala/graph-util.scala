@@ -36,14 +36,20 @@ import scalax.collection.edge.Implicits._
 
 object graph {
 
-  /** Returns a complete, undirected graph with random weights. */
-  def completeWUnDiGraph[N](nodes: Iterable[N], maxWeight: Int): Graph[N,WUnDiEdge] = Graph from (
+  /** Returns a complete, undirected graph. */
+  def completeWUnDiGraph[N](nodes: Iterable[N])(f: (N,N) ⇒ Long): Graph[N,WUnDiEdge] = Graph from (
     edges = for {
       a ← nodes
       b ← nodes if a != b
-      w = Random.nextInt(maxWeight) + 1
+      w = f(a,b)
     } yield (a ~% b)(w)
   )
+
+  /** Returns a complete, undirected graph with random weights. */
+  def completeWUnDiGraph[N](nodes: Iterable[N], maxWeight: Int): Graph[N,WUnDiEdge] =
+    completeWUnDiGraph(nodes) { (_,_) ⇒
+      Random.nextInt(maxWeight) + 1
+    }
 
   /** Returns the total weight of the given graph. */
   def weight[N,E[X] <: EdgeLikeIn[X]](g: Graph[N,E]): Long =
