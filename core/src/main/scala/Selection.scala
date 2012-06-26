@@ -50,6 +50,17 @@ trait Selection {
   // deterministic selection
   // -----------------------------------------------------------------------
 
+  /** Returns the offspring. This is a simple deterministic `Selector` that chooses all children and
+    * lets all parents die.
+    *
+    * @tparam G $genome
+    *
+    * @param parents $parents
+    * @param offspring $offspring
+    */
+  def ChildSelection[G](parents: Iterable[Individual[G]], offspring: Iterable[Individual[G]])
+                        : Iterable[Individual[G]] = offspring
+
   /** Returns the fittest offspring.
     *
     * Comma selection (aka (μ,λ) selection) represents an elitist selection, which deterministically
@@ -109,8 +120,7 @@ trait Selection {
     *
     * @tparam G $genome
     *
-    * @param survivors $mu
-    * @param parents $parents
+    * @param parents $parents, determines `μ = parents.size`
     * @param offspring $offspring
     */
   def RandomSelection[G](parents: Iterable[Individual[G]], offspring: Iterable[Individual[G]])
