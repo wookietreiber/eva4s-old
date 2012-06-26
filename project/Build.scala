@@ -40,7 +40,7 @@ object ScalEvAlgoBuild extends Build {
   lazy val examples = Project (
     id        = "scalevalgo-examples",
     base      = file ("examples"),
-    aggregate = Seq ( tsp ),
+    aggregate = Seq ( foo, tsp ),
     settings  = baseSettings
   )
 
@@ -60,6 +60,17 @@ object ScalEvAlgoBuild extends Build {
       initialCommands in Compile in console += """
         import ea.util.graph._
         import ea.tsp._
+      """
+    ),
+    dependencies = Seq ( core )
+  )
+
+  lazy val foo = Project (
+    id        = "scalevalgo-foo",
+    base      = file ("examples/foo"),
+    settings  = baseSettings ++ Seq (
+      initialCommands in Compile in console += """
+        import ea.foo._
       """
     ),
     dependencies = Seq ( core )
