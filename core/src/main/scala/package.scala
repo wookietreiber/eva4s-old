@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 
+import scala.collection.GenTraversableOnce
 import scala.collection.TraversableLike
 import scala.collection.generic.CanBuildFrom
 
@@ -78,6 +79,26 @@ package object ea {
     /** Returns a new, shuffled collection. */
     def shuffle(implicit bf: CanBuildFrom[CC[A],A,CC[A]]): CC[A] =
       Random shuffle xs
+
+  }
+
+  implicit def genCollectionExtras[A,CC[A] <: GenTraversableOnce[A]](xs: CC[A]) = new {
+
+    /** Returns the average of the elements in this collection. */
+    def average(implicit num: Numeric[A]): Double = {
+      import num._
+      xs.sum.toDouble / xs.size
+    }
+
+    /** Returns the average of the results of the applied function.
+      *
+      * `coll averageBy f` is equivalent to `coll map f average` but does not entail the overhead
+      * of creating a new collection.
+      */
+    def averageBy[B](f: A ⇒ B)(implicit num: Numeric[B]): Double = {
+      import num._
+      xs.foldLeft(zero)(_ + f(_)).toDouble / xs.size
+    }
 
   }
 
