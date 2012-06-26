@@ -73,7 +73,7 @@ class TravelingSalesmanProblem[N](
       }
     }
 
-    recurse(List(startNode), startNode, Graph.from(problem.nodes.toNodeInSet,Nil))
+    Seq(recurse(List(startNode), startNode, Graph.from(problem.nodes.toNodeInSet,Nil)))
   }
 
   override def mutate(individual: Graph[N,WDiEdge]) = {

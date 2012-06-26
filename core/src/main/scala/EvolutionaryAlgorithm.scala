@@ -65,8 +65,8 @@ trait EvolutionaryAlgorithm[G,P]
       parents minBy { _.fitness }
     } else {
       val offspring = for {
-        pair   ← matchmaker(parents)
-        child  = recombine(mutationProbability)(pair)
+        pair  ← matchmaker(parents)
+        child ← recombine(mutationProbability)(pair)
       } yield child
 
       val nextGen = selector(parents, offspring)
@@ -95,19 +95,15 @@ trait EvolutionaryAlgorithm[G,P]
   } yield Individual(genome, fitness(genome))
 
   /** Returns a new genome by recombination. */
-  def recombine(parents: Pair[G,G]): G
+  def recombine(parents: Pair[G,G]): Iterable[G]
 
   /** Returns a new individual by recombination. */
   final def recombine(mutationProbability: Double)
                      (parents: Pair[Individual[G],Individual[G]])
-                      : Individual[G] = {
-    var genome = recombine(parents._1.genome → parents._2.genome)
-
-    if (Random.nextDouble < mutationProbability)
-      genome = mutate(genome)
-
-    Individual(genome, fitness(genome))
-  }
+                      : Iterable[Individual[G]] = for {
+    genome ← recombine(parents._1.genome → parents._2.genome)
+    mutant = if (Random.nextDouble < mutationProbability) mutate(genome) else genome
+  } yield Individual(mutant, fitness(mutant))
 
   /** Returns a mutated genome. */
   def mutate(genome: G): G
