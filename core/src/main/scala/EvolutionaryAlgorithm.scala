@@ -50,14 +50,14 @@ trait EvolutionaryAlgorithm[G,P]
     * @param selector determines, how the individuals for the next generation are chosen (strategy
     * pattern, defaults to [[ea.Selection#SurvivalOfTheFittest]])
     * @param debugger can be used to do some side effekt with the current generation and its optimal
-    * fitness, e.g. print it: `debugger = Some((g,f) ⇒ printf("gen: %5d     fit: %f\n", g, f))`
+    * fitness, e.g. print it: `debugger = printer`
     */
   def apply(generations: Int = 200,
             survivors: Int = 23,
             mutationProbability: Double = 0.3)
            (implicit matchmaker: Matchmaker[G] = RandomAcceptanceMatchmaker(100, 0.7),
                      selector: Selector[G] = SurvivalOfTheFittest,
-                     debugger: Option[(Int,Double) ⇒ Unit] = None)
+                     debugger: Option[(Int,Double,Double) ⇒ Unit] = None)
             : Individual[G] = {
 
     @tailrec
@@ -76,7 +76,7 @@ trait EvolutionaryAlgorithm[G,P]
         return nextGen.head
 
       debugger foreach { debug ⇒
-        debug(generation, nextGen minBy { _.fitness } fitness)
+        debug(generation, selectionIntensity(parents ++ offspring, nextGen), nextGen averageBy { _.fitness })
       }
 
       evolve(parents = nextGen, generation = generation + 1)
@@ -114,5 +114,17 @@ trait EvolutionaryAlgorithm[G,P]
 
   /** Returns the fitness of a genome. */
   def fitness(genome: G): Double
+
+  /** Returns the selection intensity of the given generation. */
+  def selectionIntensity(oldGen: Iterable[Individual[G]], newGen: Iterable[Individual[G]]): Double = {
+    val fselbar = newGen averageBy { _.fitness }
+    val fbar    = oldGen averageBy { _.fitness }
+
+    val sigma = math.sqrt(
+      (1.0 / (oldGen.size - 1)) * ((oldGen map { i ⇒ math.pow(fbar - i.fitness, 2) }).sum)
+    )
+
+    if (sigma != 0.0) (fselbar - fbar) / sigma else 0.0
+  }
 
 }

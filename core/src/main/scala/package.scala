@@ -102,4 +102,9 @@ package object ea {
 
   }
 
+  /** Returns some debugger function. */
+  val printer: Option[(Int,Double,Double) ⇒ Unit] = Some { (g: Int, i: Double, f: Double) ⇒
+    printf("generation: %5d   intensity: %5.4f   average fitness: %f\n", g, i, f)
+  }
+
 }
