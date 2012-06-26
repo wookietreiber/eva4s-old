@@ -2,7 +2,10 @@
 
 This project was started as an exercise to implement the [Evolutionary Algorithms][ea] (EA) learned
 during an eponymous computer science lecture using the programming language [Scala][scala].
-Currently implemented algorithms include:
+
+## Examples
+
+Currently implemented example algorithms include:
 
 -   [Traveling Salesman Problem (TSP)][tsp]
 
