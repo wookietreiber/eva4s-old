@@ -40,8 +40,15 @@ object ScalEvAlgoBuild extends Build {
   lazy val examples = Project (
     id        = "scalevalgo-examples",
     base      = file ("examples"),
-    aggregate = Seq ( tsp ),
+    aggregate = Seq ( template, tsp ),
     settings  = baseSettings
+  )
+
+  lazy val template = Project (
+    id           = "scalevalgo-example-template",
+    base         = file ("examples/template"),
+    settings     = baseSettings,
+    dependencies = Seq ( core )
   )
 
   lazy val tsp = Project (
