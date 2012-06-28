@@ -41,7 +41,7 @@ import scalax.collection.edge.Implicits._
 import scalaz._
 import Scalaz._
 
-class TravelingSalesmanProblem[N](
+class TravelingSalesmanProblem[N: Manifest](
     override val problem: Graph[N,WUnDiEdge])
   extends EvolutionaryAlgorithm[Graph[N,WDiEdge],Graph[N,WUnDiEdge]] {
 

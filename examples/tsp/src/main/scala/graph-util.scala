@@ -37,7 +37,7 @@ import scalax.collection.edge.Implicits._
 object graph {
 
   /** Returns a complete, undirected graph. */
-  def completeWUnDiGraph[N](nodes: Iterable[N])(f: (N,N) ⇒ Long): Graph[N,WUnDiEdge] = Graph from (
+  def completeWUnDiGraph[N: Manifest](nodes: Iterable[N])(f: (N,N) ⇒ Long): Graph[N,WUnDiEdge] = Graph from (
     edges = for {
       a ← nodes
       b ← nodes if a != b
@@ -46,7 +46,7 @@ object graph {
   )
 
   /** Returns a complete, undirected graph with random weights. */
-  def completeWUnDiGraph[N](nodes: Iterable[N], maxWeight: Int): Graph[N,WUnDiEdge] =
+  def completeWUnDiGraph[N: Manifest](nodes: Iterable[N], maxWeight: Int): Graph[N,WUnDiEdge] =
     completeWUnDiGraph(nodes) { (_,_) ⇒
       Random.nextInt(maxWeight) + 1
     }
@@ -61,7 +61,7 @@ object graph {
   } toMap
 
   /** Returns a random hamiltonian cycle of the given complete graph. */
-  def cycle[N](g: Graph[N,WUnDiEdge]): Graph[N,WDiEdge] = {
+  def cycle[N: Manifest](g: Graph[N,WUnDiEdge]): Graph[N,WDiEdge] = {
     val nodes = g.nodes.toNodeInSet.toIndexedSeq.shuffle
 
     Graph from (
