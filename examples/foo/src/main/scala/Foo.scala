@@ -63,30 +63,82 @@ object Foo {
     children
   }
 
-  def IntermediateCrossover = sys.error("unimplemented")
+  def IntermediateCrossover(parents: Pair[Vector[Double],Vector[Double]]): Iterable[Vector[Double]] = {
+    require(parents._1.size == parents._2.size)
 
-  def LineCrossover = sys.error("unimplemented")
+    def sample(a: Double) = - a + (1 + 2 * a) * Random.nextDouble
+
+    val size = parents._1.size
+
+    var children = for {
+      i ← 1 to 2
+      ss = for { i ← 1 to size } yield sample(0.25)
+      a = parents._1 zip ss map { case (a,b) ⇒ a*b }
+      b = parents._2 zip ss map { case (a,b) ⇒ a*(1-b) }
+    } yield a zip b map { case (a,b) ⇒ a+b }
+
+    assume(children forall { _.size == parents._1.size })
+
+    children
+  }
+
+  def LineCrossover(parents: Pair[Vector[Double],Vector[Double]]): Iterable[Vector[Double]] = {
+    require(parents._1.size == parents._2.size)
+
+    def sample(a: Double) = - a + (1 + 2 * a) * Random.nextDouble
+
+    val size = parents._1.size
+
+    var children = for {
+      i ← 1 to 2
+      ss = for { i ← 1 to size ; s = sample(0.25) } yield s
+      a = parents._1 zip ss map { case (a,b) ⇒ a*b }
+      b = parents._2 zip ss map { case (a,b) ⇒ a*(1-b) }
+    } yield a zip b map { case (a,b) ⇒ a+b }
+
+    assume(children forall { _.size == parents._1.size })
+
+    children
+  }
+
+  def ArithmeticCrossover(parents: Pair[Vector[Double],Vector[Double]]): Iterable[Vector[Double]] = {
+    require(parents._1.size == parents._2.size)
+
+    val c1 = parents._1 zip parents._2 map { case (a,b) ⇒ (a+b) / 2 }
+    val c2 = parents._1 zip parents._2 map { case (a,b) ⇒ math.sqrt(a*b) }
+
+    var children = Iterable(c1, c2)
+
+    assume(children forall { _.size == parents._1.size })
+
+    children
+  }
 
 }
 
 import Foo._
 
-class Foo(override val problem: Vector[Double] ⇒ Double)
-//            (override val recombine: Pair[Vector[Double],Vector[Double]] ⇒ Iterable[Vector[Double]])
+class Foo(vars: Int, gl: Vector[Double], gu: Vector[Double])
+         (override val problem: Vector[Double] ⇒ Double)
+         (val recomb: Pair[Vector[Double],Vector[Double]] ⇒ Iterable[Vector[Double]])
   extends EvolutionaryAlgorithm[Vector[Double], Vector[Double] ⇒ Double] {
 
-  override def ancestor: Vector[Double] = sys.error("unimplemented")
+  override def ancestor: Vector[Double] = for {
+    i ← Vector(1 to vars: _*)
+  } yield gl(i) + (gu(i) - gl(i)) * Random.nextDouble
 
-  override def fitness(g: Vector[Double]): Double = sys.error("unimplemented")
+  override def fitness(g: Vector[Double]): Double = problem(g)
 
-  override def mutate(g: Vector[Double]): Vector[Double] = sys.error("unimplemented")
+  override def mutate(g: Vector[Double]): Vector[Double] = g map { x ⇒
+    (0.5 * Random.nextDouble + 0.75) * x
+  }
 
   override def recombine(parents: Pair[Vector[Double],Vector[Double]]): Iterable[Vector[Double]] =
-  sys.error("unimplemented")
+    recomb(parents)
 
 }
 
-class Bar(vars: Int, k: Int, gl: Vector[Int], gu: Vector[Int])(p: Vector[Double] ⇒ Double)
+class Bar(vars: Int, k: Int, gl: Vector[Double], gu: Vector[Double])(p: Vector[Double] ⇒ Double)
          (implicit recomb: Pair[Vector[Boolean],Vector[Boolean]] ⇒ Iterable[Vector[Boolean]] =
             TwoPointCrossover)
   extends EvolutionaryAlgorithm[Vector[Boolean], Vector[Boolean] ⇒ Double] {
@@ -110,7 +162,7 @@ class Bar(vars: Int, k: Int, gl: Vector[Int], gu: Vector[Int])(p: Vector[Double]
     s = 0 to (k-1) map { j ⇒ if (a(k-j-1)) math.pow(2, j) else 0 } sum
   } yield gl(i) + granularity(gl(i), gu(i)) * s
 
-  def granularity(gl: Int, gu: Int) =
+  def granularity(gl: Double, gu: Double) =
     (gu - gl) / (math.pow(2, k) - 1)
 
   override def mutate(g: Vector[Boolean]): Vector[Boolean] = {
