@@ -86,7 +86,7 @@ object ScalEvAlgoBuild extends Build {
 }
 
 object Dependencies {
-  lazy val graph  = "com.assembla.scala-incubator" %% "graph-core"  % "1.5.0-SNAPSHOT"
+  lazy val graph  = "com.assembla.scala-incubator" %% "graph-core"  % "1.5.0"
   lazy val scalaz = "org.scalaz"                   %% "scalaz-core" % "6.0.4"
   lazy val specs2 = "org.specs2"                   %% "specs2"      % "1.11"  % "test"
 }

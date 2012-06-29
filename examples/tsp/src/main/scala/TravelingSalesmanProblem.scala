@@ -41,7 +41,7 @@ import scalax.collection.edge.Implicits._
 import scalaz._
 import Scalaz._
 
-class TravelingSalesmanProblem[N](
+class TravelingSalesmanProblem[N: Manifest](
     override val problem: Graph[N,WUnDiEdge])
   extends EvolutionaryAlgorithm[Graph[N,WDiEdge],Graph[N,WUnDiEdge]] {
 
@@ -54,9 +54,12 @@ class TravelingSalesmanProblem[N](
     val startNode = parents._1.nodes.head.value
 
     @tailrec
-    def recurse(have: List[N], currentNode: N, child: Graph[N,WDiEdge]): Graph[N,WDiEdge] = {
+    def recurse(have: List[N], currentNode: N, edges: List[WDiEdge[N]]): Graph[N,WDiEdge] = {
       if (have.size == problem.nodes.size) {
-        child + (currentNode ~%> startNode)(problem.get((currentNode ~% startNode)(0)).weight)
+        val nextEdge = (currentNode ~%> startNode)(problem.get((currentNode ~% startNode)(0)).weight)
+        Graph from (
+          edges = nextEdge :: edges
+        )
       } else {
         val remainingNodes = adjacencies(currentNode) filterNot have.contains
 
@@ -69,11 +72,11 @@ class TravelingSalesmanProblem[N](
 
         val nextEdge = (currentNode ~%> nextNode)(problem.get((currentNode ~% nextNode)(0)).weight)
 
-        recurse(nextNode :: have, nextNode, child + nextEdge)
+        recurse(nextNode :: have, nextNode, nextEdge :: edges)
       }
     }
 
-    Seq(recurse(List(startNode), startNode, Graph.from(problem.nodes.toNodeInSet,Nil)))
+    Vector(recurse(List(startNode), startNode, Nil))
   }
 
   override def mutate(individual: Graph[N,WDiEdge]) = {
