@@ -58,6 +58,13 @@ package object ea {
     */
   type Matchmaker[G] = Iterable[Individual[G]] ⇒ Iterable[Pair[Individual[G],Individual[G]]]
 
+  /** A `Mutagen` determines the probability with which individuals mutate, depending on the current
+    * generation.
+    *
+    * @see [[ea.Mutagens]]
+    */
+  type Mutagen = Int ⇒ Double
+
   /** A `Selector` determines how the individuals for the next generation are chosen.
     *
     * @tparam G $genome
