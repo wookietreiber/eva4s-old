@@ -125,7 +125,7 @@ class Foo(vars: Int, gl: Vector[Double], gu: Vector[Double])
 
   override def ancestor: Vector[Double] = for {
     i ← Vector(1 to vars: _*)
-  } yield gl(i) + (gu(i) - gl(i)) * Random.nextDouble
+  } yield gl(i-1) + (gu(i-1) - gl(i-1)) * Random.nextDouble
 
   override def fitness(g: Vector[Double]): Double = problem(g)
 
