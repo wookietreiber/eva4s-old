@@ -40,21 +40,20 @@ object Mutagens extends Mutagens
   * parameter list(s) and use the remaining function as a [[ea.Mutagen]].
   *
   * @see [[ea.Mutagen]]
+  *
+  * @define startProbability the mutation probability at generation zero
+  * @define endProbability the mutation probability at generation `generations`
+  * @define generations the final generation
+  * @define generation the current generation
   */
 trait Mutagens {
 
   /** Returns a monotonically decreasing value based on `f(x) = a * exp(b*x)`.
     *
-    * There are two points defined from which `a` and `b` derive:
-    *
-    *   1. `(0,startProbability)`
-    *
-    *   2. `(generations, endProbability)`
-    *
-    * @param startProbability the mutation probability at generation zero
-    * @param endProbability the mutation probability at generation `generations`
-    * @param generations the final generation
-    * @param generation the current generation
+    * @param startProbability $startProbability
+    * @param endProbability $endProbability
+    * @param generations $generations
+    * @param generation $generation
     */
   def ExponentialMutagen(startProbability: Double,
                          endProbability: Double)
@@ -62,5 +61,25 @@ trait Mutagens {
                         (generation: Int): Double = {
     startProbability * exp(log(endProbability / startProbability) / generations * generation)
   }
+
+  /** Returns a monotonically decreasing value based on `f(x) = a + b*x`.
+    *
+    * @param startProbability $startProbability
+    * @param endProbability $endProbability
+    * @param generations $generations
+    * @param generation $generation
+    */
+  def LinearMutagen(startProbability: Double,
+                    endProbability: Double)
+                   (generations: Int)
+                   (generation: Int): Double = {
+    startProbability + (endProbability - startProbability) / generations * generation
+  }
+
+  /** Returns a `Mutagen` that always uses the same probability.
+    *
+    * @param probability the constant mutation probability
+    */
+  def ConstantMutagen(probability: Double): Mutagen = (_: Int) ⇒ probability
 
 }
