@@ -35,7 +35,7 @@ import scala.annotation.tailrec
   * @tparam P input / problem type, represents the problem data structure
   */
 trait EvolutionaryAlgorithm[G,P]
-  extends Matchmaking with Selection {
+  extends Matchmaking with Mutagens with Selection {
 
   /** Returns the data structure representing the problem that needs to be solved. */
   def problem: P
@@ -44,29 +44,30 @@ trait EvolutionaryAlgorithm[G,P]
     *
     * @param generations amount of generations until the solution is chosen
     * @param survivors amount of survivors per generation as well as initial population / ancestors
-    * @param mutationProbability chance of child to mutate
     * @param matchmaker determines, which parents reproduce new children (strategy pattern, defaults
     * to [[ea.Matchmaking#RandomAcceptanceMatchmaker]])
+    * @param mutagen chance of child to mutate as a function from current generation to a floating
+    * point value between 0 and 1, defaults to [[ea.Mutagens#ExponentialMutagen]] with a start
+    * probability of `0.8` and an end probability of `0.1`
     * @param selector determines, how the individuals for the next generation are chosen (strategy
     * pattern, defaults to [[ea.Selection#SurvivalOfTheFittest]])
     * @param debugger can be used to do some side effekt with the current generation and its optimal
     * fitness, e.g. print it: `debugger = printer`
     */
   def apply(generations: Int = 200,
-            survivors: Int = 23,
-            mutationProbability: Double = 0.3)
+            survivors: Int = 23)
            (implicit matchmaker: Matchmaker[G] = RandomAcceptanceMatchmaker(100, 0.7),
+                     mutagen: Mutagen = ExponentialMutagen(0.8, 0.1)(generations),
                      selector: Selector[G] = SurvivalOfTheFittest,
                      debugger: Option[(Int,Double,Double) ⇒ Unit] = None)
             : Individual[G] = {
-
     @tailrec
     def evolve(parents: Iterable[Individual[G]], generation: Int): Individual[G] = if (generation == generations) {
       parents minBy { _.fitness }
     } else {
       val offspring = for {
         pair  ← matchmaker(parents)
-        child ← recombine(mutationProbability)(pair)
+        child ← recombine(mutagen(generation))(pair)
       } yield child
 
       val nextGen = selector(parents, offspring)
