@@ -59,7 +59,7 @@ trait Mutagens {
                          endProbability: Double)
                         (generations: Int)
                         (generation: Int): Double = {
-    startProbability * exp(log(endProbability / startProbability) / generations * generation)
+    startProbability * pow(endProbability / startProbability, generations / generation)
   }
 
   /** Returns a monotonically decreasing value based on `f(x) = a + b*x`.
