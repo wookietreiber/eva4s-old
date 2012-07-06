@@ -80,7 +80,7 @@ trait Selection {
   def CommaSelection[G](survivors: Int ⇒ Int = (λ: Int) ⇒ math.round(λ.toFloat / 6))
                        (parents: Iterable[Individual[G]], offspring: Iterable[Individual[G]])
                         : Iterable[Individual[G]] =
-    offspring.toSeq sortBy { _.fitness } take survivors(offspring.size)
+    offspring sortBy { _.fitness } take survivors(offspring.size)
 
   /** Returns the fittest individuals.
     *
@@ -95,7 +95,7 @@ trait Selection {
   def PlusSelection[G](parents: Iterable[Individual[G]],
                        offspring: Iterable[Individual[G]])
                        : Iterable[Individual[G]] =
-    (parents ++ offspring).toSeq sortBy { _.fitness } take parents.size
+    (parents ++ offspring) sortBy { _.fitness } take parents.size
 
   /** Returns the fittest individuals. This is an alias for [[ea.Selection#PlusSelection]].
     *
