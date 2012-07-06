@@ -33,6 +33,7 @@ object ScalEvAlgoBuild extends Build {
     id        = "scalevalgo-core",
     base      = file ("core"),
     settings  = baseSettings ++ Seq (
+      libraryDependencies += scalaz,
       crossScalaVersions := Seq("2.9.0", "2.9.0-1", "2.9.1", "2.9.1-1", "2.9.2", "2.10.0-M4")
     )
   )
@@ -55,7 +56,7 @@ object ScalEvAlgoBuild extends Build {
     id        = "scalevalgo-tsp",
     base      = file ("examples/tsp"),
     settings  = baseSettings ++ Seq (
-      libraryDependencies ++= Seq ( graph, scalaz ),
+      libraryDependencies += graph,
       initialCommands in Compile += """
         import scalax.collection._
         import scalax.collection.GraphPredef._
