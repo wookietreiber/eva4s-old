@@ -90,10 +90,10 @@ trait EvolutionaryAlgorithm[G,P]
   def ancestor: G
 
   /** Returns the initial population. */
-  final def ancestors(n: Int): Iterable[Individual[G]] = for {
-    i ← 1 to n
-    genome = ancestor
-  } yield Individual(genome, fitness(genome))
+  final def ancestors(n: Int): Iterable[Individual[G]] = Vector.fill(n) {
+    val genome = ancestor
+    Individual(genome, fitness(genome))
+  }
 
   /** Returns a new genome by recombination. */
   def recombine(parents: Pair[G,G]): Iterable[G]

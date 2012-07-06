@@ -60,10 +60,8 @@ trait Matchmaking {
     */
   def RandomForcedMatchmaker[G](pairs: Int)
                                (parents: Iterable[Individual[G]])
-                                : Iterable[Pair[Individual[G],Individual[G]]] = for {
-    i ← 1 to pairs
-    shuffled = parents.shuffle.iterator
-  } yield shuffled.next → shuffled.next
+                                : Iterable[Pair[Individual[G],Individual[G]]] =
+    Vector.fill(pairs) { parents.choosePair }
 
   /** Returns a varying amount of arbitrary pairs of individuals.
     *
@@ -77,7 +75,6 @@ trait Matchmaking {
                                    (parents: Iterable[Individual[G]])
                                     : Iterable[Pair[Individual[G],Individual[G]]] = for {
     i ← 1 to pairs if Random.nextDouble < acceptance
-    shuffled = parents.shuffle.iterator
-  } yield shuffled.next → shuffled.next
+  } yield parents.choosePair
 
 }
