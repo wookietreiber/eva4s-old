@@ -83,6 +83,12 @@ package object ea {
     def choose(n: Int)(implicit bf: CanBuildFrom[CC[A],A,CC[A]]): CC[A] =
       shuffle take n
 
+    /** Returns two randomly chosen elements as a pair. */
+    def choosePair(implicit bf: CanBuildFrom[CC[A],A,CC[A]]): Pair[A,A] = {
+      val two = choose(2)
+      Pair(two.head, two.last)
+    }
+
     /** Returns a new, shuffled collection. */
     def shuffle(implicit bf: CanBuildFrom[CC[A],A,CC[A]]): CC[A] =
       Random shuffle xs
@@ -106,6 +112,15 @@ package object ea {
       import num._
       xs.foldLeft(zero)(_ + f(_)).toDouble / xs.size
     }
+
+    /** Returns this collection sorted. */
+    def sortWith(lt: (A,A) ⇒ Boolean): Seq[A] = sorted(Ordering fromLessThan lt)
+
+    /** Returns this collection sorted. */
+    def sortBy[B](f: A ⇒ B)(implicit ord: Ordering[B]): Seq[A] = sorted(ord on f)
+
+    /** Returns this collection sorted. */
+    def sorted(implicit ord: Ordering[A]): Seq[A] = xs.seq.toSeq.sorted(ord)
 
   }
 
