@@ -1,7 +1,8 @@
 /* **************************************************************************
  *                                                                          *
- *  Copyright (C)  2012  Christian Krause                                   *
+ *  Copyright (C)  2012  Nils Foken, Christian Krause                       *
  *                                                                          *
+ *  Nils Foken        <nils.foken@it2009.ba-leipzig.de>                     *
  *  Christian Krause  <christian.krause@it2009.ba-leipzig.de>               *
  *                                                                          *
  ****************************************************************************
@@ -73,8 +74,30 @@ trait Matchmaking {
     */
   def RandomAcceptanceMatchmaker[G](pairs: Int, acceptance: Double)
                                    (parents: Iterable[Individual[G]])
-                                    : Iterable[Pair[Individual[G],Individual[G]]] = for {
-    i ← 1 to pairs if Random.nextDouble < acceptance
-  } yield parents.choosePair
+                                    : Iterable[Pair[Individual[G],Individual[G]]] =
+    for (i ← 1 to pairs if Random.nextDouble < acceptance) yield parents choosePair
+
+  /** Returns the fittest individuals of `pairs` tournaments.
+    *
+    * There will be `pairs` tournaments to determine the pairs. Each tournament consists of
+    * `participants` randomly chosen participants. From these participants are the fittest two for
+    * the pair chosen.
+    *
+    * @tparam G $genome
+    *
+    * @param pairs $pairs
+    * @param participants amount of randomly selected individuals attending a tournament
+    * @param parents $parents
+    */
+  def TournamentMatchmaker[G](pairs: Int, participants: Int)
+                             (parents: Iterable[Individual[G]])
+                              : Iterable[Pair[Individual[G],Individual[G]]] = {
+    require(participants >= 2, "participants must be greater or equal to 2")
+
+    Vector.fill(pairs) {
+      val winners = parents choose participants sortBy { _.fitness } take 2
+      Pair(winners(0), winners(1))
+    }
+  }
 
 }
