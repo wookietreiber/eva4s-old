@@ -129,4 +129,8 @@ package object ea {
     printf("generation: %5d   intensity: % 10.6f   average fitness: %f\n", g, i, f)
   }
 
+  private[ea] def ranks(size: Int) = Vector.tabulate(size) {
+    i ⇒ 2.0 / size * (1 - i.toDouble / (size - 1.0))
+  }
+
 }

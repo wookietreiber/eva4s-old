@@ -77,6 +77,37 @@ trait Matchmaking {
                                     : Iterable[Pair[Individual[G],Individual[G]]] =
     for (i ← 1 to pairs if Random.nextDouble < acceptance) yield parents choosePair
 
+  /** Returns pairs based on their rank by fitness. The fitter the individual, the higher is the
+    * possibility that it gets chosen.
+    *
+    * @tparam G $genome
+    *
+    * @param pairs $pairs
+    * @param parents $parents
+    */
+  def RankBasedMatchmaker[G](pairs: Int)
+                            (parents: Iterable[Individual[G]])
+                             : Iterable[Pair[Individual[G],Individual[G]]] = {
+    val ranked = parents sortBy { - _.fitness } zip {
+      ranks(parents.size).inits drop 1 map { _.sum } toList
+    }
+
+    def choose(ranked: Seq[Pair[Individual[G],Double]]): Individual[G] = {
+      val r = Random.nextDouble
+      ranked collectFirst {
+        case (individual,rank) if rank < r ⇒ individual
+      } get
+    }
+
+    Vector.fill(pairs) {
+      val first = choose(ranked)
+      var second = choose(ranked)
+      while (second == first)
+        second = choose(ranked)
+      Pair(first, second)
+    }
+  }
+
   /** Returns the fittest individuals of `pairs` tournaments.
     *
     * There will be `pairs` tournaments to determine the pairs. Each tournament consists of
