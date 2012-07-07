@@ -27,6 +27,9 @@
 
 package ea
 
+import scalaz._
+import Scalaz._
+
 /** $matchmakinginfo */
 object Matchmaking extends Matchmaking
 
@@ -128,6 +131,38 @@ trait Matchmaking {
     Vector.fill(pairs) {
       val winners = parents choose participants sortBy { _.fitness } take 2
       Pair(winners(0), winners(1))
+    }
+  }
+
+  /** Returns the fittest individuals of `pairs * parents` tournaments.
+    *
+    * There will be `pairs` tournaments to determine the pairs. Each tournament consists of
+    * `parents` sub-tournaments. Each sub-tournament consists of `participants` randomly chosen
+    * participants. The winner of a sub-tournament gets a point. The two individuals with the most
+    * points are chosen. If, by chance, a single individual is the sole winner of all tournaments it
+    * will pair up with the fittest individual.
+    *
+    * @tparam G $genome
+    *
+    * @param pairs $pairs
+    * @param participants amount of randomly selected individuals attending a tournament
+    * @param parents $parents
+    */
+  def MultipleTournamentMatchmaker[G](pairs: Int, participants: Int)
+                                     (parents: Iterable[Individual[G]])
+                                      : Iterable[Pair[Individual[G],Individual[G]]] = {
+    def winners = parents map { parent ⇒
+      val ps = Seq(parent) ++ (parents filter { _ != parent } choose participants)
+      Map(Pair(ps.minBy(_.fitness), 1))
+    }
+
+    Vector.fill(pairs) {
+      val ps = winners.fold(Map())(_ |+| _).sortBy(- _._2).take(2).map(_._1)
+      ps.size match {
+        case 0 ⇒ parents choosePair
+        case 1 ⇒ Pair(ps.head, parents filter { _ != ps.head } minBy { _.fitness })
+        case _ ⇒ Pair(ps(0), ps(1))
+      }
     }
   }
 
