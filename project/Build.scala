@@ -34,7 +34,11 @@ object ScalEvAlgoBuild extends Build {
     base      = file ("core"),
     settings  = baseSettings ++ Seq (
       libraryDependencies += scalaz,
-      crossScalaVersions := Seq("2.9.0-1", "2.9.1", "2.9.2", "2.10.0-M4")
+      crossScalaVersions := Seq("2.9.0-1", "2.9.1", "2.9.2", "2.10.0-M4"),
+      initialCommands in Compile += """
+        import scalaz._
+        import Scalaz._
+      """
     )
   )
 
