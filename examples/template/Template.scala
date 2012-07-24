@@ -8,8 +8,8 @@ object Foo {
 
 import Foo._
 
-class Foo(override val problem: Problem)
-  extends EvolutionaryAlgorithm[Genome,Problem] {
+trait Foo extends Evolutionary[Genome,Problem] {
+  self: Evolver[Genome,Problem] ⇒
 
   override def ancestor: Genome =
     sys error "unimplemented"
@@ -20,7 +20,7 @@ class Foo(override val problem: Problem)
   override def mutate(genome: Genome): Genome =
     sys error "unimplemented"
 
-  override def recombine(parents: Pair[Genome,Genome]): Iterable[Genome] =
+  override def recombine(p1: Genome, p2: Genome): Iterable[Genome] =
     sys error "unimplemented"
 
 }

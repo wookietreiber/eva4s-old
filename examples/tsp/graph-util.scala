@@ -34,6 +34,8 @@ import scalax.collection.GraphPredef._
 import scalax.collection.edge._
 import scalax.collection.edge.Implicits._
 
+import scalax.util._
+
 object graph {
 
   /** Returns a complete, undirected graph. */

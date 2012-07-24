@@ -25,9 +25,10 @@
  ****************************************************************************/
 
 
-import scala.collection.GenTraversableOnce
-import scala.collection.TraversableLike
+import scala.collection.GenTraversable
 import scala.collection.generic.CanBuildFrom
+
+import scalax.util._
 
 /**
   *
@@ -77,25 +78,7 @@ package object ea {
   // pimp my collections
   // -----------------------------------------------------------------------
 
-  implicit def collectionExtras[A,CC[A] <: TraversableLike[A,CC[A]]](xs: CC[A]) = new {
-
-    /** Returns a new collection with `n` randomly chosen elements. */
-    def choose(n: Int)(implicit bf: CanBuildFrom[CC[A],A,CC[A]]): CC[A] =
-      shuffle take n
-
-    /** Returns two randomly chosen elements as a pair. */
-    def choosePair(implicit bf: CanBuildFrom[CC[A],A,CC[A]]): Pair[A,A] = {
-      val two = choose(2)
-      Pair(two.head, two.last)
-    }
-
-    /** Returns a new, shuffled collection. */
-    def shuffle(implicit bf: CanBuildFrom[CC[A],A,CC[A]]): CC[A] =
-      Random shuffle xs
-
-  }
-
-  implicit def genCollectionExtras[A,CC[A] <: GenTraversableOnce[A]](xs: CC[A]) = new {
+  implicit def genCollectionExtras[A,CC[A] <: GenTraversable[A]](xs: CC[A]) = new {
 
     /** Returns the average of the elements in this collection. */
     def average(implicit num: Numeric[A]): Double = {
@@ -110,17 +93,18 @@ package object ea {
       */
     def averageBy[B](f: A ⇒ B)(implicit num: Numeric[B]): Double = {
       import num._
-      xs.foldLeft(zero)(_ + f(_)).toDouble / xs.size
+      xs.aggregate(zero)(_ + f(_), _ + _).toDouble / xs.size
     }
 
-    /** Returns this collection sorted. */
-    def sortWith(lt: (A,A) ⇒ Boolean): Seq[A] = sorted(Ordering fromLessThan lt)
+    /** Returns a new collection with `n` randomly chosen elements. */
+    def choose(n: Int): CC[A] =
+      xs.shuffle(Mixer.GenTraversableMixer[CC]).take(n).asInstanceOf[CC[A]]
 
-    /** Returns this collection sorted. */
-    def sortBy[B](f: A ⇒ B)(implicit ord: Ordering[B]): Seq[A] = sorted(ord on f)
-
-    /** Returns this collection sorted. */
-    def sorted(implicit ord: Ordering[A]): Seq[A] = xs.seq.toSeq.sorted(ord)
+    /** Returns two randomly chosen elements as a pair. */
+    def choosePair: Pair[A,A] = {
+      val two = choose(2).seq
+      Pair(two.head, two.last)
+    }
 
   }
 

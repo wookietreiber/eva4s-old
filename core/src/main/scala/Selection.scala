@@ -26,6 +26,8 @@
 
 package ea
 
+import scalax.util._
+
 /** $selectioninfo */
 object Selection extends Selection
 

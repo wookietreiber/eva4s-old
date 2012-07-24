@@ -33,9 +33,10 @@ object ScalEvAlgoBuild extends Build {
     id        = "scalevalgo-core",
     base      = file ("core"),
     settings  = baseSettings ++ Seq (
-      libraryDependencies += scalaz,
-      crossScalaVersions := Seq("2.9.0-1", "2.9.1", "2.9.2", "2.10.0-M4"),
+      libraryDependencies ++= Seq ( scalaz, parmergesortshuffle ),
+      crossScalaVersions := Seq("2.9.0-1", "2.9.1", "2.9.2", "2.10.0-M5"),
       initialCommands in Compile += """
+        import scalax.util._
         import scalaz._
         import Scalaz._
       """
@@ -65,6 +66,7 @@ object ScalEvAlgoBuild extends Build {
         import scalax.collection._
         import scalax.collection.GraphPredef._
         import scalax.collection.GraphEdge._
+        import scalax.collection.edge._
         import scalax.collection.edge.Implicits._
         import scalaz._
         import Scalaz._
@@ -80,7 +82,8 @@ object ScalEvAlgoBuild extends Build {
 }
 
 object Dependencies {
-  lazy val graph  = "com.assembla.scala-incubator" %% "graph-core"  % "1.5.0"
+  lazy val graph  = "com.assembla.scala-incubator" %% "graph-core"  % "1.5.1"
   lazy val scalaz = "org.scalaz"                   %% "scalaz-core" % "6.0.4"
+  lazy val parmergesortshuffle = "com.github.par-merge-sort-shuffle" %% "par-merge-sort-shuffle" % "latest.integration"
   lazy val specs2 = "org.specs2"                   %% "specs2"      % "1.11"  % "test"
 }

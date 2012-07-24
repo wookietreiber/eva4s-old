@@ -27,6 +27,8 @@
 
 package ea
 
+import scalax.util._
+
 import scalaz._
 import Scalaz._
 
@@ -93,7 +95,7 @@ trait Matchmaking {
                              : Iterable[Pair[Individual[G],Individual[G]]] = {
     val ranked = parents sortBy { - _.fitness } zip {
       ranks(parents.size).inits drop 1 map { _.sum } toList
-    }
+    } toSeq
 
     def choose(ranked: Seq[Pair[Individual[G],Double]]): Individual[G] = {
       val r = Random.nextDouble
@@ -130,7 +132,7 @@ trait Matchmaking {
 
     Vector.fill(pairs) {
       val winners = parents choose participants sortBy { _.fitness } take 2
-      Pair(winners(0), winners(1))
+      Pair(winners.head, winners.last)
     }
   }
 
@@ -161,7 +163,7 @@ trait Matchmaking {
       ps.size match {
         case 0 ⇒ parents choosePair
         case 1 ⇒ Pair(ps.head, parents filter { _ != ps.head } minBy { _.fitness })
-        case _ ⇒ Pair(ps(0), ps(1))
+        case _ ⇒ Pair(ps.head, ps.last)
       }
     }
   }
