@@ -29,20 +29,70 @@ package ea
 
 import scala.annotation.tailrec
 
-object Evolver extends Matchmaking with Mutagens with Selection {
+trait Evolver {
 
-  trait DefaultEvolver[G,P] extends Evolver[G,P] {
-    self: Evolutionary[G,P] ⇒
+  /**
+    *
+    * @param generations amount of generations until the solution is chosen
+    * @param survivors amount of survivors per generation as well as initial population / ancestors
+    * @param matchmaker determines, which parents reproduce new children (strategy pattern, defaults
+    * to [[ea.Matchmaking#RandomAcceptanceMatchmaker]])
+    * @param mutagen chance of child to mutate as a function from current generation to a floating
+    * point value between 0 and 1, defaults to [[ea.Mutagens#ExponentialMutagen]] with a start
+    * probability of `0.8` and an end probability of `0.1`
+    * @param selector determines, how the individuals for the next generation are chosen (strategy
+    * pattern, defaults to [[ea.Selection#SurvivalOfTheFittest]])
+    * @param debugger can be used to do some side effekt with the current generation and its optimal
+    * fitness, e.g. print it: `debugger = printer`
+    */
+  def apply[G,P](ea: Evolutionary[G,P])
+                (generations: Int,
+                 survivors: Int)
+                (implicit matchmaker: Matchmaker[G],
+                          mutagen: Mutagen,
+                          selector: Selector[G],
+                          debugger: Option[(Int,Double,Double) ⇒ Unit])
+                 : Individual[G]
 
-    def apply(generations: Int = 200,
-              survivors: Int = 23)
-             (implicit matchmaker: Matchmaker[G] = RandomAcceptanceMatchmaker(100, 0.7),
-                       mutagen: Mutagen = ExponentialMutagen(0.8, 0.1)(generations),
-                       selector: Selector[G] = SurvivalOfTheFittest,
-                       debugger: Option[(Int,Double,Double) ⇒ Unit] = None)
-              : Individual[G] = {
+  /** Returns the selection intensity of the given generation. */
+  def selectionIntensity(oldGen: Iterable[Individual[_]],
+                         newGen: Iterable[Individual[_]]): Double = {
+    val fselbar = newGen averageBy { _.fitness }
+    val fbar    = oldGen averageBy { _.fitness }
+
+    val sigma = math.sqrt(
+      (1.0 / (oldGen.size - 1)) * ((oldGen map { i ⇒ math.pow(fbar - i.fitness, 2) }).sum)
+    )
+
+    if (sigma != 0.0) (fselbar - fbar) / sigma else 0.0
+  }
+
+}
+
+/** $EvolverInfo */
+object Evolvers extends Evolvers
+
+/** $EvolverInfo
+  *
+  * @define EvolverInfo To be done.
+  */
+trait Evolvers extends Matchmaking with Mutagens with Selection {
+
+  object DefaultEvolver extends Evolver {
+
+    def apply[G,P](ea: Evolutionary[G,P])
+                  (generations: Int = 200,
+                   survivors: Int = 23)
+                  (implicit matchmaker: Matchmaker[G] = RandomAcceptanceMatchmaker[G](100, 0.7) _,
+                            mutagen: Mutagen = ExponentialMutagen(0.8, 0.1)(generations),
+                            selector: Selector[G] = SurvivalOfTheFittest[G] _,
+                            debugger: Option[(Int,Double,Double) ⇒ Unit] = None)
+                   : Individual[G] = {
+      import ea._
+
       @tailrec
-      def evolve(parents: Iterable[Individual[G]], generation: Int): Individual[G] = if (generation == generations) {
+      def evolve(parents: Iterable[Individual[G]], generation: Int): Individual[G] =
+      if (generation == generations) {
         parents minBy { _.fitness }
       } else {
         val offspring = for {
@@ -60,7 +110,11 @@ object Evolver extends Matchmaking with Mutagens with Selection {
           return nextGen.head
 
         debugger foreach { debug ⇒
-          debug(generation, selectionIntensity(parents ++ offspring, nextGen), nextGen averageBy { _.fitness })
+          debug (
+            generation,
+            selectionIntensity(parents ++ offspring, nextGen),
+            nextGen averageBy { _.fitness }
+          )
         }
 
         evolve(parents = nextGen, generation = generation + 1)
@@ -83,84 +137,5 @@ object Evolver extends Matchmaking with Mutagens with Selection {
 
   evolve(mutants ++ offspring, ...)
 */
-
-}
-
-trait Evolver[G,P] {
-  self: Evolutionary[G,P] ⇒
-
-  /**
-    *
-    * @param generations amount of generations until the solution is chosen
-    * @param survivors amount of survivors per generation as well as initial population / ancestors
-    * @param matchmaker determines, which parents reproduce new children (strategy pattern, defaults
-    * to [[ea.Matchmaking#RandomAcceptanceMatchmaker]])
-    * @param mutagen chance of child to mutate as a function from current generation to a floating
-    * point value between 0 and 1, defaults to [[ea.Mutagens#ExponentialMutagen]] with a start
-    * probability of `0.8` and an end probability of `0.1`
-    * @param selector determines, how the individuals for the next generation are chosen (strategy
-    * pattern, defaults to [[ea.Selection#SurvivalOfTheFittest]])
-    * @param debugger can be used to do some side effekt with the current generation and its optimal
-    * fitness, e.g. print it: `debugger = printer`
-    */
-  def apply(generations: Int,
-            survivors: Int)
-           (implicit matchmaker: Matchmaker[G],
-                     mutagen: Mutagen,
-                     selector: Selector[G],
-                     debugger: Option[(Int,Double,Double) ⇒ Unit])
-            : Individual[G]
-/*
-            = {
-    @tailrec
-    def evolve(parents: Iterable[Individual[G]], generation: Int): Individual[G] = if (generation == generations) {
-      parents minBy { _.fitness }
-    } else {
-
-           (generations: Int)
-           (implicit matchmaker: (Int) ⇒ (Iterable[Individual[G]) ⇒ Pair[] = RankBasedMatchmaker,
-                     mutagen: Mutagen = ExponentialMutagen(0.8, 0.1)(generations))
-
-  val rs = ((parents.size * (1 - prob)) / 2).round.toInt
-  val ms = parents.size - recombs
-
-  val mutants = parents.shuffle take ms map mutate
-  val offspring = recombine(matchmaker(rs)(parents)).flatten
-
-  evolve(mutants ++ offspring, ...)
-
-      val offspring = for {
-        pair  ← matchmaker(parents)
-        child ← recombine(mutagen(generation))(pair)
-      } yield child
-
-      val nextGen = selector(parents, offspring)
-
-      // bail out if there is just one individual left
-      if (nextGen.size == 1)
-        return nextGen.head
-
-      debugger foreach { debug ⇒
-        debug(generation, selectionIntensity(parents ++ offspring, nextGen), nextGen averageBy { _.fitness })
-      }
-
-      evolve(parents = nextGen, generation = generation + 1)
-    }
-
-    evolve(parents = ancestors(survivors), generation = 1)
-  }
-    */
-
-  /** Returns the selection intensity of the given generation. */
-  def selectionIntensity(oldGen: Iterable[Individual[_]], newGen: Iterable[Individual[_]]): Double = {
-    val fselbar = newGen averageBy { _.fitness }
-    val fbar    = oldGen averageBy { _.fitness }
-
-    val sigma = math.sqrt(
-      (1.0 / (oldGen.size - 1)) * ((oldGen map { i ⇒ math.pow(fbar - i.fitness, 2) }).sum)
-    )
-
-    if (sigma != 0.0) (fselbar - fbar) / sigma else 0.0
-  }
 
 }

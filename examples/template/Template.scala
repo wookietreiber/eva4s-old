@@ -8,8 +8,7 @@ object Foo {
 
 import Foo._
 
-trait Foo extends Evolutionary[Genome,Problem] {
-  self: Evolver[Genome,Problem] ⇒
+class Foo(val problem: Problem) extends Evolutionary[Genome,Problem] {
 
   override def ancestor: Genome =
     sys error "unimplemented"

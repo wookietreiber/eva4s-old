@@ -28,12 +28,12 @@ package ea
 
 import scalax.util._
 
-/** $selectioninfo */
+/** $SelectionInfo */
 object Selection extends Selection
 
-/** $selectioninfo
+/** $SelectionInfo
   *
-  * @define selectioninfo Contains default [[ea.Selector]] implementations which define
+  * @define SelectionInfo Contains default [[ea.Selector]] implementations which define
   * environmental selection.
   *
   * The idiomatic usage of the functions defined here is to fill in the parameters of the first

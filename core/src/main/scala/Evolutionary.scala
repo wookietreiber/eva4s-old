@@ -29,18 +29,17 @@ package ea
 
 /** Provides the basic functions of an evolutionary algorithm.
   *
-  * @define howMany How many will be returned depends solely on the implementing evolutionary
+  * @define HowManyInfo How many will be returned depends solely on the implementing evolutionary
   * algorithm.
   *
-  * @define newMutant The purpose of this method is the convenient creation of a new mutant. Use it
-  * like the factory method of a case class. This method performs the mutation on its own, it is not
-  * needed to do this in advance.
+  * @define NewMutantInfo The purpose of this method is the convenient creation of a new mutant. Use
+  * it like the factory method of a case class. This method performs the mutation on its own, it is
+  * not needed to do this in advance.
   *
   * @tparam G the type of the genome of the individuals, represents a solution of the problem
   * @tparam P input / problem type, represents the problem data structure
   */
 trait Evolutionary[G,P] {
-  self: Evolver[G,P] ⇒
 
   /** Returns the data structure representing the problem that needs to be solved.
     *
@@ -83,20 +82,20 @@ trait Evolutionary[G,P] {
 
   /** Returns new genomes by recombining the parents.
     *
-    * @note $howMany
+    * @note $HowManyInfo
     */
   def recombine(p1: G, p2: G): Iterable[G]
 
   /** Returns new genomes by recombining the parents.
     *
-    * @note $howMany
+    * @note $HowManyInfo
     */
   final def recombine(parents: Pair[Individual[G],Individual[G]]): Iterable[G] =
     recombine(parents._1.genome, parents._2.genome)
 
   /** Returns new individuals by recombining the parents.
     *
-    * @note $howMany
+    * @note $HowManyInfo
     */
   final def procreate(parents: Pair[Individual[G],Individual[G]]): Iterable[Individual[G]] = for {
     genome ← recombine(parents)
@@ -111,14 +110,14 @@ trait Evolutionary[G,P] {
 
   /** Returns a new individual by mutating the given genome.
     *
-    * @note $newMutant
+    * @note $NewMutantInfo
     */
   final def Mutant(genome: G): Individual[G] =
     Individual(mutate(genome))
 
   /** Returns a new individual by mutating the genome of the given individual.
     *
-    * @note $newMutant
+    * @note $NewMutantInfo
     */
   final def Mutant(individual: Individual[G]): Individual[G] =
     Mutant(individual.genome)

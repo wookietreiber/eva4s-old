@@ -41,11 +41,8 @@ import scalax.collection.edge.Implicits._
 import scalaz._
 import Scalaz._
 
-trait TravelingSalesmanProblem[N]
+class TravelingSalesmanProblem[N:Manifest](val problem: Graph[N,WUnDiEdge])
   extends Evolutionary[Graph[N,WDiEdge],Graph[N,WUnDiEdge]] {
-  self: Evolver[Graph[N,WDiEdge],Graph[N,WUnDiEdge]] ⇒
-
-  implicit val nodeManifest: Manifest[N]
 
   override def ancestor = cycle(problem)
 

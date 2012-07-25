@@ -32,12 +32,12 @@ import scalax.util._
 import scalaz._
 import Scalaz._
 
-/** $matchmakinginfo */
+/** $MatchmakingInfo */
 object Matchmaking extends Matchmaking
 
-/** $matchmakinginfo
+/** $MatchmakingInfo
   *
-  * @define matchmakinginfo Contains default [[ea.Matchmaker]] implementations which define parental
+  * @define MatchmakingInfo Contains default [[ea.Matchmaker]] implementations which define parental
   * selection.
   *
   * The idiomatic usage of the functions defined here is to input the parameters of the first

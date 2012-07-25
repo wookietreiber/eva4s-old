@@ -28,12 +28,12 @@ package ea
 
 import math._
 
-/** $mutageninfo */
+/** $MutagenInfo */
 object Mutagens extends Mutagens
 
-/** $mutageninfo
+/** $MutagenInfo
   *
-  * @define mutageninfo Contains default [[ea.Mutagen]] implementations which determine the mutation
+  * @define MutagenInfo Contains default [[ea.Mutagen]] implementations which determine the mutation
   * probability depending on the generation.
   *
   * The idiomatic usage of the functions defined here is to fill in the parameters of the first
