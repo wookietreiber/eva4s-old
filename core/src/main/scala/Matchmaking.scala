@@ -7,7 +7,7 @@
  *                                                                          *
  ****************************************************************************
  *                                                                          *
- *  This file is part of 'scalevalgo'.                                      *
+ *  This file is part of 'eva4s'.                                           *
  *                                                                          *
  *  This project is free software: you can redistribute it and/or modify    *
  *  it under the terms of the GNU General Public License as published by    *
@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 
-package ea
+package org.eva4s
 
 import scalax.util._
 
@@ -37,13 +37,13 @@ object Matchmaking extends Matchmaking
 
 /** $MatchmakingInfo
   *
-  * @define MatchmakingInfo Contains default [[ea.Matchmaker]] implementations which define parental
-  * selection.
+  * @define MatchmakingInfo Contains default [[org.eva4s.Matchmaker]] implementations which define
+  * parental selection.
   *
   * The idiomatic usage of the functions defined here is to input the parameters of the first
-  * parameter list(s) and use the remaining function as a [[ea.Matchmaker]].
+  * parameter list(s) and use the remaining function as a [[org.eva4s.Matchmaker]].
   *
-  * @see [[ea.Matchmaker]]
+  * @see [[org.eva4s.Matchmaker]]
   *
   * @define acceptance chance of a pair accepting the match
   * @define genome the type of the genome of the individuals

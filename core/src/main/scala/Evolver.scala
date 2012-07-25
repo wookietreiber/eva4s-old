@@ -7,7 +7,7 @@
  *                                                                          *
  ****************************************************************************
  *                                                                          *
- *  This file is part of 'scalevalgo'.                                      *
+ *  This file is part of 'eva4s'.                                           *
  *                                                                          *
  *  This project is free software: you can redistribute it and/or modify    *
  *  it under the terms of the GNU General Public License as published by    *
@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 
-package ea
+package org.eva4s
 
 import scala.annotation.tailrec
 
@@ -36,12 +36,12 @@ trait Evolver {
     * @param generations amount of generations until the solution is chosen
     * @param survivors amount of survivors per generation as well as initial population / ancestors
     * @param matchmaker determines, which parents reproduce new children (strategy pattern, defaults
-    * to [[ea.Matchmaking#RandomAcceptanceMatchmaker]])
+    * to [[org.eva4s.Matchmaking#RandomAcceptanceMatchmaker]])
     * @param mutagen chance of child to mutate as a function from current generation to a floating
-    * point value between 0 and 1, defaults to [[ea.Mutagens#ExponentialMutagen]] with a start
-    * probability of `0.8` and an end probability of `0.1`
+    * point value between 0 and 1, defaults to [[org.eva4s.Mutagens#ExponentialMutagen]] with a
+    * start probability of `0.8` and an end probability of `0.1`
     * @param selector determines, how the individuals for the next generation are chosen (strategy
-    * pattern, defaults to [[ea.Selection#SurvivalOfTheFittest]])
+    * pattern, defaults to [[org.eva4s.Selection#SurvivalOfTheFittest]])
     * @param debugger can be used to do some side effekt with the current generation and its optimal
     * fitness, e.g. print it: `debugger = printer`
     */

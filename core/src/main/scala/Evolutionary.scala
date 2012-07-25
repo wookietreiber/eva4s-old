@@ -7,7 +7,7 @@
  *                                                                          *
  ****************************************************************************
  *                                                                          *
- *  This file is part of 'scalevalgo'.                                      *
+ *  This file is part of 'eva4s'.                                           *
  *                                                                          *
  *  This project is free software: you can redistribute it and/or modify    *
  *  it under the terms of the GNU General Public License as published by    *
@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 
-package ea
+package org.eva4s
 
 /** Provides the basic functions of an evolutionary algorithm.
   *
@@ -53,8 +53,9 @@ trait Evolutionary[G,P] {
   /** Returns a new individual from the given genome.
     *
     * @note The purpose of this method is the convenient creation of a new individual. It is just a
-    * convenience wrapper around [[ea.package.Individual]] to automatically inject the fitness
-    * according to this evolutionary algorithm. Use it like the factory method of a case class.
+    * convenience wrapper around [[org.eva4s.package.Individual]] to automatically inject the
+    * fitness according to this evolutionary algorithm. Use it like the factory method of a case
+    * class.
     */
   final def Individual(genome: G): Individual[G] =
     new Individual(genome, fitness(genome))

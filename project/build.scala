@@ -5,7 +5,7 @@ import BuildSettings._
 import Dependencies._
 
 object BuildSettings {
-  lazy val buildOrganization = "com.github.scalevalgo"
+  lazy val buildOrganization = "org.eva4s"
   lazy val buildVersion      = "0.1.0-SNAPSHOT"
   lazy val buildScalaVersion = "2.9.2"
 
@@ -15,24 +15,25 @@ object BuildSettings {
     scalaVersion   := buildScalaVersion,
     initialCommands in (Compile, consoleQuick) <<= initialCommands in Compile,
     initialCommands in Compile in console += """
-      import ea._
+      import org.eva4s._
     """
   )
 }
 
-object ScalEvAlgoBuild extends Build {
+object eva4s extends Build {
 
   lazy val root = Project (
-    id        = "scalevalgo",
+    id        = "eva4s",
     base      = file ("."),
     aggregate = Seq ( core, examples ),
     settings  = baseSettings
   )
 
   lazy val core = Project (
-    id        = "scalevalgo-core",
+    id        = "core",
     base      = file ("core"),
     settings  = baseSettings ++ Seq (
+      name := "eva4s-core",
       libraryDependencies ++= Seq ( scalaz, parmergesortshuffle ),
       crossScalaVersions := Seq("2.9.0-1", "2.9.1", "2.9.2", "2.10.0-M5"),
       initialCommands in Compile += """
@@ -44,23 +45,29 @@ object ScalEvAlgoBuild extends Build {
   )
 
   lazy val examples = Project (
-    id        = "scalevalgo-examples",
+    id        = "examples",
     base      = file ("examples"),
     aggregate = Seq ( template, tsp ),
-    settings  = baseSettings
+    settings  = baseSettings ++ Seq (
+      name := "eva4s-examples"
+    )
   )
 
   lazy val template = Project (
-    id           = "scalevalgo-example-template",
+    id           = "example-template",
     base         = file ("examples/template"),
-    settings     = baseSettings,
-    dependencies = Seq ( core )
+    dependencies = Seq ( core ),
+    settings     = baseSettings ++ Seq (
+      name := "eva4s-example-template"
+    )
   )
 
   lazy val tsp = Project (
-    id        = "scalevalgo-tsp",
-    base      = file ("examples/tsp"),
-    settings  = baseSettings ++ Seq (
+    id           = "tsp",
+    base         = file ("examples/tsp"),
+    dependencies = Seq ( core ),
+    settings     = baseSettings ++ Seq (
+      name := "eva4s-tsp",
       libraryDependencies += graph,
       initialCommands in Compile += """
         import scalax.collection._
@@ -72,11 +79,10 @@ object ScalEvAlgoBuild extends Build {
         import Scalaz._
       """,
       initialCommands in Compile in console += """
-        import ea.util.graph._
-        import ea.tsp._
+        import org.eva4s.util.graph._
+        import org.eva4s.tsp._
       """
-    ),
-    dependencies = Seq ( core )
+    )
   )
 
 }

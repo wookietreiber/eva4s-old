@@ -7,7 +7,7 @@
  *                                                                          *
  ****************************************************************************
  *                                                                          *
- *  This file is part of 'scalevalgo'.                                      *
+ *  This file is part of 'eva4s'.                                           *
  *                                                                          *
  *  This project is free software: you can redistribute it and/or modify    *
  *  it under the terms of the GNU General Public License as published by    *
@@ -25,10 +25,10 @@
  ****************************************************************************/
 
 
-package ea
+package org.eva4s
 package tsp
 
-import ea.util.graph._
+import org.eva4s.util.graph._
 
 import scala.annotation.tailrec
 

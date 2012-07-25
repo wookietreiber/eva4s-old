@@ -7,7 +7,7 @@
  *                                                                          *
  ****************************************************************************
  *                                                                          *
- *  This file is part of 'scalevalgo'.                                      *
+ *  This file is part of 'eva4s'.                                           *
  *                                                                          *
  *  This project is free software: you can redistribute it and/or modify    *
  *  it under the terms of the GNU General Public License as published by    *
@@ -25,6 +25,8 @@
  ****************************************************************************/
 
 
+package org
+
 import scala.collection.GenTraversable
 import scala.collection.generic.CanBuildFrom
 
@@ -34,7 +36,7 @@ import scalax.util._
   *
   * @define genome the type of the genome of the individuals
   */
-package object ea {
+package object eva4s {
 
   /** Represents an individual with its genome and fitness.
     *
@@ -55,14 +57,14 @@ package object ea {
     *
     * @tparam G $genome
     *
-    * @see [[ea.Matchmaking]]
+    * @see [[org.eva4s.Matchmaking]]
     */
   type Matchmaker[G] = Iterable[Individual[G]] ⇒ Iterable[Pair[Individual[G],Individual[G]]]
 
   /** A `Mutagen` determines the probability with which individuals mutate, depending on the current
     * generation.
     *
-    * @see [[ea.Mutagens]]
+    * @see [[org.eva4s.Mutagens]]
     */
   type Mutagen = Int ⇒ Double
 
@@ -70,7 +72,7 @@ package object ea {
     *
     * @tparam G $genome
     *
-    * @see [[ea.Selection]]
+    * @see [[org.eva4s.Selection]]
     */
   type Selector[G] = (Iterable[Individual[G]], Iterable[Individual[G]]) ⇒ Iterable[Individual[G]]
 
@@ -113,7 +115,7 @@ package object ea {
     printf("generation: %5d   intensity: % 10.6f   average fitness: %f\n", g, i, f)
   }
 
-  private[ea] def ranks(size: Int) = Vector.tabulate(size) {
+  private[eva4s] def ranks(size: Int) = Vector.tabulate(size) {
     i ⇒ 2.0 / size * (1 - i.toDouble / (size - 1.0))
   }
 

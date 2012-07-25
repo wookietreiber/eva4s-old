@@ -1,4 +1,4 @@
-package ea
+package org.eva4s
 package foo
 
 object Foo {
