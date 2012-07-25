@@ -29,15 +29,15 @@ package org.eva4s
 
 /** Provides the basic functions of an evolutionary algorithm.
   *
+  * @tparam G the type of the genome of the individuals, represents a solution of the problem
+  * @tparam P input / problem type, represents the problem data structure
+  *
   * @define HowManyInfo How many will be returned depends solely on the implementing evolutionary
   * algorithm.
   *
   * @define NewMutantInfo The purpose of this method is the convenient creation of a new mutant. Use
   * it like the factory method of a case class. This method performs the mutation on its own, it is
   * not needed to do this in advance.
-  *
-  * @tparam G the type of the genome of the individuals, represents a solution of the problem
-  * @tparam P input / problem type, represents the problem data structure
   */
 trait Evolutionary[G,P] {
 

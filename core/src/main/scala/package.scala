@@ -28,13 +28,11 @@
 package org
 
 import scala.collection.GenTraversable
-import scala.collection.generic.CanBuildFrom
 
-import scalax.util._
-
-/**
+/** This package brings evolutionary algorithms to Scala.
   *
   * @define genome the type of the genome of the individuals
+  * @define defaults contains default implementations.
   */
 package object eva4s {
 
@@ -44,71 +42,45 @@ package object eva4s {
     *
     * @param genome Returns the genome of this individual.
     * @param fitness Returns the fitness of this individual.
+    *
+    * @note [[org.eva4s.Evolutionary]] provides more convenient methods for creating individuals.
     */
   case class Individual[G](genome: G, fitness: Double)
 
-  // -----------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
   // aliases
-  // -----------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
+  /** Returns Scala's default [[scala.util.Random]] object. */
   val Random = scala.util.Random
 
-  /** A `Matchmaker` pairs individuals up with each other.
+  /** A `Matchmaker` pairs individuals up with each other. It models parental selection.
     *
     * @tparam G $genome
     *
-    * @see [[org.eva4s.Matchmaking]]
+    * @see [[org.eva4s.Matchmaking]] $defaults
     */
   type Matchmaker[G] = Iterable[Individual[G]] ⇒ Iterable[Pair[Individual[G],Individual[G]]]
 
   /** A `Mutagen` determines the probability with which individuals mutate, depending on the current
     * generation.
     *
-    * @see [[org.eva4s.Mutagens]]
+    * @see [[org.eva4s.Mutagens]] $defaults
     */
   type Mutagen = Int ⇒ Double
 
-  /** A `Selector` determines how the individuals for the next generation are chosen.
+  /** A `Selector` determines how the individuals for the next generation are chosen. It models
+    * environmental selection.
     *
     * @tparam G $genome
     *
-    * @see [[org.eva4s.Selection]]
+    * @see [[org.eva4s.Selection]] $defaults
     */
   type Selector[G] = (Iterable[Individual[G]], Iterable[Individual[G]]) ⇒ Iterable[Individual[G]]
 
-  // -----------------------------------------------------------------------
-  // pimp my collections
-  // -----------------------------------------------------------------------
-
-  implicit def genCollectionExtras[A,CC[A] <: GenTraversable[A]](xs: CC[A]) = new {
-
-    /** Returns the average of the elements in this collection. */
-    def average(implicit num: Numeric[A]): Double = {
-      import num._
-      xs.sum.toDouble / xs.size
-    }
-
-    /** Returns the average of the results of the applied function.
-      *
-      * `coll averageBy f` is equivalent to `coll map f average` but does not entail the overhead
-      * of creating a new collection.
-      */
-    def averageBy[B](f: A ⇒ B)(implicit num: Numeric[B]): Double = {
-      import num._
-      xs.aggregate(zero)(_ + f(_), _ + _).toDouble / xs.size
-    }
-
-    /** Returns a new collection with `n` randomly chosen elements. */
-    def choose(n: Int): CC[A] =
-      xs.shuffle(Mixer.GenTraversableMixer[CC]).take(n).asInstanceOf[CC[A]]
-
-    /** Returns two randomly chosen elements as a pair. */
-    def choosePair: Pair[A,A] = {
-      val two = choose(2).seq
-      Pair(two.head, two.last)
-    }
-
-  }
+  // -----------------------------------------------------------------------------------------------
+  // others
+  // -----------------------------------------------------------------------------------------------
 
   /** Returns some debugger function. */
   val printer: Option[(Int,Double,Double) ⇒ Unit] = Some { (g: Int, i: Double, f: Double) ⇒

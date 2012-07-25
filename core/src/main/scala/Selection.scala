@@ -26,7 +26,7 @@
 
 package org.eva4s
 
-import scalax.util._
+import scalay.collection._
 
 /** $SelectionInfo */
 object Selection extends Selection

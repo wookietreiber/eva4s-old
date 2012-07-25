@@ -28,6 +28,7 @@
 package org.eva4s
 
 import scala.annotation.tailrec
+import scalay.collection._
 
 trait Evolver {
 

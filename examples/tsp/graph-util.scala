@@ -34,7 +34,7 @@ import scalax.collection.GraphPredef._
 import scalax.collection.edge._
 import scalax.collection.edge.Implicits._
 
-import scalax.util._
+import scalay.collection._
 
 object graph {
 
