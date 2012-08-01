@@ -27,8 +27,6 @@
 
 package org
 
-import scala.collection.GenTraversable
-
 /** This package brings evolutionary algorithms to Scala.
   *
   * @define genome the type of the genome of the individuals
@@ -60,7 +58,7 @@ package object eva4s {
     *
     * @see [[org.eva4s.Matchmaking]] $defaults
     */
-  type Matchmaker[G] = Iterable[Individual[G]] ⇒ Iterable[Pair[Individual[G],Individual[G]]]
+  type Matchmaker[G] = (Iterable[Individual[G]],Int) ⇒ Iterable[Pair[Individual[G],Individual[G]]]
 
   /** A `Mutagen` determines the probability with which individuals mutate, depending on the current
     * generation.

@@ -41,8 +41,8 @@ object Mutagens extends Mutagens
   *
   * @see [[org.eva4s.Mutagen]]
   *
-  * @define startProbability the mutation probability at generation zero
-  * @define endProbability the mutation probability at generation `generations`
+  * @define start the mutation probability at generation zero
+  * @define end the mutation probability at generation `generations`
   * @define generations the final generation
   * @define generation the current generation
   */
@@ -50,31 +50,27 @@ trait Mutagens {
 
   /** Returns a monotonically decreasing value based on `f(x) = a * exp(b*x)`.
     *
-    * @param startProbability $startProbability
-    * @param endProbability $endProbability
+    * @param start $start
+    * @param end $end
     * @param generations $generations
     * @param generation $generation
     */
-  def ExponentialMutagen(startProbability: Double,
-                         endProbability: Double)
-                        (generations: Int)
-                        (generation: Int): Double = {
-    startProbability * pow(endProbability / startProbability, generations / generation)
-  }
+  def ExponentialDecreasingMutagen(start: Double, end: Double)
+                                  (generations: Int)
+                                  (generation: Int): Double =
+    start * pow(end / start, generation.toDouble / generations)
 
   /** Returns a monotonically decreasing value based on `f(x) = a + b*x`.
     *
-    * @param startProbability $startProbability
-    * @param endProbability $endProbability
+    * @param start $start
+    * @param end $end
     * @param generations $generations
     * @param generation $generation
     */
-  def LinearMutagen(startProbability: Double,
-                    endProbability: Double)
-                   (generations: Int)
-                   (generation: Int): Double = {
-    startProbability + (endProbability - startProbability) / generations * generation
-  }
+  def LinearDecreasingMutagen(start: Double, end: Double)
+                             (generations: Int)
+                             (generation: Int): Double =
+    start + (end - start) / generations * generation
 
   /** Returns a `Mutagen` that always uses the same probability.
     *
