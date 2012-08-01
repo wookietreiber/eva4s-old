@@ -7,7 +7,7 @@
  *                                                                          *
  ****************************************************************************
  *                                                                          *
- *  This file is part of 'scalevalgo'.                                      *
+ *  This file is part of 'eva4s'.                                           *
  *                                                                          *
  *  This project is free software: you can redistribute it and/or modify    *
  *  it under the terms of the GNU General Public License as published by    *
@@ -25,10 +25,10 @@
  ****************************************************************************/
 
 
-package ea
+package org.eva4s
 package tsp
 
-import ea.util.graph._
+import org.eva4s.util.graph._
 
 import scala.annotation.tailrec
 
@@ -41,22 +41,21 @@ import scalax.collection.edge.Implicits._
 import scalaz._
 import Scalaz._
 
-class TravelingSalesmanProblem[N: Manifest](
-    override val problem: Graph[N,WUnDiEdge])
-  extends EvolutionaryAlgorithm[Graph[N,WDiEdge],Graph[N,WUnDiEdge]] {
+class TravelingSalesmanProblem[N:Manifest](val problem: Graph[N,WUnDiEdge])
+  extends Evolutionary[Graph[N,WDiEdge],Graph[N,WUnDiEdge]] {
 
   override def ancestor = cycle(problem)
 
-  override def fitness(individual: Graph[N,WDiEdge]) = weight(individual)
+  override def fitness(genome: Graph[N,WDiEdge]) = weight(genome)
 
-  override def recombine(parents: Pair[Graph[N,WDiEdge],Graph[N,WDiEdge]]) = {
-    val adjacencies = neighbors(parents._1) |+| neighbors(parents._2)
-    val startNode = parents._1.nodes.head.value
+  override def recombine(p1: Graph[N,WDiEdge], p2: Graph[N,WDiEdge]) = {
+    val adjacencies = neighbors(p1) |+| neighbors(p2)
+    val startNode = p1.nodes.head.value
 
     @tailrec
     def recurse(have: List[N], currentNode: N, edges: List[WDiEdge[N]]): Graph[N,WDiEdge] = {
       if (have.size == problem.nodes.size) {
-        val nextEdge = (currentNode ~%> startNode)(problem.get((currentNode ~% startNode)(0)).weight)
+        val nextEdge = (currentNode ~%> startNode)(problem.get((currentNode ~% startNode)(0)).toEdgeIn.weight)
         Graph from (
           edges = nextEdge :: edges
         )
@@ -68,9 +67,9 @@ class TravelingSalesmanProblem[N: Manifest](
             case (key,_) ⇒ have.contains(key)
           } apply node filterNot have.contains size
         } else // in case remainingNodes is empty choose some remaining node
-          parents._1.nodes.toNodeInSet filterNot have.contains head
+          p1.nodes.toNodeInSet filterNot have.contains head
 
-        val nextEdge = (currentNode ~%> nextNode)(problem.get((currentNode ~% nextNode)(0)).weight)
+        val nextEdge = (currentNode ~%> nextNode)(problem.get((currentNode ~% nextNode)(0)).toEdgeIn.weight)
 
         recurse(nextNode :: have, nextNode, nextEdge :: edges)
       }
@@ -79,37 +78,37 @@ class TravelingSalesmanProblem[N: Manifest](
     Vector(recurse(List(startNode), startNode, Nil))
   }
 
-  override def mutate(individual: Graph[N,WDiEdge]) = {
-    val nodes = individual.nodes.toIndexedSeq
+  override def mutate(genome: Graph[N,WDiEdge]) = {
+    val nodes = genome.nodes.toIndexedSeq
     val s = nodes.size
 
     val start = nodes(Random.nextInt(s))
     val end   = nodes(Random.nextInt(s))
 
     if (start == end) {
-      individual
+      genome
     } else {
       val path = start.pathTo(end).get
 
-      if (path.edges.size == individual.edges.size - 1) {
+      if (path.edges.size == genome.edges.size - 1) {
         Graph from (
-          edges = individual.edges map { e ⇒
-            (e.edge._2.value ~%> e.edge._1.value)(problem.get((e.edge._2.value ~% e.edge._1.value)(0)).weight)
+          edges = genome.edges map { e ⇒
+            (e.edge._2.value ~%> e.edge._1.value)(problem.get((e.edge._2.value ~% e.edge._1.value)(0)).toEdgeIn.weight)
           }
         )
       } else {
         val pred  = start.diPredecessors.head
         val succ  = end.diSuccessors.head
 
-        val nend   = (start.value ~%> succ.value)(problem.get((start.value ~% succ.value)(0)).weight)
-        val nstart = (pred.value  ~%> end.value )(problem.get((pred.value  ~% end.value )(0)).weight)
+        val nend   = (start.value ~%> succ.value)(problem.get((start.value ~% succ.value)(0)).toEdgeIn.weight)
+        val nstart = (pred.value  ~%> end.value )(problem.get((pred.value  ~% end.value )(0)).toEdgeIn.weight)
         val nedges = path.edges map { e ⇒
-          (e.edge._2.value ~%> e.edge._1.value)(problem.get((e.edge._2.value ~% e.edge._1.value)(0)).weight)
+          (e.edge._2.value ~%> e.edge._1.value)(problem.get((e.edge._2.value ~% e.edge._1.value)(0)).toEdgeIn.weight)
         }
 
-        val rmes = pred.pathTo(succ) map { _.edges } getOrElse { individual.edges }
+        val rmes = pred.pathTo(succ) map { _.edges } getOrElse { genome.edges }
 
-        individual -- (rmes) ++ (nstart :: nend :: nedges.toList)
+        genome -- (rmes) ++ (nstart :: nend :: nedges.toList)
       }
     }
   }

@@ -7,7 +7,7 @@
  *                                                                          *
  ****************************************************************************
  *                                                                          *
- *  This file is part of 'scalevalgo'.                                      *
+ *  This file is part of 'eva4s'.                                           *
  *                                                                          *
  *  This project is free software: you can redistribute it and/or modify    *
  *  it under the terms of the GNU General Public License as published by    *
@@ -25,15 +25,16 @@
  ****************************************************************************/
 
 
-import scala.collection.GenTraversableOnce
-import scala.collection.TraversableLike
-import scala.collection.generic.CanBuildFrom
+package org
 
-/**
+import scala.collection.GenTraversable
+
+/** This package brings evolutionary algorithms to Scala.
   *
   * @define genome the type of the genome of the individuals
+  * @define defaults contains default implementations.
   */
-package object ea {
+package object eva4s {
 
   /** Represents an individual with its genome and fitness.
     *
@@ -41,77 +42,53 @@ package object ea {
     *
     * @param genome Returns the genome of this individual.
     * @param fitness Returns the fitness of this individual.
+    *
+    * @note [[org.eva4s.Evolutionary]] provides more convenient methods for creating individuals.
     */
   case class Individual[G](genome: G, fitness: Double)
 
-  // -----------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
   // aliases
-  // -----------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
+  /** Returns Scala's default [[scala.util.Random]] object. */
   val Random = scala.util.Random
 
-  /** A `Matchmaker` pairs individuals up with each other.
+  /** A `Matchmaker` pairs individuals up with each other. It models parental selection.
     *
     * @tparam G $genome
     *
-    * @see [[ea.Matchmaking]]
+    * @see [[org.eva4s.Matchmaking]] $defaults
     */
   type Matchmaker[G] = Iterable[Individual[G]] ⇒ Iterable[Pair[Individual[G],Individual[G]]]
 
   /** A `Mutagen` determines the probability with which individuals mutate, depending on the current
     * generation.
     *
-    * @see [[ea.Mutagens]]
+    * @see [[org.eva4s.Mutagens]] $defaults
     */
   type Mutagen = Int ⇒ Double
 
-  /** A `Selector` determines how the individuals for the next generation are chosen.
+  /** A `Selector` determines how the individuals for the next generation are chosen. It models
+    * environmental selection.
     *
     * @tparam G $genome
     *
-    * @see [[ea.Selection]]
+    * @see [[org.eva4s.Selection]] $defaults
     */
   type Selector[G] = (Iterable[Individual[G]], Iterable[Individual[G]]) ⇒ Iterable[Individual[G]]
 
-  // -----------------------------------------------------------------------
-  // pimp my collections
-  // -----------------------------------------------------------------------
-
-  implicit def collectionExtras[A,CC[A] <: TraversableLike[A,CC[A]]](xs: CC[A]) = new {
-
-    /** Returns a new collection with `n` randomly chosen elements. */
-    def choose(n: Int)(implicit bf: CanBuildFrom[CC[A],A,CC[A]]): CC[A] =
-      shuffle take n
-
-    /** Returns a new, shuffled collection. */
-    def shuffle(implicit bf: CanBuildFrom[CC[A],A,CC[A]]): CC[A] =
-      Random shuffle xs
-
-  }
-
-  implicit def genCollectionExtras[A,CC[A] <: GenTraversableOnce[A]](xs: CC[A]) = new {
-
-    /** Returns the average of the elements in this collection. */
-    def average(implicit num: Numeric[A]): Double = {
-      import num._
-      xs.sum.toDouble / xs.size
-    }
-
-    /** Returns the average of the results of the applied function.
-      *
-      * `coll averageBy f` is equivalent to `coll map f average` but does not entail the overhead
-      * of creating a new collection.
-      */
-    def averageBy[B](f: A ⇒ B)(implicit num: Numeric[B]): Double = {
-      import num._
-      xs.foldLeft(zero)(_ + f(_)).toDouble / xs.size
-    }
-
-  }
+  // -----------------------------------------------------------------------------------------------
+  // others
+  // -----------------------------------------------------------------------------------------------
 
   /** Returns some debugger function. */
   val printer: Option[(Int,Double,Double) ⇒ Unit] = Some { (g: Int, i: Double, f: Double) ⇒
     printf("generation: %5d   intensity: % 10.6f   average fitness: %f\n", g, i, f)
+  }
+
+  private[eva4s] def ranks(size: Int) = Vector.tabulate(size) {
+    i ⇒ 2.0 / size * (1 - i.toDouble / (size - 1.0))
   }
 
 }

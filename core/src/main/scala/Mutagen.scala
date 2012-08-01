@@ -6,7 +6,7 @@
  *                                                                          *
  ****************************************************************************
  *                                                                          *
- *  This file is part of 'scalevalgo'.                                      *
+ *  This file is part of 'eva4s'.                                           *
  *                                                                          *
  *  This project is free software: you can redistribute it and/or modify    *
  *  it under the terms of the GNU General Public License as published by    *
@@ -24,22 +24,22 @@
  ****************************************************************************/
 
 
-package ea
+package org.eva4s
 
 import math._
 
-/** $mutageninfo */
+/** $MutagenInfo */
 object Mutagens extends Mutagens
 
-/** $mutageninfo
+/** $MutagenInfo
   *
-  * @define mutageninfo Contains default [[ea.Mutagen]] implementations which determine the mutation
-  * probability depending on the generation.
+  * @define MutagenInfo Contains default [[org.eva4s.Mutagen]] implementations which determine the
+  * mutation probability depending on the generation.
   *
   * The idiomatic usage of the functions defined here is to fill in the parameters of the first
-  * parameter list(s) and use the remaining function as a [[ea.Mutagen]].
+  * parameter list(s) and use the remaining function as a [[org.eva4s.Mutagen]].
   *
-  * @see [[ea.Mutagen]]
+  * @see [[org.eva4s.Mutagen]]
   *
   * @define startProbability the mutation probability at generation zero
   * @define endProbability the mutation probability at generation `generations`
@@ -59,7 +59,7 @@ trait Mutagens {
                          endProbability: Double)
                         (generations: Int)
                         (generation: Int): Double = {
-    startProbability * exp(log(endProbability / startProbability) / generations * generation)
+    startProbability * pow(endProbability / startProbability, generations / generation)
   }
 
   /** Returns a monotonically decreasing value based on `f(x) = a + b*x`.

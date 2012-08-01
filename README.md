@@ -1,12 +1,18 @@
-# Evolutionary Algorithms
+# Evolutionary Algorithms for Scala
 
-This project was started as an exercise to implement the [Evolutionary Algorithms][ea] (EA) learned
+This project was started as an exercise to implement the [Evolutionary Algorithms][ea] learned
 during an eponymous computer science lecture using the programming language [Scala][scala].
+
+
+## Modularity
+
+Different implementations of various models may be used dynamically via the [strategy
+pattern][strategy].
 
 ### Selectors
 
-Different `Selector` implementations (which model environmental selection) may be used dynamically
-via the [strategy pattern][strategy]:
+A `Selector` determines how the individuals for the next generation are chosen, i.e. it models
+environmental selection.
 
 -   child selection (selects the offspring, no parents)
 -   comma selection (selects the fittest offspring, no parents)
@@ -15,12 +21,22 @@ via the [strategy pattern][strategy]:
 
 ### Matchmakers
 
-Different `Matchmaker` implementations (which model parental selection) may be used dynamically via
-the [strategy pattern][strategy]:
+A `Matchmaker` pairs individuals up with each other, i.e. models parental selection.
 
+-   rank based matchmaking
+-   tournament based matchmaking
 -   random forced matchmaking (pairs up a fixed amount of individuals randomly)
 -   random acceptance matchmaking (pairs up individuals randomly and gives them a chance to accept
     the match)
+
+### Mutagens
+
+A `Mutagen` determines the probability with which individuals mutate, depending on the current
+generation.
+
+-   constant
+-   linear: monotonically decreasing value based on `f(x) = a + b*x`
+-   exponential: monotonically decreasing value based on `f(x) = a * exp(b*x)`
 
 
 ## Examples

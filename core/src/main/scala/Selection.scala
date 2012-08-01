@@ -6,7 +6,7 @@
  *                                                                          *
  ****************************************************************************
  *                                                                          *
- *  This file is part of 'scalevalgo'.                                      *
+ *  This file is part of 'eva4s'.                                           *
  *                                                                          *
  *  This project is free software: you can redistribute it and/or modify    *
  *  it under the terms of the GNU General Public License as published by    *
@@ -24,20 +24,22 @@
  ****************************************************************************/
 
 
-package ea
+package org.eva4s
 
-/** $selectioninfo */
+import scalay.collection._
+
+/** $SelectionInfo */
 object Selection extends Selection
 
-/** $selectioninfo
+/** $SelectionInfo
   *
-  * @define selectioninfo Contains default [[ea.Selector]] implementations which define
+  * @define SelectionInfo Contains default [[org.eva4s.Selector]] implementations which define
   * environmental selection.
   *
   * The idiomatic usage of the functions defined here is to fill in the parameters of the first
-  * parameter list(s) and use the remaining function as a [[ea.Selector]].
+  * parameter list(s) and use the remaining function as a [[org.eva4s.Selector]].
   *
-  * @see [[ea.Selector]]
+  * @see [[org.eva4s.Selector]]
   *
   * @define genome the type of the genome of the individuals
   * @define mu the amount of chosen children
@@ -80,7 +82,7 @@ trait Selection {
   def CommaSelection[G](survivors: Int ⇒ Int = (λ: Int) ⇒ math.round(λ.toFloat / 6))
                        (parents: Iterable[Individual[G]], offspring: Iterable[Individual[G]])
                         : Iterable[Individual[G]] =
-    offspring.toSeq sortBy { _.fitness } take survivors(offspring.size)
+    offspring sortBy { _.fitness } take survivors(offspring.size)
 
   /** Returns the fittest individuals.
     *
@@ -95,16 +97,16 @@ trait Selection {
   def PlusSelection[G](parents: Iterable[Individual[G]],
                        offspring: Iterable[Individual[G]])
                        : Iterable[Individual[G]] =
-    (parents ++ offspring).toSeq sortBy { _.fitness } take parents.size
+    (parents ++ offspring) sortBy { _.fitness } take parents.size
 
-  /** Returns the fittest individuals. This is an alias for [[ea.Selection#PlusSelection]].
+  /** Returns the fittest individuals. This is an alias for [[org.eva4s.Selection#PlusSelection]].
     *
     * @tparam G $genome
     *
     * @param parents $parents, determines `μ = parents.size`
     * @param offspring $offspring, determines `λ = offspring.size`
     *
-    * @see [[ea.Selection#PlusSelection]]
+    * @see [[org.eva4s.Selection#PlusSelection]]
     */
   def SurvivalOfTheFittest[G](parents: Iterable[Individual[G]],
                               offspring: Iterable[Individual[G]])

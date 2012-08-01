@@ -7,7 +7,7 @@
  *                                                                          *
  ****************************************************************************
  *                                                                          *
- *  This file is part of 'scalevalgo'.                                      *
+ *  This file is part of 'eva4s'.                                           *
  *                                                                          *
  *  This project is free software: you can redistribute it and/or modify    *
  *  it under the terms of the GNU General Public License as published by    *
@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 
-package ea
+package org.eva4s
 package util
 
 import scalax.collection._
@@ -33,6 +33,8 @@ import scalax.collection.GraphEdge._
 import scalax.collection.GraphPredef._
 import scalax.collection.edge._
 import scalax.collection.edge.Implicits._
+
+import scalay.collection._
 
 object graph {
 
