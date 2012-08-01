@@ -61,11 +61,10 @@ trait Matchmaking {
     *
     * @tparam G $genome
     *
-    * @param pairs $pairs
     * @param parents $parents
+    * @param pairs $pairs
     */
-  def RandomForcedMatchmaker[G](pairs: Int)
-                               (parents: Iterable[Individual[G]])
+  def RandomForcedMatchmaker[G](parents: Iterable[Individual[G]], pairs: Int)
                                 : Iterable[Pair[Individual[G],Individual[G]]] =
     Vector.fill(pairs) { parents.choosePair }
 
@@ -73,12 +72,12 @@ trait Matchmaking {
     *
     * @tparam G $genome
     *
-    * @param pairs $pairs
     * @param acceptance $acceptance
     * @param parents $parents
+    * @param pairs $pairs
     */
-  def RandomAcceptanceMatchmaker[G](pairs: Int, acceptance: Double)
-                                   (parents: Iterable[Individual[G]])
+  def RandomAcceptanceMatchmaker[G](acceptance: Double)
+                                   (parents: Iterable[Individual[G]], pairs: Int)
                                     : Iterable[Pair[Individual[G],Individual[G]]] =
     for (i ← 1 to pairs if Random.nextDouble < acceptance) yield parents choosePair
 
@@ -87,11 +86,10 @@ trait Matchmaking {
     *
     * @tparam G $genome
     *
-    * @param pairs $pairs
     * @param parents $parents
+    * @param pairs $pairs
     */
-  def RankBasedMatchmaker[G](pairs: Int)
-                            (parents: Iterable[Individual[G]])
+  def RankBasedMatchmaker[G](parents: Iterable[Individual[G]], pairs: Int)
                              : Iterable[Pair[Individual[G],Individual[G]]] = {
     val ranked = parents sortBy { - _.fitness } zip {
       ranks(parents.size).inits drop 1 map { _.sum } toList
@@ -121,12 +119,12 @@ trait Matchmaking {
     *
     * @tparam G $genome
     *
-    * @param pairs $pairs
     * @param participants amount of randomly selected individuals attending a tournament
     * @param parents $parents
+    * @param pairs $pairs
     */
-  def TournamentMatchmaker[G](pairs: Int, participants: Int)
-                             (parents: Iterable[Individual[G]])
+  def TournamentMatchmaker[G](participants: Int)
+                             (parents: Iterable[Individual[G]], pairs: Int)
                               : Iterable[Pair[Individual[G],Individual[G]]] = {
     require(participants >= 2, "participants must be greater or equal to 2")
 
@@ -146,12 +144,12 @@ trait Matchmaking {
     *
     * @tparam G $genome
     *
-    * @param pairs $pairs
     * @param participants amount of randomly selected individuals attending a tournament
     * @param parents $parents
+    * @param pairs $pairs
     */
-  def MultipleTournamentMatchmaker[G](pairs: Int, participants: Int)
-                                     (parents: Iterable[Individual[G]])
+  def MultipleTournamentMatchmaker[G](participants: Int)
+                                     (parents: Iterable[Individual[G]], pairs: Int)
                                       : Iterable[Pair[Individual[G],Individual[G]]] = {
     def winners = parents map { parent ⇒
       val ps = Seq(parent) ++ (parents filter { _ != parent } choose participants)
