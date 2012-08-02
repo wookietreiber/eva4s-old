@@ -25,10 +25,10 @@
  ****************************************************************************/
 
 
-package ea
+package org.eva4s
 package foo
 
-object Foo {
+object Bar {
 
   def OnePointCrossover(parents: Pair[Vector[Boolean],Vector[Boolean]]): Iterable[Vector[Boolean]] = {
     require(parents._1.size == parents._2.size)
@@ -63,85 +63,12 @@ object Foo {
     children
   }
 
-  def IntermediateCrossover(parents: Pair[Vector[Double],Vector[Double]]): Iterable[Vector[Double]] = {
-    require(parents._1.size == parents._2.size)
-
-    def sample(a: Double) = - a + (1 + 2 * a) * Random.nextDouble
-
-    val size = parents._1.size
-
-    var children = for {
-      i ← 1 to 2
-      ss = for { i ← 1 to size } yield sample(0.25)
-      a = parents._1 zip ss map { case (a,b) ⇒ a*b }
-      b = parents._2 zip ss map { case (a,b) ⇒ a*(1-b) }
-    } yield a zip b map { case (a,b) ⇒ a+b }
-
-    assume(children forall { _.size == parents._1.size })
-
-    children
-  }
-
-  def LineCrossover(parents: Pair[Vector[Double],Vector[Double]]): Iterable[Vector[Double]] = {
-    require(parents._1.size == parents._2.size)
-
-    def sample(a: Double) = - a + (1 + 2 * a) * Random.nextDouble
-
-    val size = parents._1.size
-
-    var children = for {
-      i ← 1 to 2
-      ss = for { i ← 1 to size ; s = sample(0.25) } yield s
-      a = parents._1 zip ss map { case (a,b) ⇒ a*b }
-      b = parents._2 zip ss map { case (a,b) ⇒ a*(1-b) }
-    } yield a zip b map { case (a,b) ⇒ a+b }
-
-    assume(children forall { _.size == parents._1.size })
-
-    children
-  }
-
-  def ArithmeticCrossover(parents: Pair[Vector[Double],Vector[Double]]): Iterable[Vector[Double]] = {
-    require(parents._1.size == parents._2.size)
-
-    val c1 = parents._1 zip parents._2 map { case (a,b) ⇒ (a+b) / 2 }
-    val c2 = parents._1 zip parents._2 map { case (a,b) ⇒ math.sqrt(a*b) }
-
-    var children = Iterable(c1, c2)
-
-    assume(children forall { _.size == parents._1.size })
-
-    children
-  }
-
-}
-
-import Foo._
-
-class Foo(vars: Int, gl: Vector[Double], gu: Vector[Double])
-         (override val problem: Vector[Double] ⇒ Double)
-         (val recomb: Pair[Vector[Double],Vector[Double]] ⇒ Iterable[Vector[Double]])
-  extends EvolutionaryAlgorithm[Vector[Double], Vector[Double] ⇒ Double] {
-
-  override def ancestor: Vector[Double] = for {
-    i ← Vector(1 to vars: _*)
-  } yield gl(i-1) + (gu(i-1) - gl(i-1)) * Random.nextDouble
-
-  override def fitness(g: Vector[Double]): Double = problem(g)
-
-  override def mutate(g: Vector[Double]): Vector[Double] = g map { x ⇒
-    (0.5 * Random.nextDouble + 0.75) * x
-  }
-
-  override def recombine(parents: Pair[Vector[Double],Vector[Double]]): Iterable[Vector[Double]] =
-    recomb(parents)
-
 }
 
 class Bar(vars: Int, k: Int, gl: Vector[Double], gu: Vector[Double])(p: Vector[Double] ⇒ Double)
          (implicit recomb: Pair[Vector[Boolean],Vector[Boolean]] ⇒ Iterable[Vector[Boolean]] =
-            TwoPointCrossover)
-  extends EvolutionaryAlgorithm[Vector[Boolean], Vector[Boolean] ⇒ Double] {
+            Bar.TwoPointCrossover)
+  extends Evolutionary[Vector[Boolean], Vector[Boolean] ⇒ Double] {
 
   override val problem = (v: Vector[Boolean]) ⇒ {
     require(v.size == k * vars)
@@ -170,7 +97,7 @@ class Bar(vars: Int, k: Int, gl: Vector[Double], gu: Vector[Double])(p: Vector[D
     g.updated(i, ! g(i))
   }
 
-  override def recombine(parents: Pair[Vector[Boolean],Vector[Boolean]]): Iterable[Vector[Boolean]] =
-    recomb(parents)
+  override def recombine(p1: Vector[Boolean], p2: Vector[Boolean]): Iterable[Vector[Boolean]] =
+    recomb(p1,p2)
 
 }

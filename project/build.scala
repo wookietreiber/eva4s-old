@@ -25,7 +25,7 @@ object eva4s extends Build {
   lazy val root = Project (
     id        = "eva4s",
     base      = file ("."),
-    aggregate = Seq ( core, examples ),
+    aggregate = Seq ( core, examples, foo ),
     settings  = baseSettings
   )
 
@@ -86,11 +86,12 @@ object eva4s extends Build {
   )
 
   lazy val foo = Project (
-    id        = "scalevalgo-foo",
+    id        = "foo",
     base      = file ("examples/foo"),
     settings  = baseSettings ++ Seq (
+      name := "eva4s-foo",
       initialCommands in Compile in console += """
-        import ea.foo._
+        import org.eva4s.foo._
       """
     ),
     dependencies = Seq ( core )
