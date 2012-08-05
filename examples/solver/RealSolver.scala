@@ -88,6 +88,12 @@ class RealSolver(val vars: Int, val lower: Vector[Double], val upper: Vector[Dou
             RealSolver.IntermediateCrossover)
   extends EvolutionarySolver[Double] {
 
+  def this(vars: Int, problem: BoundedEquation) = this(
+    vars,
+    Vector.fill(vars)(problem.lower),
+    Vector.fill(vars)(problem.upper)
+  )(problem)
+
   override def ancestor: Vector[Double] = boundedAncestor
 
   override def mutate(g: Vector[Double]): Vector[Double] = g map { x ⇒

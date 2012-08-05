@@ -70,6 +70,13 @@ class BinarySolver(val vars: Int, val k: Int, val lower: Vector[Double], val upp
                      BinarySolver.TwoPointCrossover)
   extends EvolutionarySolver[Boolean] {
 
+  def this(vars: Int, k: Int, problem: BoundedEquation) = this(
+    vars,
+    k,
+    Vector.fill(vars)(problem.lower),
+    Vector.fill(vars)(problem.upper)
+  )(problem)
+
   override val problem = (v: Vector[Boolean]) ⇒ {
     require(v.size == k * vars)
     p(decode(v))

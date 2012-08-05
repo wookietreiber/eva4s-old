@@ -30,4 +30,9 @@ package object solver {
 
   type Equation = Vector[Double] ⇒ Double
 
+  trait BoundedEquation extends Equation {
+    def lower: Int
+    def upper: Int
+  }
+
 }

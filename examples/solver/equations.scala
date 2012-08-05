@@ -32,23 +32,22 @@ import math._
 object Equation {
 
   /** Returns the [[http://www-optima.amp.i.kyoto-u.ac.jp/member/student/hedar/Hedar_files/TestGO_files/Page295.htm Ackley function]]. */
-  val ackley: Equation = new Function[Vector[Double],Double] {
+  val ackley: BoundedEquation = new BoundedEquation {
     def apply(xs: Vector[Double]) = {
-      val a = 20
-
       val b = - 0.2 * sqrt((xs map { x ⇒ x*x } sum) / xs.size)
-      val c = 20 * exp(b)
-
       val d = exp(((xs map { x ⇒ cos(2 * Pi * x) } sum) / xs.size))
 
-      a + E - c - d
+      20 + E - 20*exp(b) - d
     }
+
+    def lower = -20
+    def upper =  30
 
     override def toString = "Ackley Function"
   }
 
   /** Returns the [[http://mathworld.wolfram.com/GriewankFunction.html Griewank function]]. */
-  val griewank: Equation = new Function[Vector[Double],Double] {
+  val griewank: BoundedEquation = new BoundedEquation {
     def apply(xs: Vector[Double]) = {
       val a = xs.view map { pow(_,2) } sum
       val b = xs.view.zipWithIndex map {
@@ -57,6 +56,9 @@ object Equation {
 
       1 + a/4000 - b
     }
+
+    def lower = -512
+    def upper =  511
 
     override def toString = "Griewank Function"
   }
