@@ -32,7 +32,7 @@ import math._
 object Equation {
 
   /** Returns the [[http://www-optima.amp.i.kyoto-u.ac.jp/member/student/hedar/Hedar_files/TestGO_files/Page295.htm Ackley function]]. */
-  val ackley: Equation = new Equation {
+  val ackley: Equation = new Function[Vector[Double],Double] {
     def apply(xs: Vector[Double]) = {
       val a = 20
 
@@ -48,7 +48,7 @@ object Equation {
   }
 
   /** Returns the [[http://mathworld.wolfram.com/GriewankFunction.html Griewank function]]. */
-  val griewank: Equation = new Equation {
+  val griewank: Equation = new Function[Vector[Double],Double] {
     def apply(xs: Vector[Double]) = {
       val a = xs.view map { pow(_,2) } sum
       val b = xs.view.zipWithIndex map {
