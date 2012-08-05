@@ -27,22 +27,15 @@
 package org.eva4s
 package solver
 
-import math._
+import scala.math._
 
 object Benchmark {
 
-  def benchmarkReal(solver: RealSolver)
-                   (generations: Int = 200, individuals: Int = 100)
-                    : (Int,Vector[Double],Double) = {
-    val individual = SplitEvolver(solver)(generations, individuals)(debugger = printer)
-    (solver.vars,individual.genome,individual.fitness)
-  }
-
-  def benchmarkBinary(solver: BinarySolver)
-                     (generations: Int = 200, individuals: Int = 100)
-                      : (Int,Vector[Double],Double) = {
-    val individual = SplitEvolver(solver)(generations, individuals)()
-    (solver.vars,solver.decode(individual.genome),individual.fitness)
+  def nPopReal(solver: RealSolver,
+               generations: Int = 2000)
+              (is: Int*) = is map { i ⇒
+    val individual = SplitEvolver(solver)(generations, i)(debugger = printer)
+    (i,individual.fitness)
   }
 
 }
