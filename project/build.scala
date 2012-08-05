@@ -5,14 +5,10 @@ import BuildSettings._
 import Dependencies._
 
 object BuildSettings {
-  lazy val buildOrganization = "org.eva4s"
-  lazy val buildVersion      = "0.1.0-SNAPSHOT"
-  lazy val buildScalaVersion = "2.9.2"
-
   lazy val baseSettings = Defaults.defaultSettings ++ Seq (
-    organization   := buildOrganization,
-    version        := buildVersion,
-    scalaVersion   := buildScalaVersion,
+    organization   := "org.eva4s",
+    version        := "0.1.0-SNAPSHOT",
+    scalaVersion   := "2.9.2",
     initialCommands in (Compile, consoleQuick) <<= initialCommands in Compile,
     initialCommands in Compile in console += """
       import org.eva4s._
@@ -25,7 +21,7 @@ object eva4s extends Build {
   lazy val root = Project (
     id        = "eva4s",
     base      = file ("."),
-    aggregate = Seq ( core, examples, foo ),
+    aggregate = Seq ( core, examples ),
     settings  = baseSettings
   )
 
@@ -47,7 +43,7 @@ object eva4s extends Build {
   lazy val examples = Project (
     id        = "examples",
     base      = file ("examples"),
-    aggregate = Seq ( template, tsp ),
+    aggregate = Seq ( template, tsp, solver ),
     settings  = baseSettings ++ Seq (
       name := "eva4s-examples"
     )
@@ -85,13 +81,14 @@ object eva4s extends Build {
     )
   )
 
-  lazy val foo = Project (
-    id        = "foo",
-    base      = file ("examples/foo"),
+  lazy val solver = Project (
+    id        = "solver",
+    base      = file ("examples/solver"),
     settings  = baseSettings ++ Seq (
-      name := "eva4s-foo",
+      name := "eva4s-equation-solver",
+      libraryDependencies += chart,
       initialCommands in Compile in console += """
-        import org.eva4s.foo._
+        import org.eva4s.solver._
       """
     ),
     dependencies = Seq ( core )
@@ -100,8 +97,9 @@ object eva4s extends Build {
 }
 
 object Dependencies {
+  lazy val chart  = "org.sfree"                    %% "sfreechart"  % "latest.integration"
   lazy val graph  = "com.assembla.scala-incubator" %% "graph-core"  % "1.5.1"
   lazy val scalaz = "org.scalaz"                   %% "scalaz-core" % "6.0.4"
   lazy val extras = "com.github.scala-collection-extras" %% "collection-extras" % "latest.integration"
-  lazy val specs2 = "org.specs2"                   %% "specs2"      % "1.11"  % "test"
+  lazy val specs2 = "org.specs2"                   %% "specs2"      % "1.12"  % "test"
 }

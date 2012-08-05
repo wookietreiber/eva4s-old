@@ -26,34 +26,23 @@
 
 
 package org.eva4s
-package foo
+package solver
 
-import math._
+trait EvolutionarySolver[A] extends Evolutionary[Vector[A], Vector[A] ⇒ Double] {
 
-object Benchmark {
+  override def fitness(g: Vector[A]): Double = problem(g)
 
-  def foonchmark(n: Int, gmin: Double, gmax: Double)
-         (f: Vector[Double] ⇒ Double)
-         (generations: Int = 200, individuals: Int = 100)
-         (cross: ((Vector[Double], Vector[Double])) ⇒ Iterable[Vector[Double]])
-         : (Int,Vector[Double],Double) = {
-    val mins = Vector.fill(n)(gmin)
-    val maxs = Vector.fill(n)(gmax)
-    val foo = new Foo(n, mins, maxs)(f)(cross)
-    val individual = SplitEvolver(foo)(generations, individuals)(debugger = printer)
-    (n,individual.genome,individual.fitness)
-  }
+  def vars: Int
 
-  def barnchmark(n: Int, k: Int, gmin: Double, gmax: Double)
-         (f: Vector[Double] ⇒ Double)
-         (generations: Int = 200, individuals: Int = 100)
-         (cross: ((Vector[Boolean], Vector[Boolean])) ⇒ Iterable[Vector[Boolean]])
-         : (Int,Vector[Double],Double) = {
-    val mins = Vector.fill(n)(gmin)
-    val maxs = Vector.fill(n)(gmax)
-    val bar = new Bar(n, k, mins, maxs)(f)(cross)
-    val individual = SplitEvolver(bar)(generations, individuals)()
-    (n,bar.decode(individual.genome),individual.fitness)
+  /** Returns the lower bound of the solution. */
+  def lower: Vector[Double]
+
+  /** Returns the upper bound of the solution. */
+  def upper: Vector[Double]
+
+  /** Returns a random ancestor within the lower and upper bounds. */
+  def boundedAncestor: Vector[Double] = Vector.tabulate(vars) { i ⇒
+    lower(i) + (upper(i) - lower(i)) * Random.nextDouble
   }
 
 }

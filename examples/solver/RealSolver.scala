@@ -26,35 +26,53 @@
 
 
 package org.eva4s
-package foo
+package solver
 
-object Bar {
+object RealSolver {
 
-  def OnePointCrossover(parents: Pair[Vector[Boolean],Vector[Boolean]]): Iterable[Vector[Boolean]] = {
+  def IntermediateCrossover(parents: Pair[Vector[Double],Vector[Double]]): Iterable[Vector[Double]] = {
     require(parents._1.size == parents._2.size)
 
-    val point = Random.nextInt(parents._1.size)
+    def sample(a: Double) = - a + (1 + 2 * a) * Random.nextDouble
 
-    val c1 = (parents._1 take point) ++ (parents._2 drop point)
-    val c2 = (parents._2 take point) ++ (parents._1 drop point)
+    val size = parents._1.size
 
-    var children = Iterable(c1, c2)
+    var children = for {
+      i ← 1 to 2
+      ss = for { i ← 1 to size } yield sample(0.25)
+      a = parents._1 zip ss map { case (a,b) ⇒ a*b }
+      b = parents._2 zip ss map { case (a,b) ⇒ a*(1-b) }
+    } yield a zip b map { case (a,b) ⇒ a+b }
 
     assume(children forall { _.size == parents._1.size })
 
     children
   }
 
-  def TwoPointCrossover(parents: Pair[Vector[Boolean],Vector[Boolean]]): Iterable[Vector[Boolean]] = {
+  def LineCrossover(parents: Pair[Vector[Double],Vector[Double]]): Iterable[Vector[Double]] = {
     require(parents._1.size == parents._2.size)
 
-    val p1 = Random.nextInt(parents._1.size)
-    val p2 = Random.nextInt(parents._1.size)
+    def sample(a: Double) = - a + (1 + 2 * a) * Random.nextDouble
 
-    val (a,b) = p1.min(p2) → p1.max(p2)
+    val size = parents._1.size
 
-    val c1 = (parents._1 take a) ++ (parents._2 take b drop a) ++ (parents._1 drop b)
-    val c2 = (parents._2 take a) ++ (parents._1 take b drop a) ++ (parents._2 drop b)
+    var children = for {
+      i ← 1 to 2
+      ss = for { i ← 1 to size ; s = sample(0.25) } yield s
+      a = parents._1 zip ss map { case (a,b) ⇒ a*b }
+      b = parents._2 zip ss map { case (a,b) ⇒ a*(1-b) }
+    } yield a zip b map { case (a,b) ⇒ a+b }
+
+    assume(children forall { _.size == parents._1.size })
+
+    children
+  }
+
+  def ArithmeticCrossover(parents: Pair[Vector[Double],Vector[Double]]): Iterable[Vector[Double]] = {
+    require(parents._1.size == parents._2.size)
+
+    val c1 = parents._1 zip parents._2 map { case (a,b) ⇒ (a+b) / 2 }
+    val c2 = parents._1 zip parents._2 map { case (a,b) ⇒ math.sqrt(a*b) }
 
     var children = Iterable(c1, c2)
 
@@ -65,39 +83,19 @@ object Bar {
 
 }
 
-class Bar(vars: Int, k: Int, gl: Vector[Double], gu: Vector[Double])(p: Vector[Double] ⇒ Double)
-         (implicit recomb: Pair[Vector[Boolean],Vector[Boolean]] ⇒ Iterable[Vector[Boolean]] =
-            Bar.TwoPointCrossover)
-  extends Evolutionary[Vector[Boolean], Vector[Boolean] ⇒ Double] {
+class RealSolver(val vars: Int, val lower: Vector[Double], val upper: Vector[Double])
+         (override val problem: Vector[Double] ⇒ Double)
+         (implicit val recomb: Pair[Vector[Double],Vector[Double]] ⇒ Iterable[Vector[Double]] =
+            RealSolver.IntermediateCrossover)
+  extends EvolutionarySolver[Double] {
 
-  override val problem = (v: Vector[Boolean]) ⇒ {
-    require(v.size == k * vars)
-    p(decode(v))
+  override def ancestor: Vector[Double] = boundedAncestor
+
+  override def mutate(g: Vector[Double]): Vector[Double] = g map { x ⇒
+    (0.5 * Random.nextDouble + 0.75) * x
   }
 
-  override def ancestor: Vector[Boolean] = for {
-    i ← Vector(1 to (k * vars): _*)
-  } yield Random.nextBoolean
-
-  override def fitness(g: Vector[Boolean]): Double = problem(g)
-
-  def decode(v: Vector[Boolean]): Vector[Double] = for {
-    i ← Vector(0 to (v.size / k) - 1: _*)
-    gll = gl(i)
-    gul = gu(i)
-    a = v drop ((i-1) * k) take k
-    s = 0 to (k-1) map { j ⇒ if (a(k-j-1)) math.pow(2, j) else 0 } sum
-  } yield gl(i) + granularity(gl(i), gu(i)) * s
-
-  def granularity(gl: Double, gu: Double) =
-    (gu - gl) / (math.pow(2, k) - 1)
-
-  override def mutate(g: Vector[Boolean]): Vector[Boolean] = {
-    val i = Random.nextInt(g.size)
-    g.updated(i, ! g(i))
-  }
-
-  override def recombine(p1: Vector[Boolean], p2: Vector[Boolean]): Iterable[Vector[Boolean]] =
+  override def recombine(p1: Vector[Double], p2: Vector[Double]): Iterable[Vector[Double]] =
     recomb(p1,p2)
 
 }

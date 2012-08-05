@@ -26,7 +26,7 @@
 
 
 package org.eva4s
-package foo
+package solver
 
 import scala.annotation.tailrec
 import scalay.collection._

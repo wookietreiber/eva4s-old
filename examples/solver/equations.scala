@@ -26,11 +26,11 @@
 
 
 package org.eva4s
-package foo
+package solver
 
 import math._
 
-object Problem {
+object Equation {
 
   def ackley(xs: Vector[Double]): Double = {
     val a = 20

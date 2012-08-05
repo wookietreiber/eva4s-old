@@ -26,53 +26,35 @@
 
 
 package org.eva4s
-package foo
+package solver
 
-object Foo {
+object BinarySolver {
 
-  def IntermediateCrossover(parents: Pair[Vector[Double],Vector[Double]]): Iterable[Vector[Double]] = {
+  def OnePointCrossover(parents: Pair[Vector[Boolean],Vector[Boolean]]): Iterable[Vector[Boolean]] = {
     require(parents._1.size == parents._2.size)
 
-    def sample(a: Double) = - a + (1 + 2 * a) * Random.nextDouble
+    val point = Random.nextInt(parents._1.size)
 
-    val size = parents._1.size
+    val c1 = (parents._1 take point) ++ (parents._2 drop point)
+    val c2 = (parents._2 take point) ++ (parents._1 drop point)
 
-    var children = for {
-      i ← 1 to 2
-      ss = for { i ← 1 to size } yield sample(0.25)
-      a = parents._1 zip ss map { case (a,b) ⇒ a*b }
-      b = parents._2 zip ss map { case (a,b) ⇒ a*(1-b) }
-    } yield a zip b map { case (a,b) ⇒ a+b }
+    var children = Iterable(c1, c2)
 
     assume(children forall { _.size == parents._1.size })
 
     children
   }
 
-  def LineCrossover(parents: Pair[Vector[Double],Vector[Double]]): Iterable[Vector[Double]] = {
+  def TwoPointCrossover(parents: Pair[Vector[Boolean],Vector[Boolean]]): Iterable[Vector[Boolean]] = {
     require(parents._1.size == parents._2.size)
 
-    def sample(a: Double) = - a + (1 + 2 * a) * Random.nextDouble
+    val p1 = Random.nextInt(parents._1.size)
+    val p2 = Random.nextInt(parents._1.size)
 
-    val size = parents._1.size
+    val (a,b) = p1.min(p2) → p1.max(p2)
 
-    var children = for {
-      i ← 1 to 2
-      ss = for { i ← 1 to size ; s = sample(0.25) } yield s
-      a = parents._1 zip ss map { case (a,b) ⇒ a*b }
-      b = parents._2 zip ss map { case (a,b) ⇒ a*(1-b) }
-    } yield a zip b map { case (a,b) ⇒ a+b }
-
-    assume(children forall { _.size == parents._1.size })
-
-    children
-  }
-
-  def ArithmeticCrossover(parents: Pair[Vector[Double],Vector[Double]]): Iterable[Vector[Double]] = {
-    require(parents._1.size == parents._2.size)
-
-    val c1 = parents._1 zip parents._2 map { case (a,b) ⇒ (a+b) / 2 }
-    val c2 = parents._1 zip parents._2 map { case (a,b) ⇒ math.sqrt(a*b) }
+    val c1 = (parents._1 take a) ++ (parents._2 take b drop a) ++ (parents._1 drop b)
+    val c2 = (parents._2 take a) ++ (parents._1 take b drop a) ++ (parents._2 drop b)
 
     var children = Iterable(c1, c2)
 
@@ -83,23 +65,36 @@ object Foo {
 
 }
 
-class Foo(vars: Int, gl: Vector[Double], gu: Vector[Double])
-         (override val problem: Vector[Double] ⇒ Double)
-         (implicit val recomb: Pair[Vector[Double],Vector[Double]] ⇒ Iterable[Vector[Double]] =
-            Foo.IntermediateCrossover)
-  extends Evolutionary[Vector[Double], Vector[Double] ⇒ Double] {
+class BinarySolver(val vars: Int, val k: Int, val lower: Vector[Double], val upper: Vector[Double])
+                  (p: Vector[Double] ⇒ Double)
+         (implicit recomb: Pair[Vector[Boolean],Vector[Boolean]] ⇒ Iterable[Vector[Boolean]] =
+            BinarySolver.TwoPointCrossover)
+  extends EvolutionarySolver[Boolean] {
 
-  override def ancestor: Vector[Double] = for {
-    i ← Vector(1 to vars: _*)
-  } yield gl(i-1) + (gu(i-1) - gl(i-1)) * Random.nextDouble
-
-  override def fitness(g: Vector[Double]): Double = problem(g)
-
-  override def mutate(g: Vector[Double]): Vector[Double] = g map { x ⇒
-    (0.5 * Random.nextDouble + 0.75) * x
+  override val problem = (v: Vector[Boolean]) ⇒ {
+    require(v.size == k * vars)
+    p(decode(v))
   }
 
-  override def recombine(p1: Vector[Double], p2: Vector[Double]): Iterable[Vector[Double]] =
+  override def ancestor: Vector[Boolean] = for {
+    i ← Vector(1 to (k * vars): _*)
+  } yield Random.nextBoolean
+
+  def decode(v: Vector[Boolean]): Vector[Double] = for {
+    i ← Vector(0 to (v.size / k) - 1: _*)
+    a = v drop ((i-1) * k) take k
+    s = 0 to (k-1) map { j ⇒ if (a(k-j-1)) math.pow(2, j) else 0 } sum
+  } yield lower(i) + granularity(lower(i), upper(i)) * s
+
+  def granularity(lower: Double, upper: Double) =
+    (upper - lower) / (math.pow(2, k) - 1)
+
+  override def mutate(g: Vector[Boolean]): Vector[Boolean] = {
+    val i = Random.nextInt(g.size)
+    g.updated(i, ! g(i))
+  }
+
+  override def recombine(p1: Vector[Boolean], p2: Vector[Boolean]): Iterable[Vector[Boolean]] =
     recomb(p1,p2)
 
 }
