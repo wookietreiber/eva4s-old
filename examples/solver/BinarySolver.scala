@@ -29,35 +29,35 @@ package solver
 
 object BinarySolver {
 
-  def OnePointCrossover(parents: Pair[Vector[Boolean],Vector[Boolean]]): Iterable[Vector[Boolean]] = {
-    require(parents._1.size == parents._2.size)
+  def OnePointCrossover(p1: Vector[Boolean], p2: Vector[Boolean]): Iterable[Vector[Boolean]] = {
+    require(p1.size == p2.size)
 
-    val point = Random.nextInt(parents._1.size)
+    val point = Random.nextInt(p1.size)
 
-    val c1 = (parents._1 take point) ++ (parents._2 drop point)
-    val c2 = (parents._2 take point) ++ (parents._1 drop point)
+    val c1 = (p1 take point) ++ (p2 drop point)
+    val c2 = (p2 take point) ++ (p1 drop point)
 
     var children = Iterable(c1, c2)
 
-    assume(children forall { _.size == parents._1.size })
+    assume(children forall { _.size == p1.size })
 
     children
   }
 
-  def TwoPointCrossover(parents: Pair[Vector[Boolean],Vector[Boolean]]): Iterable[Vector[Boolean]] = {
-    require(parents._1.size == parents._2.size)
+  def TwoPointCrossover(p1: Vector[Boolean], p2: Vector[Boolean]): Iterable[Vector[Boolean]] = {
+    require(p1.size == p2.size)
 
-    val p1 = Random.nextInt(parents._1.size)
-    val p2 = Random.nextInt(parents._1.size)
+    val px1 = Random.nextInt(p1.size)
+    val px2 = Random.nextInt(p1.size)
 
-    val (a,b) = p1.min(p2) → p1.max(p2)
+    val (a,b) = px1.min(px2) → px1.max(px2)
 
-    val c1 = (parents._1 take a) ++ (parents._2 take b drop a) ++ (parents._1 drop b)
-    val c2 = (parents._2 take a) ++ (parents._1 take b drop a) ++ (parents._2 drop b)
+    val c1 = (p1 take a) ++ (p2 take b drop a) ++ (p1 drop b)
+    val c2 = (p2 take a) ++ (p1 take b drop a) ++ (p2 drop b)
 
     var children = Iterable(c1, c2)
 
-    assume(children forall { _.size == parents._1.size })
+    assume(children forall { _.size == p1.size })
 
     children
   }
@@ -66,8 +66,8 @@ object BinarySolver {
 
 class BinarySolver(val vars: Int, val k: Int, val lower: Vector[Double], val upper: Vector[Double])
                   (p: Vector[Double] ⇒ Double)
-         (implicit recomb: Pair[Vector[Boolean],Vector[Boolean]] ⇒ Iterable[Vector[Boolean]] =
-            BinarySolver.TwoPointCrossover)
+                  (implicit recomb: (Vector[Boolean],Vector[Boolean]) ⇒ Iterable[Vector[Boolean]] =
+                     BinarySolver.TwoPointCrossover)
   extends EvolutionarySolver[Boolean] {
 
   override val problem = (v: Vector[Boolean]) ⇒ {
