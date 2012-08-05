@@ -87,6 +87,9 @@ object eva4s extends Build {
     settings  = baseSettings ++ Seq (
       name := "eva4s-equation-solver",
       libraryDependencies += chart,
+      initialCommands in Compile += """
+        import org.sfree.chart.Charting._
+      """,
       initialCommands in Compile in console += """
         import org.eva4s.solver._
       """
