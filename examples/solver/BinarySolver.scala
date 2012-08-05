@@ -65,7 +65,7 @@ object BinarySolver {
 }
 
 class BinarySolver(val vars: Int, val k: Int, val lower: Vector[Double], val upper: Vector[Double])
-                  (p: Vector[Double] ⇒ Double)
+                  (p: Equation)
                   (implicit recomb: (Vector[Boolean],Vector[Boolean]) ⇒ Iterable[Vector[Boolean]] =
                      BinarySolver.TwoPointCrossover)
   extends EvolutionarySolver[Boolean] {

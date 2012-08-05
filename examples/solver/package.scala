@@ -25,76 +25,9 @@
 
 
 package org.eva4s
-package solver
 
-object RealSolver {
+package object solver {
 
-  def IntermediateCrossover(p1: Vector[Double], p2: Vector[Double]): Iterable[Vector[Double]] = {
-    require(p1.size == p2.size)
-
-    def sample(a: Double) = - a + (1 + 2 * a) * Random.nextDouble
-
-    val size = p1.size
-
-    var children = for {
-      i ← 1 to 2
-      ss = for { i ← 1 to size } yield sample(0.25)
-      a = p1 zip ss map { case (a,b) ⇒ a*b }
-      b = p2 zip ss map { case (a,b) ⇒ a*(1-b) }
-    } yield a zip b map { case (a,b) ⇒ a+b }
-
-    assume(children forall { _.size == p1.size })
-
-    children
-  }
-
-  def LineCrossover(p1: Vector[Double], p2: Vector[Double]): Iterable[Vector[Double]] = {
-    require(p1.size == p2.size)
-
-    def sample(a: Double) = - a + (1 + 2 * a) * Random.nextDouble
-
-    val size = p1.size
-
-    var children = for {
-      i ← 1 to 2
-      ss = for { i ← 1 to size ; s = sample(0.25) } yield s
-      a = p1 zip ss map { case (a,b) ⇒ a*b }
-      b = p2 zip ss map { case (a,b) ⇒ a*(1-b) }
-    } yield a zip b map { case (a,b) ⇒ a+b }
-
-    assume(children forall { _.size == p1.size })
-
-    children
-  }
-
-  def ArithmeticCrossover(p1: Vector[Double], p2: Vector[Double]): Iterable[Vector[Double]] = {
-    require(p1.size == p2.size)
-
-    val c1 = p1 zip p2 map { case (a,b) ⇒ (a+b) / 2 }
-    val c2 = p1 zip p2 map { case (a,b) ⇒ math.sqrt(a*b) }
-
-    var children = Iterable(c1, c2)
-
-    assume(children forall { _.size == p1.size })
-
-    children
-  }
-
-}
-
-class RealSolver(val vars: Int, val lower: Vector[Double], val upper: Vector[Double])
-         (override val problem: Equation)
-         (implicit recomb: (Vector[Double],Vector[Double]) ⇒ Iterable[Vector[Double]] =
-            RealSolver.IntermediateCrossover)
-  extends EvolutionarySolver[Double] {
-
-  override def ancestor: Vector[Double] = boundedAncestor
-
-  override def mutate(g: Vector[Double]): Vector[Double] = g map { x ⇒
-    (0.5 * Random.nextDouble + 0.75) * x
-  }
-
-  override def recombine(p1: Vector[Double], p2: Vector[Double]) =
-    recomb(p1,p2)
+  type Equation = Vector[Double] ⇒ Double
 
 }

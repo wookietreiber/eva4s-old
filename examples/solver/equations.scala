@@ -31,30 +31,37 @@ import math._
 
 object Equation {
 
-  def ackley(xs: Vector[Double]): Double = {
-    val a = 20
+  /** Returns the [[http://www-optima.amp.i.kyoto-u.ac.jp/member/student/hedar/Hedar_files/TestGO_files/Page295.htm Ackley function]]. */
+  val ackley: Equation = new Equation {
+    def apply(xs: Vector[Double]) = {
+      val a = 20
 
-    val b = - 0.2 * sqrt((xs map { x ⇒ x*x } sum) / xs.size)
-    val c = 20 * exp(b)
+      val b = - 0.2 * sqrt((xs map { x ⇒ x*x } sum) / xs.size)
+      val c = 20 * exp(b)
 
-    val d = exp(((xs map { x ⇒ cos(2 * Pi * x) } sum) / xs.size))
+      val d = exp(((xs map { x ⇒ cos(2 * Pi * x) } sum) / xs.size))
 
-    a + E - c - d
+      a + E - c - d
+    }
+
+    override def toString = "Ackley Function"
   }
 
-  def griewank(xs: Vector[Double]): Double = {
-    val a = 1
-    val b = xs map { x ⇒
-      pow(x,2) / (400 * xs.size)
-    } sum
-    val c = xs.zipWithIndex map {
-      case (x,i) ⇒ cos(x / sqrt(i+1))
-    } product
+  /** Returns the [[http://mathworld.wolfram.com/GriewankFunction.html Griewank function]]. */
+  val griewank: Equation = new Equation {
+    def apply(xs: Vector[Double]) = {
+      val a = xs.view map { pow(_,2) } sum
+      val b = xs.view.zipWithIndex map {
+        case (x,i) ⇒ cos(x / sqrt(i+1))
+      } product
 
-    a + b - c
+      1 + a/4000 - b
+    }
+
+    override def toString = "Griewank Function"
   }
 
-  def cfunc(xs: Vector[Double]): Double = {
+  val cfunc: Equation = (xs: Vector[Double]) ⇒ {
     val as = for {
       i ←  1    to (xs.size - 1)
       j ← (i+1) to (xs.size    )
@@ -65,7 +72,7 @@ object Equation {
     2 * as.sum
   }
 
-  def ns(xs: Vector[Double])/*: Double*/ = {
+  val ns: Equation = (xs: Vector[Double]) ⇒ {
     val n = xs.size
 
     val alphas = xs.zipWithIndex map {
@@ -74,6 +81,7 @@ object Equation {
     }
 
     //  n * pow(alpha,n) - (n+1) * pow(alpha, n-1) + 1 = 0
+    0.0
   }
 
 }
