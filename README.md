@@ -46,10 +46,12 @@ Currently implemented example algorithms include:
 ### Minimization Problems
 
 -   [Traveling Salesman Problem (TSP)][tsp]
+-   Equation Solver (WIP)
 
 ### Maximization Problems
 
--   currently not supported
+-   currently not directly supported (you can turn every maximization problem into a minimization
+    problem)
 
 
 [ea]: http://en.wikipedia.org/wiki/Evolutionary_algorithm
