@@ -31,6 +31,7 @@ package object solver {
   type Equation = Vector[Double] ⇒ Double
 
   trait BoundedEquation extends Equation {
+    def granularity: Int
     def lower: Int
     def upper: Int
   }

@@ -27,13 +27,11 @@
 package org.eva4s
 package solver
 
-import scala.math._
-
 object Benchmark {
 
-  def nPopReal(solver: RealSolver,
-               generations: Int = 2000)
-              (is: Int*) = is map { i ⇒
+  def npop(solver: EvolutionarySolver[_],
+           generations: Int = 2000)
+          (is: Int*) = is map { i ⇒
     val individual = SplitEvolver(solver)(generations, i)(debugger = printer)
     (i,individual.fitness)
   }

@@ -40,6 +40,7 @@ object Equation {
       20 + E - 20*exp(b) - d
     }
 
+    def granularity = 10
     def lower = -20
     def upper =  30
 
@@ -57,6 +58,7 @@ object Equation {
       1 + a/4000 - b
     }
 
+    def granularity = 100
     def lower = -512
     def upper =  511
 

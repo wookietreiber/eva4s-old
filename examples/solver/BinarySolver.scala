@@ -29,71 +29,68 @@ package solver
 
 object BinarySolver {
 
-  def OnePointCrossover(p1: Vector[Boolean], p2: Vector[Boolean]): Iterable[Vector[Boolean]] = {
-    require(p1.size == p2.size)
+  def decode(xs: Vector[Boolean],
+             lower: Vector[Double],
+             upper: Vector[Double],
+             granularity: Int): Vector[Double] = Vector.tabulate(xs.size / granularity) { i ⇒
+    // take current encoded booleans
+    val x = xs drop ((i-1) * granularity) take granularity
 
+    val s = Vector.tabulate(granularity) { i ⇒
+      if (x(granularity-i-1)) math.pow(2, i) else 0
+    } sum
+
+    lower(i) + decodeGranularity(lower(i), upper(i), granularity) * s
+  }
+
+  def decodeGranularity(lower: Double, upper: Double, granularity: Int): Double =
+    (upper - lower) / (math.pow(2, granularity) - 1)
+
+  def OnePointCrossover(p1: Vector[Boolean], p2: Vector[Boolean]): Iterable[Vector[Boolean]] = {
     val point = Random.nextInt(p1.size)
 
     val c1 = (p1 take point) ++ (p2 drop point)
     val c2 = (p2 take point) ++ (p1 drop point)
 
-    var children = Iterable(c1, c2)
-
-    assume(children forall { _.size == p1.size })
-
-    children
+    Vector(c1, c2)
   }
 
   def TwoPointCrossover(p1: Vector[Boolean], p2: Vector[Boolean]): Iterable[Vector[Boolean]] = {
-    require(p1.size == p2.size)
+    val point1 = Random.nextInt(p1.size)
+    val point2 = Random.nextInt(p1.size)
 
-    val px1 = Random.nextInt(p1.size)
-    val px2 = Random.nextInt(p1.size)
-
-    val (a,b) = px1.min(px2) → px1.max(px2)
+    val a = point1 min point2
+    val b = point1 max point2
 
     val c1 = (p1 take a) ++ (p2 take b drop a) ++ (p1 drop b)
     val c2 = (p2 take a) ++ (p1 take b drop a) ++ (p2 drop b)
 
-    var children = Iterable(c1, c2)
-
-    assume(children forall { _.size == p1.size })
-
-    children
+    Vector(c1, c2)
   }
 
 }
 
-class BinarySolver(val vars: Int, val k: Int, val lower: Vector[Double], val upper: Vector[Double])
+class BinarySolver(val vars: Int, val granularity: Int, val lower: Vector[Double], val upper: Vector[Double])
                   (p: Equation)
                   (implicit recomb: (Vector[Boolean],Vector[Boolean]) ⇒ Iterable[Vector[Boolean]] =
                      BinarySolver.TwoPointCrossover)
   extends EvolutionarySolver[Boolean] {
 
-  def this(vars: Int, k: Int, problem: BoundedEquation) = this(
+  def this(vars: Int, problem: BoundedEquation) = this (
     vars,
-    k,
+    problem.granularity,
     Vector.fill(vars)(problem.lower),
     Vector.fill(vars)(problem.upper)
   )(problem)
 
-  override val problem = (v: Vector[Boolean]) ⇒ {
-    require(v.size == k * vars)
-    p(decode(v))
+  override val problem = (xs: Vector[Boolean]) ⇒ {
+    val ys = BinarySolver.decode(xs, lower, upper, granularity)
+    p(ys)
   }
 
-  override def ancestor: Vector[Boolean] = for {
-    i ← Vector(1 to (k * vars): _*)
-  } yield Random.nextBoolean
-
-  def decode(v: Vector[Boolean]): Vector[Double] = for {
-    i ← Vector(0 to (v.size / k) - 1: _*)
-    a = v drop ((i-1) * k) take k
-    s = 0 to (k-1) map { j ⇒ if (a(k-j-1)) math.pow(2, j) else 0 } sum
-  } yield lower(i) + granularity(lower(i), upper(i)) * s
-
-  def granularity(lower: Double, upper: Double) =
-    (upper - lower) / (math.pow(2, k) - 1)
+  override def ancestor: Vector[Boolean] = Vector.fill(granularity * vars) {
+    Random.nextBoolean
+  }
 
   override def mutate(g: Vector[Boolean]): Vector[Boolean] = {
     val i = Random.nextInt(g.size)
