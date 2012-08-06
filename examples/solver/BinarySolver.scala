@@ -32,19 +32,19 @@ object BinarySolver {
   def decode(xs: Vector[Boolean],
              lower: Vector[Double],
              upper: Vector[Double],
-             granularity: Int): Vector[Double] = Vector.tabulate(xs.size / granularity) { i ⇒
+             bits: Int): Vector[Double] = Vector.tabulate(xs.size / bits) { i ⇒
     // take current encoded booleans
-    val x = xs drop ((i-1) * granularity) take granularity
+    val x = xs drop ((i-1) * bits) take bits
 
-    val s = Vector.tabulate(granularity) { i ⇒
-      if (x(granularity-i-1)) math.pow(2, i) else 0
+    val s = Vector.tabulate(bits) { i ⇒
+      if (x(bits-i-1)) math.pow(2, i) else 0
     } sum
 
-    lower(i) + decodeGranularity(lower(i), upper(i), granularity) * s
+    lower(i) + granularity(lower(i), upper(i), bits) * s
   }
 
-  def decodeGranularity(lower: Double, upper: Double, granularity: Int): Double =
-    (upper - lower) / (math.pow(2, granularity) - 1)
+  def granularity(lower: Double, upper: Double, bits: Int): Double =
+    (upper - lower) / (math.pow(2, bits) - 1)
 
   def OnePointCrossover(p1: Vector[Boolean], p2: Vector[Boolean]): Iterable[Vector[Boolean]] = {
     val point = Random.nextInt(p1.size)
@@ -70,7 +70,7 @@ object BinarySolver {
 
 }
 
-class BinarySolver(val vars: Int, val granularity: Int, val lower: Vector[Double], val upper: Vector[Double])
+class BinarySolver(val vars: Int, val bits: Int, val lower: Vector[Double], val upper: Vector[Double])
                   (p: Equation)
                   (implicit recomb: (Vector[Boolean],Vector[Boolean]) ⇒ Iterable[Vector[Boolean]] =
                      BinarySolver.TwoPointCrossover)
@@ -78,17 +78,17 @@ class BinarySolver(val vars: Int, val granularity: Int, val lower: Vector[Double
 
   def this(vars: Int, problem: BoundedEquation) = this (
     vars,
-    problem.granularity,
+    problem.bits,
     Vector.fill(vars)(problem.lower),
     Vector.fill(vars)(problem.upper)
   )(problem)
 
   override val problem = (xs: Vector[Boolean]) ⇒ {
-    val ys = BinarySolver.decode(xs, lower, upper, granularity)
+    val ys = BinarySolver.decode(xs, lower, upper, bits)
     p(ys)
   }
 
-  override def ancestor: Vector[Boolean] = Vector.fill(granularity * vars) {
+  override def ancestor: Vector[Boolean] = Vector.fill(bits * vars) {
     Random.nextBoolean
   }
 

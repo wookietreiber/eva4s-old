@@ -29,6 +29,8 @@ package solver
 
 import math._
 
+import scalay.collection._
+
 object Equation {
 
   /** Returns the [[http://www-optima.amp.i.kyoto-u.ac.jp/member/student/hedar/Hedar_files/TestGO_files/Page295.htm Ackley function]]. */
@@ -40,7 +42,8 @@ object Equation {
       20 + E - 20*exp(b) - d
     }
 
-    def granularity = 10
+    override lazy val bits = 10
+
     def lower = -20
     def upper =  30
 
@@ -58,34 +61,50 @@ object Equation {
       1 + a/4000 - b
     }
 
-    def granularity = 100
+    override lazy val bits = 100
+
     def lower = -512
     def upper =  511
 
     override def toString = "Griewank Function"
   }
 
-  val cfunc: Equation = (xs: Vector[Double]) ⇒ {
-    val as = for {
-      i ←  1    to (xs.size - 1)
-      j ← (i+1) to (xs.size    )
-      a = abs(xs(j-1) - xs(i-1))
-      b = j - i
-    } yield (a / b)
+  val cfunc: BoundedEquation = new BoundedEquation {
+    def apply(xs: Vector[Double]) = {
+      val as = for {
+        i ←  1    to (xs.size - 1)
+        j ← (i+1) to (xs.size    )
+        a = abs(xs(j-1) - xs(i-1))
+        b = j - i
+      } yield (a / b)
 
-    2 * as.sum
-  }
-
-  val ns: Equation = (xs: Vector[Double]) ⇒ {
-    val n = xs.size
-
-    val alphas = xs.zipWithIndex map {
-      case (x,i) if i + 1 == n ⇒ xs.product - 1
-      case (x,i)               ⇒ xs(i) + xs.sum - n - 1
+      2 * as.sum
     }
 
-    //  n * pow(alpha,n) - (n+1) * pow(alpha, n-1) + 1 = 0
-    0.0
+    def lower = -100
+    def upper =  100
+
+    override def toString = "C-Function"
+  }
+
+  val alphans: BoundedEquation = new BoundedEquation {
+    def apply(xs: Vector[Double]) = {
+      val n = xs.size
+
+      val alphas = xs.zipWithIndex map {
+        case (x,i) if i + 1 == n ⇒ xs.product - 1
+        case (x,i)               ⇒ xs(i) + xs.sum - n - 1
+      }
+
+      val alpha = alphas.reverse drop 1 average
+
+      n * pow(alpha,n) - (n+1) * pow(alpha, n-1) + 1
+    }
+
+    def lower = -100
+    def upper =  100
+
+    override def toString = "Alphas"
   }
 
 }

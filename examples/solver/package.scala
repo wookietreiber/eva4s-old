@@ -31,9 +31,16 @@ package object solver {
   type Equation = Vector[Double] ⇒ Double
 
   trait BoundedEquation extends Equation {
-    def granularity: Int
-    def lower: Int
-    def upper: Int
+    def lower: Double
+    def upper: Double
+
+    def granularity: Double = 2
+
+    lazy val bits: Int = {
+      import math._
+      val bs = log((upper-lower)/granularity + 1) / log(2)
+      bs.round.toInt
+    }
   }
 
 }
