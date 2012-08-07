@@ -88,6 +88,13 @@ class RealSolver(val vars: Int, val lower: Vector[Double], val upper: Vector[Dou
             RealSolver.IntermediateCrossover)
   extends EvolutionarySolver[Double] {
 
+  def this(vars: Int, problem: BoundedEquation,
+           recomb: (Vector[Double],Vector[Double]) ⇒ Iterable[Vector[Double]]) = this(
+    vars,
+    Vector.fill(vars)(problem.lower),
+    Vector.fill(vars)(problem.upper)
+  )(problem)(recomb)
+
   def this(vars: Int, problem: BoundedEquation) = this(
     vars,
     Vector.fill(vars)(problem.lower),

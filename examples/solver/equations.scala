@@ -42,8 +42,6 @@ object Equation {
       20 + E - 20*exp(b) - d
     }
 
-    override lazy val bits = 10
-
     def lower = -20
     def upper =  30
 
@@ -61,48 +59,29 @@ object Equation {
       1 + a/4000 - b
     }
 
-    override lazy val bits = 100
-
     def lower = -512
     def upper =  511
 
     override def toString = "Griewank Function"
   }
 
-  val cfunc: BoundedEquation = new BoundedEquation {
-    def apply(xs: Vector[Double]) = {
-      val as = for {
-        i ←  1    to (xs.size - 1)
-        j ← (i+1) to (xs.size    )
-        a = abs(xs(j-1) - xs(i-1))
-        b = j - i
-      } yield (a / b)
-
-      2 * as.sum
-    }
-
-    def lower = -100
-    def upper =  100
-
-    override def toString = "C-Function"
-  }
-
   val alphans: BoundedEquation = new BoundedEquation {
     def apply(xs: Vector[Double]) = {
       val n = xs.size
 
-      val alphas = xs.zipWithIndex map {
-        case (x,i) if i + 1 == n ⇒ xs.product - 1
-        case (x,i)               ⇒ xs(i) + xs.sum - n - 1
+      sqrt {
+        xs.zipWithIndex.foldLeft(0.0) { (acc,xi) ⇒
+          val (x,i) = xi
+
+          val fi = if (i + 1 == n) xs.product - 1 else x + xs.sum - n - 1
+
+          pow(fi, 2)
+        }
       }
-
-      val alpha = alphas.reverse drop 1 average
-
-      n * pow(alpha,n) - (n+1) * pow(alpha, n-1) + 1
     }
 
-    def lower = -100
-    def upper =  100
+    def lower = -5
+    def upper =  5
 
     override def toString = "Alphas"
   }

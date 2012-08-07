@@ -34,11 +34,11 @@ import Evolvers._
 
 object SplitEvolver extends Evolver {
   def apply[G,P](ea: Evolutionary[G,P])
-                (generations: Int = 200,
-                 survivors: Int = 100)
+                (generations: Int = 500,
+                 individuals: Int = 100)
                 (implicit matchmaker: Matchmaker[G] = RankBasedMatchmaker[G] _,
-                          mutagen: Mutagen = ExponentialDecreasingMutagen(0.8, 0.1)(generations),
-                          debugger: Option[(Int,Double,Double) ⇒ Unit] = None)
+                          mutagen: Mutagen = ExponentialDecreasingMutagen(0.8, 0.01)(generations),
+                          debugger: Option[(Int,Double) ⇒ Unit] = None)
                  : Individual[G] = {
     import ea._
 
@@ -47,31 +47,19 @@ object SplitEvolver extends Evolver {
       if (generation == generations) {
         parents minBy { _.fitness }
       } else {
-        val recombinations = (survivors * (1. - mutagen(generation)) / 2.).round.toInt
-        val mutations      = survivors - (2 * recombinations)
+        val recombinations = (individuals * (1. - mutagen(generation)) / 2.).round.toInt
+        val mutations      = individuals - (2 * recombinations)
 
         val mutants   = parents choose mutations map Mutant
         val offspring = matchmaker(parents, recombinations) map procreate flatten
 
         val nextGen: Iterable[Individual[G]] = mutants ++ offspring
 
-        debugger foreach { debug ⇒
-          debug (
-            generation,
-            selectionIntensity(parents, nextGen),
-            nextGen averageBy { _.fitness }
-          )
-        }
-
-        assert(survivors == nextGen.size, "survivors = %d  mutants = %d  offspring = %d".format(
-          survivors,
-          mutants.size,
-          offspring.size
-        ))
+        debugger foreach { debug ⇒ debug(generation, nextGen averageBy { _.fitness }) }
 
         evolve(parents = nextGen, generation = generation + 1)
       }
 
-    evolve(parents = ancestors(survivors), generation = 1)
+    evolve(parents = ancestors(individuals), generation = 1)
   }
 }

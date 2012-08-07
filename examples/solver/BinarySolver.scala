@@ -68,13 +68,31 @@ object BinarySolver {
     Vector(c1, c2)
   }
 
+  /** http://www.geatbx.com/docu/algindex-03.html#P638_39007 */
+  def UniformCrossover(p1: Vector[Boolean], p2: Vector[Boolean]): Iterable[Vector[Boolean]] = {
+    val sample = Vector.fill(p1.size) { Random.nextBoolean } zipWithIndex
+
+    val c1 = sample map { case(x,i) ⇒ if ( x) p1(i) else p2(i) }
+    val c2 = sample map { case(x,i) ⇒ if (!x) p1(i) else p2(i) }
+
+    Vector(c1, c2)
+  }
+
 }
 
 class BinarySolver(val vars: Int, val bits: Int, val lower: Vector[Double], val upper: Vector[Double])
-                  (p: Equation)
+                  (val p: Equation)
                   (implicit recomb: (Vector[Boolean],Vector[Boolean]) ⇒ Iterable[Vector[Boolean]] =
                      BinarySolver.TwoPointCrossover)
   extends EvolutionarySolver[Boolean] {
+
+  def this(vars: Int, problem: BoundedEquation,
+           recomb: (Vector[Boolean],Vector[Boolean]) ⇒ Iterable[Vector[Boolean]]) = this (
+    vars,
+    problem.bits,
+    Vector.fill(vars)(problem.lower),
+    Vector.fill(vars)(problem.upper)
+  )(problem)(recomb)
 
   def this(vars: Int, problem: BoundedEquation) = this (
     vars,
@@ -92,9 +110,17 @@ class BinarySolver(val vars: Int, val bits: Int, val lower: Vector[Double], val 
     Random.nextBoolean
   }
 
+  /** Returns a mutant flipped once in every `vars` bits. */
   override def mutate(g: Vector[Boolean]): Vector[Boolean] = {
-    val i = Random.nextInt(g.size)
-    g.updated(i, ! g(i))
+    var mutant = g
+    for {
+      i ← 1 to vars
+      flipAt = Random.nextInt(bits) + bits*(i-1)
+    } mutant = mutant.updated(flipAt, ! g(i))
+    mutant
+    //g map { _ ^ Vector.fill((g.size / 16. ceil) toInt)(Random.nextBoolean).fold(true)(_ && _) }
+    //val i = Random.nextInt(g.size)
+    //g.updated(i, ! g(i))
   }
 
   override def recombine(p1: Vector[Boolean], p2: Vector[Boolean]): Iterable[Vector[Boolean]] =

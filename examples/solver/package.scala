@@ -26,6 +26,8 @@
 
 package org.eva4s
 
+import math._
+
 package object solver {
 
   type Equation = Vector[Double] ⇒ Double
@@ -34,10 +36,9 @@ package object solver {
     def lower: Double
     def upper: Double
 
-    def granularity: Double = 2
+    def granularity: Double = 0.005
 
     lazy val bits: Int = {
-      import math._
       val bs = log((upper-lower)/granularity + 1) / log(2)
       bs.round.toInt
     }
