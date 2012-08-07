@@ -38,7 +38,6 @@ object SplitEvolver extends Evolver {
                  survivors: Int = 100)
                 (implicit matchmaker: Matchmaker[G] = RankBasedMatchmaker[G] _,
                           mutagen: Mutagen = ExponentialDecreasingMutagen(0.8, 0.1)(generations),
-                          selector: Selector[G] = ChildSelection[G] _,
                           debugger: Option[(Int,Double,Double) ⇒ Unit] = None)
                  : Individual[G] = {
     import ea._
