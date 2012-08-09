@@ -55,7 +55,7 @@ object SplitEvolver extends Evolver {
 
         val nextGen: Iterable[Individual[G]] = mutants ++ offspring
 
-        debugger foreach { debug ⇒ debug(generation, nextGen averageBy { _.fitness }) }
+        debugger foreach { debug ⇒ debug(generation, nextGen geometricMeanBy { _.fitness }) }
 
         evolve(parents = nextGen, generation = generation + 1)
       }

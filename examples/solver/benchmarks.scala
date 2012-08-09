@@ -27,19 +27,36 @@
 package org.eva4s
 package solver
 
+import scala.collection.mutable.ListBuffer
+
+import org.jfree.chart.JFreeChart
 import org.sfree.chart.Charting._
 
 object Benchmark {
 
-  def plotter(solvers: EvolutionarySolver[_]*): org.jfree.chart.JFreeChart = {
+  def charter(buf: ListBuffer[(Int,Double)]): Option[(Int,Double) ⇒ Unit] = Some { (g: Int, f: Double) ⇒
+    if (f != Double.PositiveInfinity) buf += (g → f)
+  }
+
+  def xyChartMod(chart: JFreeChart): JFreeChart = {
+    val plot = chart.getXYPlot
+    plot.getDomainAxis.setLabel("generations")
+    plot.getRangeAxis.setLabel("geometric mean fitness")
+
+    for { i ← 0 until plot.getDataset.getSeriesCount } swing.Swing.onEDT {
+      plot.getRenderer.setSeriesStroke(i, new java.awt.BasicStroke(1.5f))
+    }
+
+    chart
+  }
+
+  def plotter(solvers: EvolutionarySolver[_]*): JFreeChart = {
     val dataset = solvers map { solver ⇒
-      val buf = collection.mutable.ListBuffer[(Int,Double)]()
+      val buf = ListBuffer[(Int,Double)]()
 
-      val charter: Option[(Int,Double) ⇒ Unit] = Some { (g: Int, f: Double) ⇒
-        buf += (g → f)
-      }
+      SplitEvolver(solver)()(debugger = charter(buf))
 
-      buf.toXYSeries {
+      buf toXYSeries {
         if (solver.isInstanceOf[RealSolver])
           solver.problem.toString + " real"
         else if (solver.isInstanceOf[BinarySolver])
@@ -48,139 +65,69 @@ object Benchmark {
       }
     } toXYSeriesCollection
 
-    val chart = createLineChart(dataset)
-
-    val plot = chart.getPlot.asInstanceOf[org.jfree.chart.plot.XYPlot]
-    plot.getDomainAxis.setLabel("generations")
-    plot.getRangeAxis.setLabel("average fitness")
-
-    chart
+    xyChartMod(createLineChart(dataset))
   }
 
-  def plotter(fs: Seq[BoundedEquation], binary: Boolean = false): org.jfree.chart.JFreeChart = {
-    val solvers = if (binary)
-      Seq(fs map { new BinarySolver(5, _) } : _*)
-    else
-      Seq(fs map { new RealSolver(5, _) } : _*)
-    plotter(solvers: _*)
+  def vectorSize(f: BoundedEquation, ns: Seq[Int] = Seq(5,10,15,20,25,30,40)): JFreeChart = {
+    val dataset = ns map { n ⇒
+      val solver = new RealSolver(n, f)
+      val buf = ListBuffer[(Int,Double)]()
+      SplitEvolver(solver)()(debugger = charter(buf))
+      buf.toXYSeries(n.toString)
+    } toXYSeriesCollection
+
+    xyChartMod(createLineChart(dataset, title = f.toString))
   }
 
-  def funcs(ns: Seq[Int] = Seq(5,10,15,20,25,30,40)) = Map (
-    "real" → (ns map { n ⇒
-      n → (fs map { f ⇒
-        val solver = new RealSolver(n, f)
-        val individual = SplitEvolver(solver)()
-        (f.toString,individual.fitness)
-      } toMap)
-    } toMap),
-    "binary" → (ns map { n ⇒
-      n → (fs map { f ⇒
-        val solver = new BinarySolver(n, f)
-        val individual = SplitEvolver(solver)()
-        (f.toString,individual.fitness)
-      } toMap)
-    } toMap)
-  ) toCombinedDomainBarChart
+  def population(f: BoundedEquation, ps: Seq[Int] = Seq(5,10,25,50,100,200,500)): JFreeChart = {
+    val dataset = ps map { p ⇒
+      val solver = new RealSolver(5, f)
+      val buf = ListBuffer[(Int,Double)]()
+      SplitEvolver(solver)(individuals = p)(debugger = charter(buf))
+      buf.toXYSeries(p.toString)
+    } toXYSeriesCollection
 
-  val fs = Seq(Equation.griewank, Equation.ackley, Equation.alphans)
+    xyChartMod(createLineChart(dataset, title = f.toString))
+  }
 
-  def npopBinary(problem: BoundedEquation,
-                 is: Seq[Int] = Seq(10,25,50,100,200),
-                 generations: Int = 200,
-                 ns: Seq[Int] = Seq(5,10,15,20,25,30,40)) = ns map { n ⇒
-    is map { i ⇒
-      val solver = new BinarySolver(n, problem)
-      val individual = SplitEvolver(solver)(generations, i)
-      (i,individual.fitness)
-    } toXYSeries(n.toString)
-  } toXYSeriesCollection
+  def matchmaker(f: BoundedEquation): JFreeChart = {
+    val dataset = matchmakers[Vector[Double]] map { case(name,m) ⇒
+      val solver = new RealSolver(5, f)
+      val buf = ListBuffer[(Int,Double)]()
+      SplitEvolver(solver)()(matchmaker = m, debugger = charter(buf))
+      buf.toXYSeries(name)
+    } toXYSeriesCollection
 
-  def npopReal(problem: BoundedEquation,
-               is: Seq[Int] = Seq(10,25,50,100,200),
-               generations: Int = 200,
-               ns: Seq[Int] = Seq(5,10,15,20,25,30,40)) = ns map { n ⇒
-    is map { i ⇒
-      val solver = new RealSolver(n, problem)
-      val individual = SplitEvolver(solver)(generations, i)
-      (i,individual.fitness)
-    } toXYSeries(n.toString)
-  } toXYSeriesCollection
+    xyChartMod(createLineChart(dataset, title = f.toString))
+  }
 
-  def matchmakerBinary(problem: BoundedEquation,
-                       generations: Int = 500,
-                       ns: Seq[Int] = Seq(5,10,15,20,25,30,40)) = ns map { n ⇒
-    val x = matchmakers[Boolean] map { case (name,m) ⇒
-      val solver = new BinarySolver(n, problem)
-      val individual = SplitEvolver(solver)(generations, 200)
-      (name,individual.fitness)
-    } toMap
+  def crossover(f: BoundedEquation): JFreeChart = {
+    val dataset = realCrossovers map { case (name,cross) ⇒
+      val solver = new RealSolver(5, f, cross)
+      val buf = ListBuffer[(Int,Double)]()
+      SplitEvolver(solver)()(debugger = charter(buf))
+      buf.toXYSeries(name)
+    } toXYSeriesCollection
 
-    n → x
-  } toCategoryDataset
+    xyChartMod(createLineChart(dataset, title = f.toString))
+  }
 
-  def matchmakerReal(problem: BoundedEquation,
-                     generations: Int = 500,
-                     ns: Seq[Int] = Seq(5,10,15,20,25,30,40)) = ns map { n ⇒
-    val x = matchmakers[Double] map { case (name,m) ⇒
-      val solver = new RealSolver(n, problem)
-      val individual = SplitEvolver(solver)(generations, 200)
-      (name,individual.fitness)
-    } toMap
+  def mutagen(f: BoundedEquation): JFreeChart = {
+    val dataset = mutagens map { case (name,m) ⇒
+      val solver = new RealSolver(5, f)
+      val buf = ListBuffer[(Int,Double)]()
+      SplitEvolver(solver)(generations = 2000)(mutagen = m, debugger = charter(buf))
+      buf.toXYSeries(name)
+    } toXYSeriesCollection
 
-    n → x
-  } toCategoryDataset
-
-  def crossoversBinary(problem: BoundedEquation,
-                       generations: Int = 500,
-                       ns: Seq[Int] = Seq(5,10,15,20,25,30,40)) = ns map { n ⇒
-    val x = binaryCrossovers map { case (name,cross) ⇒
-      val solver = new BinarySolver(n, problem, cross)
-      val individual = SplitEvolver(solver)(generations, 200)
-      (name,individual.fitness)
-    } toMap
-
-    n → x
-  } toCategoryDataset
-
-  def crossoversReal(problem: BoundedEquation,
-                     generations: Int = 500,
-                     ns: Seq[Int] = Seq(5,10,15,20,25,30,40)) = ns map { n ⇒
-    val x = realCrossovers map { case (name,cross) ⇒
-      val solver = new RealSolver(n, problem, cross)
-      val individual = SplitEvolver(solver)(generations, 200)
-      (name,individual.fitness)
-    } toMap
-
-    n → x
-  } toCategoryDataset
-
-  def mutagensReal(problem: BoundedEquation,
-                   ns: Seq[Int] = Seq(5,10,15,20,25,30,40)) = ns map { n ⇒
-    val x = mutagens map { case (name,mutagen) ⇒
-      val solver = new RealSolver(n, problem)
-      val individual = SplitEvolver(solver)(generations = 500, individuals = 200)
-      (name,individual.fitness)
-    } toMap
-
-    n → x
-  } toCategoryDataset
-
-  def mutagensBinary(problem: BoundedEquation,
-                     ns: Seq[Int] = Seq(5,10,15,20,25,30,40)) = ns map { n ⇒
-    val x = mutagens map { case (name,mutagen) ⇒
-      val solver = new BinarySolver(n, problem)
-      val individual = SplitEvolver(solver)(generations = 500, individuals = 200)
-      (name,individual.fitness)
-    } toMap
-
-    n → x
-  } toCategoryDataset
+    xyChartMod(createLineChart(dataset, title = f.toString))
+  }
 
   import Mutagens._
 
   def mutagens: Map[String,Mutagen] = Map (
-    "Constant(0.1)" → ConstantMutagen(0.1),
-    "Constant(0.3)" → ConstantMutagen(0.3),
+    "Constant(0.2)" → ConstantMutagen(0.2),
+    "Constant(0.5)" → ConstantMutagen(0.5),
     "Constant(0.8)" → ConstantMutagen(0.8),
     "Linear Decreasing (0.8, 0.01)" → LinearDecreasingMutagen(0.8, 0.01)(500),
     "Exponential Decreasing (0.8, 0.01)" → ExponentialDecreasingMutagen(0.8, 0.01)(500)
@@ -189,7 +136,7 @@ object Benchmark {
   import RealSolver._
 
   def realCrossovers: Map[String,(Vector[Double],Vector[Double]) ⇒ Iterable[Vector[Double]]] = Map (
-    "Arithmetic Crossover" → ArithmeticCrossover,
+    // TODO include after NaN error is fixed "Arithmetic Crossover" → ArithmeticCrossover,
     "Intermediate Crossover" → IntermediateCrossover,
     "Line Crossover" → LineCrossover
   )

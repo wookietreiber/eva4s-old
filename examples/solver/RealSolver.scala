@@ -67,6 +67,7 @@ object RealSolver {
     children
   }
 
+  /** @todo yields NaN fitness */
   def ArithmeticCrossover(p1: Vector[Double], p2: Vector[Double]): Iterable[Vector[Double]] = {
     require(p1.size == p2.size)
 

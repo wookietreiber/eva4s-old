@@ -36,11 +36,11 @@ package object solver {
     def lower: Double
     def upper: Double
 
-    def granularity: Double = 0.005
+    def granularity: Double = 0.1
 
     lazy val bits: Int = {
       val bs = log((upper-lower)/granularity + 1) / log(2)
-      bs.round.toInt
+      bs.ceil.toInt
     }
   }
 

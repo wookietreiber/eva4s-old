@@ -31,9 +31,12 @@ import scalay.collection._
 
 trait Evolver {
 
+  implicit val DoubleIntegral: Integral[Double] = scala.math.Numeric.DoubleAsIfIntegral
+
   /** Returns the selection intensity of the given generation. */
   def selectionIntensity(oldGen: Iterable[Individual[_]],
                          newGen: Iterable[Individual[_]]): Double = {
+
     val fselbar = newGen averageBy { _.fitness }
     val fbar    = oldGen averageBy { _.fitness }
 

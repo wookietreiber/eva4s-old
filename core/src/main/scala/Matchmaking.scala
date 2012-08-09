@@ -87,27 +87,29 @@ trait Matchmaking {
     *
     * @param parents $parents
     * @param pairs $pairs
+    *
+    * @todo needs performance improvement
     */
   def RankBasedMatchmaker[G](parents: Iterable[Individual[G]], pairs: Int)
                              : Iterable[Pair[Individual[G],Individual[G]]] = {
-    val ranked = parents sortBy { - _.fitness } zip {
+    val ranked: Seq[(Individual[G],Double)] = parents sortBy { - _.fitness } zip {
       ranks(parents.size).inits drop 1 map { _.sum } toList
     } toSeq
 
-    def choose(ranked: Seq[Pair[Individual[G],Double]]): Individual[G] = {
-      val r = Random.nextDouble
-      ranked collectFirst {
-        case (individual,rank) if rank < r ⇒ individual
-      } get
+    def choosePair(ranked: Seq[Pair[Individual[G],Double]]): (Individual[G],Individual[G]) = {
+      // improve this to not use partition
+      val r1 = Random.nextDouble
+      val (p11,p12) = ranked partition { _._2 < r1 }
+      val par1 = p11.last._1
+
+      val r2 = Random.nextDouble
+      val (p21,p22) = (p11.init ++ p12) partition { _._2 < r2 }
+      val par2 = if (p21.empty) p22.head._1 else p21.last._1
+
+      par1 → par2
     }
 
-    Vector.fill(pairs) {
-      val first = choose(ranked)
-      var second = choose(ranked)
-      while (second == first)
-        second = choose(ranked)
-      Pair(first, second)
-    }
+    Vector.fill(pairs) { choosePair(ranked) }
   }
 
   /** Returns the fittest individuals of `pairs` tournaments.
@@ -151,7 +153,7 @@ trait Matchmaking {
                                      (parents: Iterable[Individual[G]], pairs: Int)
                                       : Iterable[Pair[Individual[G],Individual[G]]] = {
     def winners = parents map { parent ⇒
-      val ps = Seq(parent) ++ (parents filter { _ != parent } choose participants)
+      val ps = Seq(parent) ++ (parents.toSeq filter { _ != parent } choose participants)
       Map(Pair(ps.minBy(_.fitness), 1))
     }
 
