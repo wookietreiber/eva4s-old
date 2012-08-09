@@ -60,8 +60,8 @@ trait Selection {
     * @param parents $parents
     * @param offspring $offspring
     */
-  def ChildSelection[G](parents: Iterable[Individual[G]], offspring: Iterable[Individual[G]])
-                        : Iterable[Individual[G]] = offspring
+  def ChildSelection[G](parents: Seq[Individual[G]], offspring: Seq[Individual[G]])
+                        : Seq[Individual[G]] = offspring
 
   /** Returns the fittest offspring.
     *
@@ -80,8 +80,8 @@ trait Selection {
     * @param offspring $offspring, determines `λ = offspring.size`
     */
   def CommaSelection[G](survivors: Int ⇒ Int = (λ: Int) ⇒ math.round(λ.toFloat / 6))
-                       (parents: Iterable[Individual[G]], offspring: Iterable[Individual[G]])
-                        : Iterable[Individual[G]] =
+                       (parents: Seq[Individual[G]], offspring: Seq[Individual[G]])
+                        : Seq[Individual[G]] =
     offspring sortBy { _.fitness } take survivors(offspring.size)
 
   /** Returns the fittest individuals.
@@ -94,9 +94,9 @@ trait Selection {
     * @param parents $parents, determines `μ = parents.size`
     * @param offspring $offspring, determines `λ = offspring.size`
     */
-  def PlusSelection[G](parents: Iterable[Individual[G]],
-                       offspring: Iterable[Individual[G]])
-                       : Iterable[Individual[G]] =
+  def PlusSelection[G](parents: Seq[Individual[G]],
+                       offspring: Seq[Individual[G]])
+                       : Seq[Individual[G]] =
     (parents ++ offspring) sortBy { _.fitness } take parents.size
 
   /** Returns the fittest individuals. This is an alias for [[org.eva4s.Selection#PlusSelection]].
@@ -108,9 +108,9 @@ trait Selection {
     *
     * @see [[org.eva4s.Selection#PlusSelection]]
     */
-  def SurvivalOfTheFittest[G](parents: Iterable[Individual[G]],
-                              offspring: Iterable[Individual[G]])
-                              : Iterable[Individual[G]] =
+  def SurvivalOfTheFittest[G](parents: Seq[Individual[G]],
+                              offspring: Seq[Individual[G]])
+                              : Seq[Individual[G]] =
     PlusSelection(parents,offspring)
 
   // -----------------------------------------------------------------------
@@ -125,8 +125,8 @@ trait Selection {
     * @param parents $parents, determines `μ = parents.size`
     * @param offspring $offspring
     */
-  def RandomSelection[G](parents: Iterable[Individual[G]], offspring: Iterable[Individual[G]])
-                         : Iterable[Individual[G]] =
+  def RandomSelection[G](parents: Seq[Individual[G]], offspring: Seq[Individual[G]])
+                         : Seq[Individual[G]] =
     (parents ++ offspring) choose parents.size
 
 }

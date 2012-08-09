@@ -135,7 +135,7 @@ object Benchmark {
 
   import RealSolver._
 
-  def realCrossovers: Map[String,(Vector[Double],Vector[Double]) ⇒ Iterable[Vector[Double]]] = Map (
+  def realCrossovers: Map[String,(Vector[Double],Vector[Double]) ⇒ Seq[Vector[Double]]] = Map (
     // TODO include after NaN error is fixed "Arithmetic Crossover" → ArithmeticCrossover,
     "Intermediate Crossover" → IntermediateCrossover,
     "Line Crossover" → LineCrossover
@@ -143,7 +143,7 @@ object Benchmark {
 
   import BinarySolver._
 
-  def binaryCrossovers: Map[String,(Vector[Boolean],Vector[Boolean]) ⇒ Iterable[Vector[Boolean]]] = Map (
+  def binaryCrossovers: Map[String,(Vector[Boolean],Vector[Boolean]) ⇒ Seq[Vector[Boolean]]] = Map (
     "One Point Crossover" → OnePointCrossover,
     "Two Point Crossover" → TwoPointCrossover,
     "Uniform Crossover"   → UniformCrossover
@@ -152,7 +152,6 @@ object Benchmark {
   import Matchmaking._
 
   def matchmakers[G]: Map[String,Matchmaker[G]] = Map (
-    "Random" → RandomForcedMatchmaker[G] _,
     "Tournament" → TournamentMatchmaker[G](10) _,
     "Multiple Tournament" → MultipleTournamentMatchmaker[G](10) _,
     "Rank Based" → RankBasedMatchmaker[G] _

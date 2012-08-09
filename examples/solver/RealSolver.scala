@@ -29,7 +29,7 @@ package solver
 
 object RealSolver {
 
-  def IntermediateCrossover(p1: Vector[Double], p2: Vector[Double]): Iterable[Vector[Double]] = {
+  def IntermediateCrossover(p1: Vector[Double], p2: Vector[Double]): Seq[Vector[Double]] = {
     require(p1.size == p2.size)
 
     def sample(a: Double) = - a + (1 + 2 * a) * Random.nextDouble
@@ -48,7 +48,7 @@ object RealSolver {
     children
   }
 
-  def LineCrossover(p1: Vector[Double], p2: Vector[Double]): Iterable[Vector[Double]] = {
+  def LineCrossover(p1: Vector[Double], p2: Vector[Double]): Seq[Vector[Double]] = {
     require(p1.size == p2.size)
 
     def sample(a: Double) = - a + (1 + 2 * a) * Random.nextDouble
@@ -68,13 +68,13 @@ object RealSolver {
   }
 
   /** @todo yields NaN fitness */
-  def ArithmeticCrossover(p1: Vector[Double], p2: Vector[Double]): Iterable[Vector[Double]] = {
+  def ArithmeticCrossover(p1: Vector[Double], p2: Vector[Double]): Seq[Vector[Double]] = {
     require(p1.size == p2.size)
 
     val c1 = p1 zip p2 map { case (a,b) ⇒ (a+b) / 2 }
     val c2 = p1 zip p2 map { case (a,b) ⇒ math.sqrt(a*b) }
 
-    var children = Iterable(c1, c2)
+    var children = Seq(c1, c2)
 
     assume(children forall { _.size == p1.size })
 
@@ -85,12 +85,12 @@ object RealSolver {
 
 class RealSolver(val vars: Int, val lower: Vector[Double], val upper: Vector[Double])
          (override val problem: Equation)
-         (implicit recomb: (Vector[Double],Vector[Double]) ⇒ Iterable[Vector[Double]] =
+         (implicit recomb: (Vector[Double],Vector[Double]) ⇒ Seq[Vector[Double]] =
             RealSolver.IntermediateCrossover)
   extends EvolutionarySolver[Double] {
 
   def this(vars: Int, problem: BoundedEquation,
-           recomb: (Vector[Double],Vector[Double]) ⇒ Iterable[Vector[Double]]) = this(
+           recomb: (Vector[Double],Vector[Double]) ⇒ Seq[Vector[Double]]) = this(
     vars,
     Vector.fill(vars)(problem.lower),
     Vector.fill(vars)(problem.upper)

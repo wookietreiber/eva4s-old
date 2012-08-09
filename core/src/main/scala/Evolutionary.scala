@@ -73,7 +73,7 @@ trait Evolutionary[G,P] {
     *
     * @param n the amount of ancestors to create
     */
-  final def ancestors(n: Int): Iterable[Individual[G]] =
+  final def ancestors(n: Int): Seq[Individual[G]] =
     Vector.fill(n)(Individual(ancestor))
 
   // -----------------------------------------------------------------------------------------------
@@ -84,20 +84,20 @@ trait Evolutionary[G,P] {
     *
     * @note $HowManyInfo
     */
-  def recombine(p1: G, p2: G): Iterable[G]
+  def recombine(p1: G, p2: G): Seq[G]
 
   /** Returns new genomes by recombining the parents.
     *
     * @note $HowManyInfo
     */
-  final def recombine(parents: Pair[Individual[G],Individual[G]]): Iterable[G] =
+  final def recombine(parents: Pair[Individual[G],Individual[G]]): Seq[G] =
     recombine(parents._1.genome, parents._2.genome)
 
   /** Returns new individuals by recombining the parents.
     *
     * @note $HowManyInfo
     */
-  final def procreate(parents: Pair[Individual[G],Individual[G]]): Iterable[Individual[G]] = for {
+  final def procreate(parents: Pair[Individual[G],Individual[G]]): Seq[Individual[G]] = for {
     genome ← recombine(parents)
   } yield Individual(genome)
 

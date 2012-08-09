@@ -43,7 +43,7 @@ object SplitEvolver extends Evolver {
     import ea._
 
     @tailrec
-    def evolve(parents: Iterable[Individual[G]], generation: Int): Individual[G] =
+    def evolve(parents: Seq[Individual[G]], generation: Int): Individual[G] =
       if (generation == generations) {
         parents minBy { _.fitness }
       } else {
@@ -53,7 +53,7 @@ object SplitEvolver extends Evolver {
         val mutants   = parents choose mutations map Mutant
         val offspring = matchmaker(parents, recombinations) map procreate flatten
 
-        val nextGen: Iterable[Individual[G]] = mutants ++ offspring
+        val nextGen = mutants ++ offspring
 
         debugger foreach { debug ⇒ debug(generation, nextGen geometricMeanBy { _.fitness }) }
 

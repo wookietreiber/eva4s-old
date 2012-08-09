@@ -57,7 +57,7 @@ package object eva4s {
     *
     * @see [[org.eva4s.Matchmaking]] $defaults
     */
-  type Matchmaker[G] = (Iterable[Individual[G]],Int) ⇒ Iterable[Pair[Individual[G],Individual[G]]]
+  type Matchmaker[G] = (Seq[Individual[G]],Int) ⇒ Seq[Pair[Individual[G],Individual[G]]]
 
   /** A `Mutagen` determines the probability with which individuals mutate, depending on the current
     * generation.
@@ -73,7 +73,7 @@ package object eva4s {
     *
     * @see [[org.eva4s.Selection]] $defaults
     */
-  type Selector[G] = (Iterable[Individual[G]], Iterable[Individual[G]]) ⇒ Iterable[Individual[G]]
+  type Selector[G] = (Seq[Individual[G]],Seq[Individual[G]]) ⇒ Seq[Individual[G]]
 
   // -----------------------------------------------------------------------------------------------
   // others

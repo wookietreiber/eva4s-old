@@ -34,8 +34,8 @@ trait Evolver {
   implicit val DoubleIntegral: Integral[Double] = scala.math.Numeric.DoubleAsIfIntegral
 
   /** Returns the selection intensity of the given generation. */
-  def selectionIntensity(oldGen: Iterable[Individual[_]],
-                         newGen: Iterable[Individual[_]]): Double = {
+  def selectionIntensity(oldGen: Seq[Individual[_]],
+                         newGen: Seq[Individual[_]]): Double = {
 
     val fselbar = newGen averageBy { _.fitness }
     val fbar    = oldGen averageBy { _.fitness }
@@ -87,7 +87,7 @@ trait Evolvers extends Matchmaking with Mutagens with Selection {
       import ea._
 
       @tailrec
-      def evolve(parents: Iterable[Individual[G]], generation: Int): Individual[G] =
+      def evolve(parents: Seq[Individual[G]], generation: Int): Individual[G] =
       if (generation == generations) {
         parents minBy { _.fitness }
       } else {

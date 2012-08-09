@@ -46,7 +46,7 @@ object BinarySolver {
   def granularity(lower: Double, upper: Double, bits: Int): Double =
     (upper - lower) / (math.pow(2, bits) - 1)
 
-  def OnePointCrossover(p1: Vector[Boolean], p2: Vector[Boolean]): Iterable[Vector[Boolean]] = {
+  def OnePointCrossover(p1: Vector[Boolean], p2: Vector[Boolean]): Seq[Vector[Boolean]] = {
     val point = Random.nextInt(p1.size)
 
     val c1 = (p1 take point) ++ (p2 drop point)
@@ -55,7 +55,7 @@ object BinarySolver {
     Vector(c1, c2)
   }
 
-  def TwoPointCrossover(p1: Vector[Boolean], p2: Vector[Boolean]): Iterable[Vector[Boolean]] = {
+  def TwoPointCrossover(p1: Vector[Boolean], p2: Vector[Boolean]): Seq[Vector[Boolean]] = {
     val point1 = Random.nextInt(p1.size)
     val point2 = Random.nextInt(p1.size)
 
@@ -69,7 +69,7 @@ object BinarySolver {
   }
 
   /** http://www.geatbx.com/docu/algindex-03.html#P638_39007 */
-  def UniformCrossover(p1: Vector[Boolean], p2: Vector[Boolean]): Iterable[Vector[Boolean]] = {
+  def UniformCrossover(p1: Vector[Boolean], p2: Vector[Boolean]): Seq[Vector[Boolean]] = {
     val sample = Vector.fill(p1.size) { Random.nextBoolean } zipWithIndex
 
     val c1 = sample map { case(x,i) ⇒ if ( x) p1(i) else p2(i) }
@@ -82,12 +82,12 @@ object BinarySolver {
 
 class BinarySolver(val vars: Int, val bits: Int, val lower: Vector[Double], val upper: Vector[Double])
                   (val p: Equation)
-                  (implicit recomb: (Vector[Boolean],Vector[Boolean]) ⇒ Iterable[Vector[Boolean]] =
+                  (implicit recomb: (Vector[Boolean],Vector[Boolean]) ⇒ Seq[Vector[Boolean]] =
                      BinarySolver.TwoPointCrossover)
   extends EvolutionarySolver[Boolean] {
 
   def this(vars: Int, problem: BoundedEquation,
-           recomb: (Vector[Boolean],Vector[Boolean]) ⇒ Iterable[Vector[Boolean]]) = this (
+           recomb: (Vector[Boolean],Vector[Boolean]) ⇒ Seq[Vector[Boolean]]) = this (
     vars,
     problem.bits,
     Vector.fill(vars)(problem.lower),
@@ -123,7 +123,7 @@ class BinarySolver(val vars: Int, val bits: Int, val lower: Vector[Double], val 
     //g.updated(i, ! g(i))
   }
 
-  override def recombine(p1: Vector[Boolean], p2: Vector[Boolean]): Iterable[Vector[Boolean]] =
+  override def recombine(p1: Vector[Boolean], p2: Vector[Boolean]): Seq[Vector[Boolean]] =
     recomb(p1,p2)
 
 }
