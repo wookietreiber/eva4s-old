@@ -26,48 +26,34 @@
 
 package org.eva4s
 
-/** Provides the basic functions of an evolutionary algorithm.
+/** Provides the means to mutate genomes and individuals.
   *
   * @tparam G the type of the genome of the individuals, represents a solution of the problem
-  * @tparam P input / problem type, represents the problem data structure
+  * @tparam P inut / problem type, represents the problem data structure
   *
+  * @define NewMutantInfo The purpose of this method is the convenient creation of a new mutant. Use
+  * it like the factory method of a case class. This method performs the mutation on its own, it is
+  * not needed to do this in advance.
   */
-trait Evolutionary[G,P] {
+trait Mutation[G,P] {
 
-  /** Returns the data structure representing the problem that needs to be solved.
+  self: Evolutionary[G,P] ⇒
+
+  /** Returns a new genome by mutating the given one. */
+  def mutate(genome: G): G
+
+  /** Returns a new individual by mutating the given genome.
     *
-    * @note This data structure should be immutable or not be changed.
+    * @note $NewMutantInfo
     */
-  val problem: P
+  final def Mutant(genome: G): Individual[G] =
+    Individual(mutate(genome))
 
-  /** Returns the fitness of the given genome. */
-  def fitness(genome: G): Double
-
-  /** Returns a new individual from the given genome.
+  /** Returns a new individual by mutating the genome of the given individual.
     *
-    * @note The purpose of this method is the convenient creation of a new individual. It is just a
-    * convenience wrapper around [[org.eva4s.package.Individual]] to automatically inject the
-    * fitness according to this evolutionary algorithm. Use it like the factory method of a case
-    * class.
+    * @note $NewMutantInfo
     */
-  final def Individual(genome: G): Individual[G] =
-    new Individual(genome, fitness(genome))
-
-  // -----------------------------------------------------------------------------------------------
-  // ancestors / initial population
-  // -----------------------------------------------------------------------------------------------
-
-  /** Returns a generated genome.
-    *
-    * @note Ancestors are used for the initial population.
-    */
-  def ancestor: G
-
-  /** Returns the initial population.
-    *
-    * @param n the amount of ancestors to create
-    */
-  final def ancestors(n: Int): Seq[Individual[G]] =
-    Vector.fill(n)(Individual(ancestor))
+  final def Mutant(individual: Individual[G]): Individual[G] =
+    Mutant(individual.genome)
 
 }

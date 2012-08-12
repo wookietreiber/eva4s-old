@@ -75,7 +75,7 @@ trait Evolvers extends Matchmaking with Mutagens with Selection {
       * @param debugger can be used to do some side effekt with the current generation and its optimal
       * fitness, e.g. print it: `debugger = printer`
       */
-    def apply[G,P](ea: Evolutionary[G,P])
+    def apply[G,P](ea: Evolutionary[G,P] with Recombination[G,P] with Mutation[G,P])
                   (generations: Int = 200,
                    survivors: Int = 23,
                    pairs: Int = 100)

@@ -26,48 +26,37 @@
 
 package org.eva4s
 
-/** Provides the basic functions of an evolutionary algorithm.
+/** Provides the means to recombine the genomes of individuals.
   *
   * @tparam G the type of the genome of the individuals, represents a solution of the problem
   * @tparam P input / problem type, represents the problem data structure
   *
+  * @define HowManyInfo How many will be returned depends solely on the implementing evolutionary
+  * algorithm.
   */
-trait Evolutionary[G,P] {
+trait Recombination[G,P] {
 
-  /** Returns the data structure representing the problem that needs to be solved.
+  self: Evolutionary[G,P] ⇒
+
+  /** Returns new genomes by recombining the parents.
     *
-    * @note This data structure should be immutable or not be changed.
+    * @note $HowManyInfo
     */
-  val problem: P
+  def recombine(p1: G, p2: G): Seq[G]
 
-  /** Returns the fitness of the given genome. */
-  def fitness(genome: G): Double
-
-  /** Returns a new individual from the given genome.
+  /** Returns new genomes by recombining the parents.
     *
-    * @note The purpose of this method is the convenient creation of a new individual. It is just a
-    * convenience wrapper around [[org.eva4s.package.Individual]] to automatically inject the
-    * fitness according to this evolutionary algorithm. Use it like the factory method of a case
-    * class.
+    * @note $HowManyInfo
     */
-  final def Individual(genome: G): Individual[G] =
-    new Individual(genome, fitness(genome))
+  final def recombine(parents: Pair[Individual[G],Individual[G]]): Seq[G] =
+    recombine(parents._1.genome, parents._2.genome)
 
-  // -----------------------------------------------------------------------------------------------
-  // ancestors / initial population
-  // -----------------------------------------------------------------------------------------------
-
-  /** Returns a generated genome.
+  /** Returns new individuals by recombining the parents.
     *
-    * @note Ancestors are used for the initial population.
+    * @note $HowManyInfo
     */
-  def ancestor: G
-
-  /** Returns the initial population.
-    *
-    * @param n the amount of ancestors to create
-    */
-  final def ancestors(n: Int): Seq[Individual[G]] =
-    Vector.fill(n)(Individual(ancestor))
+  final def procreate(parents: Pair[Individual[G],Individual[G]]): Seq[Individual[G]] = for {
+    genome ← recombine(parents)
+  } yield Individual(genome)
 
 }
