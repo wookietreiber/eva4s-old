@@ -1,0 +1,43 @@
+\ProvidesPackage{beamerstyle}
+
+% --------------------------------------------------------------------------------------------------
+%  imports
+% --------------------------------------------------------------------------------------------------
+
+\usepackage[ngerman,english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{adjustbox}
+
+\usepackage{droidserif}
+
+\setbeamerfont*{title}{size=\LARGE,series=\bfseries}
+\setbeamerfont*{frametitle}{size=\LARGE,series=\bfseries}
+
+% --------------------------------------------------------------------------------------------------
+%  extra commands
+% --------------------------------------------------------------------------------------------------
+
+\newcommand{\fsframe}[1]{%
+  {%
+    \usebackgroundtemplate{%
+      \vbox to \paperheight{%
+        \vfil
+        \hbox to \paperwidth{%
+          \hfil
+          #1
+          \hfil
+        }
+        \vfil
+      }
+    }
+    \begin{frame}[plain]\end{frame}
+  }
+}
+
+\newcommand{\fshframe}[1]{\fsframe{\includegraphics[height=\paperheight]{#1}}}
+\newcommand{\fswframe}[1]{\fsframe{\includegraphics[width=\paperwidth]{#1}}}
+
