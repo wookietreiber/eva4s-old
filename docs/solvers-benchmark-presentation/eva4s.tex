@@ -1,0 +1,204 @@
+\documentclass[compress,xcolor=table]{beamer}
+
+\usepackage{beamerstyle}
+
+% --------------------------------------------------------------------------------------------------
+%  initialize
+% --------------------------------------------------------------------------------------------------
+
+\begin{document}
+
+\title{\texttt{eva4s}\\Evolutionary Algorithms for Scala}
+\subtitle{Benchmarking Evolutionary Equation Solvers}
+\author[Foken,Krause]{Nils Foken\\Christian Krause}
+\institute[BA Leipzig]{Berufsakademie Leipzig}
+\subject{Evolutionary Algorithms}
+\keywords{EA}
+
+\frame[plain]{\titlepage}
+
+\begin{frame}
+  \frametitle{Outline}
+  \tableofcontents[hideallsubsections]
+\end{frame}
+
+% --------------------------------------------------------------------------------------------------
+%  introduction
+% --------------------------------------------------------------------------------------------------
+
+\section{Introduction}
+\subsection*{}
+
+\begin{frame}
+  \frametitle{Purpose}
+  \begin{itemize}
+    \item handle job submissions
+    \item match resource requests with available resources
+    \item prioritize jobs
+    \item enqueue jobs
+    \item controlled job execution
+  \end{itemize}
+\end{frame}
+
+% --------------------------------------------------------------------------------------------------
+%  main parts
+% --------------------------------------------------------------------------------------------------
+
+% show outline at the beginning of each section
+\AtBeginSection[] {
+  \begin{frame}<beamer>
+    \frametitle{Outline}
+    \tableofcontents[sectionstyle=show/shaded,subsectionstyle=show/show/hide]
+  \end{frame}
+}
+
+% --------------------------------------------------------------------------------------------------
+%  new section
+% --------------------------------------------------------------------------------------------------
+
+\section{\texttt{eva4s} \textendash\ Architecture}
+
+\subsection{The Main Parts}
+
+\begin{frame}
+  \frametitle{The Main Parts (I) \textendash\ \texttt{Evolutionary[G,P]}}
+  \begin{itemize}
+    \item type parameterized
+      \begin{description}
+        \item[G] genome type
+        \item[P] problem type
+      \end{description}
+    \item provides main functions
+      \begin{description}
+        \item[\texttt{val problem: P}]
+        \item[\texttt{def ancestor: G}]
+        \item[\texttt{def fitness(genome: G): Double}]
+        \item[\texttt{def mutate(genome: G): G}]
+        \item[\texttt{def recombine(p1: G, p2: G): Seq[G]}]
+      \end{description}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Main Parts (II) \textendash\ \texttt{Evolver}}
+  \begin{itemize}
+    \item executes an \texttt{Evolutionary}
+    \item accepts parameters like
+    \begin{itemize}
+      \item generations
+      \item population size
+      \item environmental selection
+      \item parental selection
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\subsection{Special Parameters}
+
+\begin{frame}
+  \frametitle{\texttt{Selector}}
+  \framesubtitle{\texttt{(Seq[Individual[G]],Seq[Individual[G]]) => Seq[Individual[G]]}}
+  \begin{itemize}
+    \item models environmental selection
+    \item determines how the individuals for the next generation are chosen
+    \item implementations:
+    \begin{description}
+      \item[\texttt{ChildSelection}]
+      \item[\texttt{CommaSelection}]
+      \item[\texttt{PlusSelection}]
+      \item[\texttt{RandomSelection}]
+    \end{description}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{\texttt{Matchmaker}}
+  \framesubtitle{\texttt{(Seq[Individual[G]],Int) => Seq[Pair[Individual[G],Individual[G]]]}}
+  \begin{itemize}
+    \item models parental selection
+    \item essentially pairs individuals up with each other
+    \item implementations:
+    \begin{description}
+      \item[\texttt{RandomForcedMatchmaker}]
+      \item[\texttt{RandomAcceptanceMatchmaker}]
+      \item[\texttt{RankBasedMatchmaker}]
+      \item[\texttt{TournamentMatchmaker}]
+      \item[\texttt{MultipleTournamentMatchmaker}]
+    \end{description}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{\texttt{Mutagen}}
+  \framesubtitle{\texttt{Int => Double}}
+  \begin{itemize}
+    \item determines the probability with which individuals mutate
+    \item depends on the current generation
+    \item implementations:
+    \begin{description}
+      \item[\texttt{ConstantMutagen}] $~$ \\ based on $f(x) = a$
+      \item[\texttt{LinearDecreasingMutagen}] $~$ \\ based on $f(x) = a + b \cdot x$
+      \item[\texttt{ExponentialDecreasingMutagen}] $~$ \\ based on $f(x) = a \cdot e^{b \cdot x}$
+    \end{description}
+  \end{itemize}
+\end{frame}
+
+% --------------------------------------------------------------------------------------------------
+%  new section
+% --------------------------------------------------------------------------------------------------
+
+\section{Preparing the Benchmark}
+
+\subsection{\texttt{EvolutionarySolver}}
+
+\begin{frame}
+
+\subsection{\texttt{SplitEvolver}}
+
+\begin{frame}
+  \frametitle{\texttt{SplitEvolver}}
+  \begin{itemize}
+    \item partitions population
+      \begin{itemize}
+        \item first part mutates
+        \item second part recombines
+      \end{itemize}
+    \item partition sizes depend on a \texttt{Mutagen}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{\texttt{SplitEvolver} \textendash\ Defaults}
+  \begin{description}
+    \item[generations] 500
+    \item[population] 100
+    \item[matchmaker] rank based
+    \item[mutagen] exponential decreasing (0.8 to 0.01)
+  \end{description}
+\end{frame}
+
+
+% --------------------------------------------------------------------------------------------------
+%  wrap it up
+% --------------------------------------------------------------------------------------------------
+
+\section*{}
+
+\begin{frame}
+  \frametitle{Conclusions}
+  \begin{enumerate}
+    \item important link in the HPC stack between actual applications and available resources
+    \item handles jobs from submission to prioritization to resource distribution
+  \end{enumerate}
+\end{frame}
+
+{\usebackgroundtemplate{}\frame[plain]{\begin{center}\Huge{EOL}\end{center}}}
+
+% --------------------------------------------------------------------------------------------------
+%  appendix -- additional stuff for questions
+% --------------------------------------------------------------------------------------------------
+
+\appendix
+
+\end{document}
+
