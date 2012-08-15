@@ -26,19 +26,15 @@
 %  introduction
 % --------------------------------------------------------------------------------------------------
 
-\section{Introduction}
-\subsection*{}
+%\section{Introduction}
+%\subsection*{}
 
-\begin{frame}
-  \frametitle{Purpose}
-  \begin{itemize}
-    \item handle job submissions
-    \item match resource requests with available resources
-    \item prioritize jobs
-    \item enqueue jobs
-    \item controlled job execution
-  \end{itemize}
-\end{frame}
+%\begin{frame}
+%  \frametitle{Purpose}
+%  \begin{itemize}
+%    \item 
+%  \end{itemize}
+%\end{frame}
 
 % --------------------------------------------------------------------------------------------------
 %  main parts
@@ -152,11 +148,41 @@
 \subsection{\texttt{EvolutionarySolver}}
 
 \begin{frame}
+  \frametitle{\texttt{EvolutionarySolver[A]}}
+  \begin{itemize}
+    \item genome type: \texttt{Vector[A]}
+    \item problem type: \texttt{Vector[A] => Double}
+    \item \texttt{Evolutionary} with
+    \begin{description}
+      \item[\texttt{def vars: Int}]
+      \item[\texttt{def lower: Vector[Double]}]
+      \item[\texttt{def upper: Vector[Double]}]
+    \end{description}
+    \item subclasses
+    \begin{description}
+      \item[\texttt{RealSolver extends EvolutionarySolver[Double]}]
+      \item[\texttt{BinarySolver extends EvolutionarySolver[Boolean]}]
+    \end{description}
+  \end{itemize}
+\end{frame}
 
 \subsection{\texttt{SplitEvolver}}
 
+\defverbatim[colored]\splitevolver{%
+\begin{lstlisting}[basicstyle=\footnotesize,emph={def,implicit},emphstyle={\color{orange}}]
+def apply[G,P]
+  (ea: Evolutionary[G,P])
+  (generations: Int = 500,
+   individuals: Int = 100)
+  (implicit matchmaker: Matchmaker = RankBasedMatchmaker,
+            mutagen: Mutagen = ExponentialDecreasingMutagen,
+            debugger: Option[(Int,Double) => Unit] = None)
+   : Individual[G]
+\end{lstlisting}
+}
+
 \begin{frame}
-  \frametitle{\texttt{SplitEvolver}}
+  \frametitle{\texttt{SplitEvolver (I)}}
   \begin{itemize}
     \item partitions population
       \begin{itemize}
@@ -168,15 +194,67 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{\texttt{SplitEvolver} \textendash\ Defaults}
-  \begin{description}
-    \item[generations] 500
-    \item[population] 100
-    \item[matchmaker] rank based
-    \item[mutagen] exponential decreasing (0.8 to 0.01)
-  \end{description}
+  \frametitle{\texttt{SplitEvolver (II)}}
+  \splitevolver
 \end{frame}
 
+\subsection{Execution}
+
+\defverbatim[colored]\basicexecution{%
+\begin{lstlisting}[basicstyle=\footnotesize,emph={val,new},emphstyle={\color{orange}}]
+val f = Equation.ackley
+
+val solver = new RealSolver(vars = 4, problem = f)
+
+val solution = SplitEvolver(solver)
+                           (generations = 2000)
+                           (debugger = printer)
+\end{lstlisting}
+}
+
+\begin{frame}
+  \frametitle{Basic Execution}
+  \basicexecution
+\end{frame}
+
+\defverbatim[colored]\chartexecution{%
+\begin{lstlisting}[basicstyle=\footnotesize,emph={val,new},emphstyle={\color{orange}}]
+val f = Equation.ackley
+
+val solver = new RealSolver(vars = 4, problem = f)
+
+val buf = collection.mutable.ListBuffer[(Int,Double)]()
+
+SplitEvolver(solver)
+            (generations = 2000)
+            (debugger = charter(buf))
+
+val chart = createLineChart (
+  buf.toXYSeriesCollection("ackley")
+)
+
+chart.show()
+\end{lstlisting}
+}
+
+\begin{frame}
+  \frametitle{Chart Execution}
+  \chartexecution
+\end{frame}
+
+% --------------------------------------------------------------------------------------------------
+%  new section
+% --------------------------------------------------------------------------------------------------
+
+\section{The Benchmarks}
+
+\fswframe{img/functions-fittest.pdf}
+\fswframe{img/functions-average.pdf}
+\fswframe{img/griewank-vector-sizes.pdf}
+\fswframe{img/griewank-population-sizes.pdf}
+\fswframe{img/griewank-mutagens.pdf}
+\fswframe{img/griewank-crossovers.pdf}
+\fswframe{img/griewank-matchmakers.pdf}
 
 % --------------------------------------------------------------------------------------------------
 %  wrap it up
@@ -184,15 +262,14 @@
 
 \section*{}
 
-\begin{frame}
-  \frametitle{Conclusions}
-  \begin{enumerate}
-    \item important link in the HPC stack between actual applications and available resources
-    \item handles jobs from submission to prioritization to resource distribution
-  \end{enumerate}
-\end{frame}
+%\begin{frame}
+%  \frametitle{Conclusions}
+%  \begin{enumerate}
+%    \item 
+%  \end{enumerate}
+%\end{frame}
 
-{\usebackgroundtemplate{}\frame[plain]{\begin{center}\Huge{EOL}\end{center}}}
+\frame[plain]{\begin{center}\Huge{EOL}\end{center}}
 
 % --------------------------------------------------------------------------------------------------
 %  appendix -- additional stuff for questions
