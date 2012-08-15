@@ -34,10 +34,6 @@ import org.sfree.chart.Charting._
 
 object Benchmark {
 
-  def charter(buf: ListBuffer[(Int,Double)]): Option[(Int,Double) ⇒ Unit] = Some { (g: Int, f: Double) ⇒
-    if (f != Double.PositiveInfinity) buf += (g → f)
-  }
-
   def xyChartMod(chart: JFreeChart): JFreeChart = {
     val plot = chart.getXYPlot
     plot.getDomainAxis.setLabel("generations")
