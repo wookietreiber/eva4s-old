@@ -35,8 +35,8 @@ A `Mutagen` determines the probability with which individuals mutate, depending 
 generation.
 
 -   constant
--   linear: monotonically decreasing value based on `f(x) = a + b*x`
--   exponential: monotonically decreasing value based on `f(x) = a * exp(b*x)`
+-   polynomial: monotonic function based on `f(x) = a + b * pow(x,degree)`
+-   exponential: monotonic function based on `f(x) = a * exp(b*x)`
 
 
 ## Examples

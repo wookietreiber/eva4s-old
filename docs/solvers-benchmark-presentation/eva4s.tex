@@ -133,8 +133,8 @@
     \item implementations:
     \begin{description}
       \item[\texttt{ConstantMutagen}] $~$ \\ based on $f(x) = a$
-      \item[\texttt{PolynomialDecreasingMutagen}] $~$ \\ based on $f(x) = a + b \cdot x^n$
-      \item[\texttt{ExponentialDecreasingMutagen}] $~$ \\ based on $f(x) = a \cdot e^{b \cdot x}$
+      \item[\texttt{PolynomialMutagen}] $~$ \\ based on $f(x) = a + b \cdot x^n$
+      \item[\texttt{ExponentialMutagen}] $~$ \\ based on $f(x) = a \cdot e^{b \cdot x}$
     \end{description}
   \end{itemize}
 \end{frame}
@@ -175,7 +175,7 @@ def apply[G,P]
   (generations: Int = 500,
    individuals: Int = 100)
   (implicit matchmaker: Matchmaker = RankBasedMatchmaker,
-            mutagen: Mutagen = ExponentialDecreasingMutagen,
+            mutagen: Mutagen = ExponentialMutagen,
             debugger: Option[(Int,Double) => Unit] = None)
    : Individual[G]
 \end{lstlisting}

@@ -36,46 +36,75 @@ object Mutagens extends Mutagens
   * @define MutagenInfo Contains default [[org.eva4s.Mutagen]] implementations which determine the
   * mutation probability depending on the generation.
   *
-  * The idiomatic usage of the functions defined here is to fill in the parameters of the first
-  * parameter list(s) and use the remaining function as a [[org.eva4s.Mutagen]].
-  *
   * @see [[org.eva4s.Mutagen]]
   *
   * @define start the mutation probability at generation zero
   * @define end the mutation probability at generation `generations`
   * @define generations the final generation
-  * @define generation the current generation
   */
 trait Mutagens {
 
-  /** Returns a monotonically decreasing value based on `f(x) = a * exp(b*x)`.
+  /** Returns a monotonic function based on `f(x) = a * exp(b*x)`.
     *
     * @param start $start
     * @param end $end
     * @param generations $generations
-    * @param generation $generation
     */
-  def ExponentialDecreasingMutagen(start: Double, end: Double)
-                                  (generations: Int)
-                                  (generation: Int): Double =
-    start * pow(end / start, generation.toDouble / generations)
+  def ExponentialMutagen(generations: Int,
+                         start: Double = 0.8,
+                         end: Double = 0.01)
+                         : Mutagen = new Function[Int,Double] {
+    val a = start
+    val c = end / start
 
-  /** Returns a monotonically decreasing value based on `f(x) = a + b*x`.
+    override def apply(generation: Int): Double = a * pow(c, generation.toDouble / generations)
+
+    override def toString = "ExponentialMutagen(start=%s,end=%s,generations=%s)".format(
+      start, end, generations
+    )
+  }
+
+  /** Returns a monotonic function based on `f(x) = a + b * pow(x,degree)`.
     *
+    * @param degree the degree of the polynom
     * @param start $start
     * @param end $end
     * @param generations $generations
-    * @param generation $generation
     */
-  def LinearDecreasingMutagen(start: Double, end: Double)
-                             (generations: Int)
-                             (generation: Int): Double =
-    start + (end - start) / generations * generation
+  def PolynomialMutagen(degree: Double,
+                        generations: Int,
+                        start: Double = 0.8,
+                        end: Double = 0.01)
+                        : Mutagen = new Function[Int,Double] {
+    val a = start
+    val b = ((end - start) / pow(generations, degree))
+
+    override def apply(generation: Int): Double = a + b * pow(generation, degree)
+
+    override def toString = degree match {
+      case 1.0 ⇒ "LinearMutagen(start=%s,end=%s,generations=%s)".format(
+        start, end, generations
+      )
+      case 2.0 ⇒ "QuadraticMutagen(start=%s,end=%s,generations=%s)".format(
+        start, end, generations
+      )
+      case 3.0 ⇒ "CubicMutagen(start=%s,end=%s,generations=%s)".format(
+        start, end, generations
+      )
+      case degree ⇒ "PolynomialMutagen(degree=%s,start=%s,end=%s,generations=%s)".format(
+        degree, start, end, generations
+      )
+    }
+  }
 
   /** Returns a `Mutagen` that always uses the same probability.
     *
     * @param probability the constant mutation probability
     */
-  def ConstantMutagen(probability: Double): Mutagen = (_: Int) ⇒ probability
+  def ConstantMutagen(probability: Double): Mutagen = new Function[Int,Double] {
+    override def apply(generation: Int) = probability
+
+    override def toString = "ConstantMutagen(probability=%s)".format(probability)
+  }
 
 }
