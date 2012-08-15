@@ -21,23 +21,25 @@
 %  extra commands
 % --------------------------------------------------------------------------------------------------
 
-\newcommand{\fsframe}[1]{%
+\newcommand{\fsframe}[2]{%
   {%
     \usebackgroundtemplate{%
       \vbox to \paperheight{%
         \vfil
         \hbox to \paperwidth{%
           \hfil
-          #1
+          #2
           \hfil
         }
         \vfil
       }
     }
-    \begin{frame}[plain]\end{frame}
+    \begin{frame}[plain]
+      \frametitle{#1}
+    \end{frame}
   }
 }
 
-\newcommand{\fshframe}[1]{\fsframe{\includegraphics[height=\paperheight]{#1}}}
-\newcommand{\fswframe}[1]{\fsframe{\includegraphics[width=\paperwidth]{#1}}}
+\newcommand{\fshframe}[2]{\fsframe{#1}{\includegraphics[height=\paperheight]{#2}}}
+\newcommand{\fswframe}[2]{\fsframe{#1}{\includegraphics[width=\paperwidth]{#2}}}
 
