@@ -109,11 +109,11 @@ object Benchmark {
   }
 
   def mutagen(f: BoundedEquation): JFreeChart = {
-    val dataset = mutagens map { case (name,m) ⇒
+    val dataset = mutagens map { case m ⇒
       val solver = new RealSolver(5, f)
       val buf = ListBuffer[(Int,Double)]()
       SplitEvolver(solver)(generations = 2000)(mutagen = m, debugger = charter(buf))
-      buf.toXYSeries(name)
+      buf.toXYSeries(m.toString)
     } toXYSeriesCollection
 
     xyChartMod(createLineChart(dataset, title = f.toString))
@@ -121,12 +121,14 @@ object Benchmark {
 
   import Mutagens._
 
-  def mutagens: Map[String,Mutagen] = Map (
-    "Constant(0.2)" → ConstantMutagen(0.2),
-    "Constant(0.5)" → ConstantMutagen(0.5),
-    "Constant(0.8)" → ConstantMutagen(0.8),
-    "Linear Decreasing (0.8, 0.01)" → LinearDecreasingMutagen(0.8, 0.01)(500),
-    "Exponential Decreasing (0.8, 0.01)" → ExponentialDecreasingMutagen(0.8, 0.01)(500)
+  def mutagens: Seq[Mutagen] = Seq (
+    ConstantMutagen(0.2),
+    ConstantMutagen(0.8),
+    PolynomialMutagen( 1.0, 2000),
+    PolynomialMutagen( 2.0, 2000),
+    PolynomialMutagen( 3.0, 2000),
+    PolynomialMutagen(16.0, 2000),
+    ExponentialMutagen(2000)
   )
 
   import RealSolver._

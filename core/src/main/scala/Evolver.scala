@@ -80,7 +80,7 @@ trait Evolvers extends Matchmaking with Mutagens with Selection {
                    survivors: Int = 23,
                    pairs: Int = 100)
                   (implicit matchmaker: Matchmaker[G] = RandomAcceptanceMatchmaker[G](0.7) _,
-                            mutagen: Mutagen = ExponentialDecreasingMutagen(0.8, 0.1)(generations),
+                            mutagen: Mutagen = ExponentialMutagen(generations),
                             selector: Selector[G] = SurvivalOfTheFittest[G] _,
                             debugger: Option[(Int,Double,Double) ⇒ Unit] = None)
                    : Individual[G] = {

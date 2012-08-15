@@ -133,8 +133,8 @@
     \item implementations:
     \begin{description}
       \item[\texttt{ConstantMutagen}] $~$ \\ based on $f(x) = a$
-      \item[\texttt{LinearDecreasingMutagen}] $~$ \\ based on $f(x) = a + b \cdot x$
-      \item[\texttt{ExponentialDecreasingMutagen}] $~$ \\ based on $f(x) = a \cdot e^{b \cdot x}$
+      \item[\texttt{PolynomialMutagen}] $~$ \\ based on $f(x) = a + b \cdot x^n$
+      \item[\texttt{ExponentialMutagen}] $~$ \\ based on $f(x) = a \cdot e^{b \cdot x}$
     \end{description}
   \end{itemize}
 \end{frame}
@@ -175,7 +175,7 @@ def apply[G,P]
   (generations: Int = 500,
    individuals: Int = 100)
   (implicit matchmaker: Matchmaker = RankBasedMatchmaker,
-            mutagen: Mutagen = ExponentialDecreasingMutagen,
+            mutagen: Mutagen = ExponentialMutagen,
             debugger: Option[(Int,Double) => Unit] = None)
    : Individual[G]
 \end{lstlisting}
@@ -248,13 +248,13 @@ chart.show()
 
 \section{The Benchmarks}
 
-\fswframe{img/functions-fittest.pdf}
-\fswframe{img/functions-average.pdf}
-\fswframe{img/griewank-vector-sizes.pdf}
-\fswframe{img/griewank-population-sizes.pdf}
-\fswframe{img/griewank-mutagens.pdf}
-\fswframe{img/griewank-crossovers.pdf}
-\fswframe{img/griewank-matchmakers.pdf}
+\fswframe{All Functions with Fittest Individual}{img/functions-fittest.pdf}
+\fswframe{All Functions with Average Fitness}{img/functions-average.pdf}
+\fswframe{Griewank \textendash\ Vector Size}{img/griewank-vector-sizes.pdf}
+\fswframe{Griewank \textendash\ Population Size}{img/griewank-population-sizes.pdf}
+\fswframe{Griewank \textendash\ Mutagen}{img/griewank-mutagens.pdf}
+\fswframe{Griewank \textendash\ Crossover}{img/griewank-crossovers.pdf}
+\fswframe{Griewank \textendash\ Matchmaker}{img/griewank-matchmakers.pdf}
 
 % --------------------------------------------------------------------------------------------------
 %  wrap it up

@@ -37,7 +37,7 @@ object SplitEvolver extends Evolver {
                 (generations: Int = 500,
                  individuals: Int = 100)
                 (implicit matchmaker: Matchmaker[G] = RankBasedMatchmaker[G] _,
-                          mutagen: Mutagen = ExponentialDecreasingMutagen(0.8, 0.01)(generations),
+                          mutagen: Mutagen = ExponentialMutagen(generations),
                           debugger: Option[(Int,Double) ⇒ Unit] = None)
                  : Individual[G] = {
     import ea._
