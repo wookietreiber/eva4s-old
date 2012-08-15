@@ -26,6 +26,7 @@
 
 package org.eva4s
 
+import collection.mutable.ListBuffer
 import math._
 
 package object solver {
@@ -42,6 +43,10 @@ package object solver {
       val bs = log((upper-lower)/granularity + 1) / log(2)
       bs.ceil.toInt
     }
+  }
+
+  def charter(buf: ListBuffer[(Int,Double)]): Option[(Int,Double) ⇒ Unit] = Some { (g: Int, f: Double) ⇒
+    if (f != Double.PositiveInfinity) buf += (g → f)
   }
 
 }
