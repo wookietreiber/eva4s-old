@@ -104,8 +104,8 @@ class RealSolver(val vars: Int, val lower: Vector[Double], val upper: Vector[Dou
 
   override def ancestor: Vector[Double] = boundedAncestor
 
-  override def mutate(g: Vector[Double]): Vector[Double] = g map { x ⇒
-    (0.5 * Random.nextDouble + 0.75) * x
+  override def mutate(g: Vector[Double]): Vector[Double] = g.zipWithIndex map { case (x,i) ⇒
+    (Random.nextDouble * (upper(i).abs + lower(i).abs) + lower(i)) * 0.25 + x
   }
 
   override def recombine(p1: Vector[Double], p2: Vector[Double]) =
