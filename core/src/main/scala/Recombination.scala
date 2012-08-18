@@ -26,6 +26,37 @@
 
 package org.eva4s
 
+object Recombination {
+
+  /** Recombination that per parent pair produces only one child. */
+  trait OnlyChildRecombination[G,P] extends Recombination[G,P] {
+
+    self: Evolutionary[G,P] ⇒
+
+    /** Returns a single genome by recombining the parents. */
+    def onlyChildOf(p1: G, p2: G): G
+
+    override def recombine(p1: G, p2: G): Seq[G] = Vector(onlyChildOf(p1, p2))
+
+  }
+
+  /** Recombination that per parent pair produces two children. */
+  trait CrossoverRecombination[G,P] extends Recombination[G,P] {
+
+    self: Evolutionary[G,P] ⇒
+
+    /** Returns two new genomes by recombining the parents. */
+    def crossover(p1: G, p2: G): (G,G)
+
+    override def recombine(p1: G, p2: G): Seq[G] = {
+      val (c1,c2) = crossover(p1, p2)
+      Vector(c1, c2)
+    }
+
+  }
+
+}
+
 /** Provides the means to recombine the genomes of individuals.
   *
   * @tparam G the type of the genome of the individuals, represents a solution of the problem
