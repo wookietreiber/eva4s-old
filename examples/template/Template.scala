@@ -8,7 +8,9 @@ object Foo {
 
 import Foo._
 
-class Foo(val problem: Problem) extends Evolutionary[Genome,Problem] {
+class Foo(val problem: Problem) extends Evolutionary[Genome,Problem]
+  with Recombination[Genome,Problem]
+  with Mutation[Genome,Problem] {
 
   override def ancestor: Genome =
     sys error "unimplemented"

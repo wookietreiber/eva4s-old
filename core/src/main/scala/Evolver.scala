@@ -120,4 +120,35 @@ trait Evolvers extends Matchmaking with Mutagens with Selection {
     }
   }
 
+  object SplitEvolver extends Evolver {
+    def apply[G,P](ea: Evolutionary[G,P] with Recombination.CrossoverRecombination[G,P] with Mutation[G,P])
+                  (generations: Int = 500,
+                   individuals: Int = 100)
+                  (implicit matchmaker: Matchmaker[G] = RankBasedMatchmaker[G] _,
+                            mutagen: Mutagen = ExponentialMutagen(generations),
+                            debugger: Option[(Int,Double) ⇒ Unit] = None)
+                   : Individual[G] = {
+      import ea._
+
+      @tailrec
+      def evolve(parents: Seq[Individual[G]], generation: Int): Individual[G] =
+        if (generation == generations) {
+          parents minBy { _.fitness }
+        } else {
+          val recombinations = (individuals * (1. - mutagen(generation)) / 2.).round.toInt
+          val mutations      = individuals - (2 * recombinations)
+
+          val mutants   = parents choose mutations map Mutant
+          val offspring = matchmaker(parents, recombinations) map procreate flatten
+
+          val nextGen = mutants ++ offspring
+
+          debugger foreach { debug ⇒ debug(generation, nextGen geometricMeanBy { _.fitness }) }
+
+          evolve(parents = nextGen, generation = generation + 1)
+        }
+
+      evolve(parents = ancestors(individuals), generation = 1)
+    }
+  }
 }

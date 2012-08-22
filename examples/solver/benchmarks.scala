@@ -32,6 +32,8 @@ import scala.collection.mutable.ListBuffer
 import org.jfree.chart.JFreeChart
 import org.sfree.chart.Charting._
 
+import Evolvers.SplitEvolver
+
 object Benchmark {
 
   def xyChartMod(chart: JFreeChart): JFreeChart = {
@@ -45,7 +47,7 @@ object Benchmark {
 
     chart
   }
-
+/*
   def plotter(solvers: EvolutionarySolver[_]*): JFreeChart = {
     val dataset = solvers map { solver ⇒
       val buf = ListBuffer[(Int,Double)]()
@@ -63,10 +65,10 @@ object Benchmark {
 
     xyChartMod(createLineChart(dataset))
   }
-
+*/
   def vectorSize(f: BoundedEquation, ns: Seq[Int] = Seq(5,10,15,20,25,30,40)): JFreeChart = {
     val dataset = ns map { n ⇒
-      val solver = new RealSolver(n, f)
+      val solver = new RealSolver(n, f) with RealSolver.IntermediateCrossover
       val buf = ListBuffer[(Int,Double)]()
       SplitEvolver(solver)()(debugger = charter(buf))
       buf.toXYSeries(n.toString)
@@ -77,7 +79,7 @@ object Benchmark {
 
   def population(f: BoundedEquation, ps: Seq[Int] = Seq(5,10,25,50,100,200,500)): JFreeChart = {
     val dataset = ps map { p ⇒
-      val solver = new RealSolver(5, f)
+      val solver = new RealSolver(5, f) with RealSolver.IntermediateCrossover
       val buf = ListBuffer[(Int,Double)]()
       SplitEvolver(solver)(individuals = p)(debugger = charter(buf))
       buf.toXYSeries(p.toString)
@@ -88,7 +90,7 @@ object Benchmark {
 
   def matchmaker(f: BoundedEquation): JFreeChart = {
     val dataset = matchmakers[Vector[Double]] map { case(name,m) ⇒
-      val solver = new RealSolver(5, f)
+      val solver = new RealSolver(5, f) with RealSolver.IntermediateCrossover
       val buf = ListBuffer[(Int,Double)]()
       SplitEvolver(solver)()(matchmaker = m, debugger = charter(buf))
       buf.toXYSeries(name)
@@ -98,8 +100,7 @@ object Benchmark {
   }
 
   def crossover(f: BoundedEquation): JFreeChart = {
-    val dataset = realCrossovers map { case (name,cross) ⇒
-      val solver = new RealSolver(5, f, cross)
+    val dataset = realCrossovers(f) map { case (name,solver) ⇒
       val buf = ListBuffer[(Int,Double)]()
       SplitEvolver(solver)()(debugger = charter(buf))
       buf.toXYSeries(name)
@@ -110,7 +111,7 @@ object Benchmark {
 
   def mutagen(f: BoundedEquation): JFreeChart = {
     val dataset = mutagens map { case m ⇒
-      val solver = new RealSolver(5, f)
+      val solver = new RealSolver(5, f) with RealSolver.IntermediateCrossover
       val buf = ListBuffer[(Int,Double)]()
       SplitEvolver(solver)(generations = 2000)(mutagen = m, debugger = charter(buf))
       buf.toXYSeries(m.toString)
@@ -131,20 +132,22 @@ object Benchmark {
     ExponentialMutagen(2000)
   )
 
+  import Recombination.CrossoverRecombination
+
   import RealSolver._
 
-  def realCrossovers: Map[String,(Vector[Double],Vector[Double]) ⇒ Seq[Vector[Double]]] = Map (
+  def realCrossovers(f: BoundedEquation): Map[String,RealSolver with CrossoverRecombination[Vector[Double],Vector[Double] ⇒ Double]] = Map (
     // TODO include after NaN error is fixed "Arithmetic Crossover" → ArithmeticCrossover,
-    "Intermediate Crossover" → IntermediateCrossover,
-    "Line Crossover" → LineCrossover
+    "Intermediate Crossover" → new RealSolver(5, f) with IntermediateCrossover,
+    "Line Crossover"         → new RealSolver(5, f) with LineCrossover
   )
 
   import BinarySolver._
 
-  def binaryCrossovers: Map[String,(Vector[Boolean],Vector[Boolean]) ⇒ Seq[Vector[Boolean]]] = Map (
-    "One Point Crossover" → OnePointCrossover,
-    "Two Point Crossover" → TwoPointCrossover,
-    "Uniform Crossover"   → UniformCrossover
+  def binaryCrossovers(f: BoundedEquation): Map[String,BinarySolver with CrossoverRecombination[Vector[Boolean],Vector[Boolean] ⇒ Double]] = Map (
+    "One Point Crossover" → new BinarySolver(5, f) with OnePointCrossover,
+    "Two Point Crossover" → new BinarySolver(5, f) with TwoPointCrossover,
+    "Uniform Crossover"   → new BinarySolver(5, f) with UniformCrossover
   )
 
   import Matchmaking._

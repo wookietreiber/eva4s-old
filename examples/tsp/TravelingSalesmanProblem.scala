@@ -41,13 +41,15 @@ import scalaz._
 import Scalaz._
 
 class TravelingSalesmanProblem[N:Manifest](val problem: Graph[N,WUnDiEdge])
-  extends Evolutionary[Graph[N,WDiEdge],Graph[N,WUnDiEdge]] {
+  extends Evolutionary[Graph[N,WDiEdge],Graph[N,WUnDiEdge]]
+  with Recombination.OnlyChildRecombination[Graph[N,WDiEdge],Graph[N,WUnDiEdge]]
+  with Mutation[Graph[N,WDiEdge],Graph[N,WUnDiEdge]] {
 
   override def ancestor = cycle(problem)
 
   override def fitness(genome: Graph[N,WDiEdge]) = weight(genome)
 
-  override def recombine(p1: Graph[N,WDiEdge], p2: Graph[N,WDiEdge]) = {
+  override def onlyChildOf(p1: Graph[N,WDiEdge], p2: Graph[N,WDiEdge]): Graph[N,WDiEdge] = {
     val adjacencies = neighbors(p1) |+| neighbors(p2)
     val startNode = p1.nodes.head.value
 
@@ -74,7 +76,7 @@ class TravelingSalesmanProblem[N:Manifest](val problem: Graph[N,WUnDiEdge])
       }
     }
 
-    Vector(recurse(List(startNode), startNode, Nil))
+    recurse(List(startNode), startNode, Nil)
   }
 
   override def mutate(genome: Graph[N,WDiEdge]) = {

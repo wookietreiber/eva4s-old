@@ -27,74 +27,79 @@
 package org.eva4s
 package solver
 
+import Recombination.CrossoverRecombination
+
 object RealSolver {
 
-  def IntermediateCrossover(p1: Vector[Double], p2: Vector[Double]): Seq[Vector[Double]] = {
-    require(p1.size == p2.size)
+  trait IntermediateCrossover extends CrossoverRecombination[Vector[Double], Vector[Double] ⇒ Double] {
+    self: Evolutionary[Vector[Double],Vector[Double] ⇒ Double] ⇒
 
-    def sample(a: Double) = - a + (1 + 2 * a) * Random.nextDouble
+    override def crossover(p1: Vector[Double], p2: Vector[Double]): (Vector[Double],Vector[Double]) = {
+      require(p1.size == p2.size)
 
-    val size = p1.size
+      def sample(a: Double) = - a + (1 + 2 * a) * Random.nextDouble
 
-    var children = for {
-      i ← 1 to 2
-      ss = for { i ← 1 to size } yield sample(0.25)
-      a = p1 zip ss map { case (a,b) ⇒ a*b }
-      b = p2 zip ss map { case (a,b) ⇒ a*(1-b) }
-    } yield a zip b map { case (a,b) ⇒ a+b }
+      val size = p1.size
 
-    assume(children forall { _.size == p1.size })
+      var children = for {
+        i ← 1 to 2
+        ss = for { i ← 1 to size } yield sample(0.25)
+        a = p1 zip ss map { case (a,b) ⇒ a*b }
+        b = p2 zip ss map { case (a,b) ⇒ a*(1-b) }
+      } yield a zip b map { case (a,b) ⇒ a+b }
 
-    children
+      assume(children forall { _.size == p1.size })
+
+      children(0) → children(1)
+    }
   }
 
-  def LineCrossover(p1: Vector[Double], p2: Vector[Double]): Seq[Vector[Double]] = {
-    require(p1.size == p2.size)
+  trait LineCrossover extends CrossoverRecombination[Vector[Double], Vector[Double] ⇒ Double] {
+    self: Evolutionary[Vector[Double],Vector[Double] ⇒ Double] ⇒
 
-    def sample(a: Double) = - a + (1 + 2 * a) * Random.nextDouble
+    override def crossover(p1: Vector[Double], p2: Vector[Double]): (Vector[Double],Vector[Double]) = {
+      require(p1.size == p2.size)
 
-    val size = p1.size
+      def sample(a: Double) = - a + (1 + 2 * a) * Random.nextDouble
 
-    var children = for {
-      i ← 1 to 2
-      ss = for { i ← 1 to size ; s = sample(0.25) } yield s
-      a = p1 zip ss map { case (a,b) ⇒ a*b }
-      b = p2 zip ss map { case (a,b) ⇒ a*(1-b) }
-    } yield a zip b map { case (a,b) ⇒ a+b }
+      val size = p1.size
 
-    assume(children forall { _.size == p1.size })
+      var children = for {
+        i ← 1 to 2
+        ss = for { i ← 1 to size ; s = sample(0.25) } yield s
+        a = p1 zip ss map { case (a,b) ⇒ a*b }
+        b = p2 zip ss map { case (a,b) ⇒ a*(1-b) }
+      } yield a zip b map { case (a,b) ⇒ a+b }
 
-    children
+      assume(children forall { _.size == p1.size })
+
+      children(0) → children(1)
+    }
   }
 
-  /** @todo yields NaN fitness */
-  def ArithmeticCrossover(p1: Vector[Double], p2: Vector[Double]): Seq[Vector[Double]] = {
-    require(p1.size == p2.size)
+  trait ArithmeticCrossover extends CrossoverRecombination[Vector[Double], Vector[Double] ⇒ Double] {
+    self: Evolutionary[Vector[Double],Vector[Double] ⇒ Double] ⇒
 
-    val c1 = p1 zip p2 map { case (a,b) ⇒ (a+b) / 2 }
-    val c2 = p1 zip p2 map { case (a,b) ⇒ math.sqrt(a*b) }
+    /** @todo yields NaN fitness */
+    override def crossover(p1: Vector[Double], p2: Vector[Double]): (Vector[Double],Vector[Double]) = {
+      require(p1.size == p2.size)
 
-    var children = Seq(c1, c2)
+      val c1 = p1 zip p2 map { case (a,b) ⇒ (a+b) / 2 }
+      val c2 = p1 zip p2 map { case (a,b) ⇒ math.sqrt(a*b) }
 
-    assume(children forall { _.size == p1.size })
+      var children = Seq(c1, c2)
 
-    children
+      assume(children forall { _.size == p1.size })
+
+      children(0) → children(1)
+    }
   }
 
 }
 
 class RealSolver(val vars: Int, val lower: Vector[Double], val upper: Vector[Double])
-         (override val problem: Equation)
-         (implicit recomb: (Vector[Double],Vector[Double]) ⇒ Seq[Vector[Double]] =
-            RealSolver.IntermediateCrossover)
+                (override val problem: Equation)
   extends EvolutionarySolver[Double] {
-
-  def this(vars: Int, problem: BoundedEquation,
-           recomb: (Vector[Double],Vector[Double]) ⇒ Seq[Vector[Double]]) = this(
-    vars,
-    Vector.fill(vars)(problem.lower),
-    Vector.fill(vars)(problem.upper)
-  )(problem)(recomb)
 
   def this(vars: Int, problem: BoundedEquation) = this(
     vars,
@@ -107,8 +112,5 @@ class RealSolver(val vars: Int, val lower: Vector[Double], val upper: Vector[Dou
   override def mutate(g: Vector[Double]): Vector[Double] = g.zipWithIndex map { case (x,i) ⇒
     (Random.nextDouble * (upper(i).abs + lower(i).abs) + lower(i)) * 0.25 + x
   }
-
-  override def recombine(p1: Vector[Double], p2: Vector[Double]) =
-    recomb(p1,p2)
 
 }

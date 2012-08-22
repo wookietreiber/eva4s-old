@@ -27,7 +27,8 @@
 package org.eva4s
 package solver
 
-trait EvolutionarySolver[A] extends Evolutionary[Vector[A], Vector[A] ⇒ Double] {
+trait EvolutionarySolver[A] extends Evolutionary[Vector[A], Vector[A] ⇒ Double]
+  with Mutation[Vector[A], Vector[A] ⇒ Double] {
 
   override def fitness(g: Vector[A]): Double = problem(g)
 

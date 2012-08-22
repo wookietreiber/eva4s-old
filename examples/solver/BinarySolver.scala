@@ -27,6 +27,8 @@
 package org.eva4s
 package solver
 
+import Recombination.CrossoverRecombination
+
 object BinarySolver {
 
   def decode(xs: Vector[Boolean],
@@ -46,53 +48,55 @@ object BinarySolver {
   def granularity(lower: Double, upper: Double, bits: Int): Double =
     (upper - lower) / (math.pow(2, bits) - 1)
 
-  def OnePointCrossover(p1: Vector[Boolean], p2: Vector[Boolean]): Seq[Vector[Boolean]] = {
-    val point = Random.nextInt(p1.size)
+  trait OnePointCrossover extends CrossoverRecombination[Vector[Boolean], Vector[Boolean] ⇒ Double] {
+    self: Evolutionary[Vector[Boolean],Vector[Boolean] ⇒ Double] ⇒
 
-    val c1 = (p1 take point) ++ (p2 drop point)
-    val c2 = (p2 take point) ++ (p1 drop point)
+    override def crossover(p1: Vector[Boolean], p2: Vector[Boolean]): (Vector[Boolean],Vector[Boolean]) = {
+      val point = Random.nextInt(p1.size)
 
-    Vector(c1, c2)
+      val c1 = (p1 take point) ++ (p2 drop point)
+      val c2 = (p2 take point) ++ (p1 drop point)
+
+      c1 → c2
+    }
   }
 
-  def TwoPointCrossover(p1: Vector[Boolean], p2: Vector[Boolean]): Seq[Vector[Boolean]] = {
-    val point1 = Random.nextInt(p1.size)
-    val point2 = Random.nextInt(p1.size)
+  trait TwoPointCrossover extends CrossoverRecombination[Vector[Boolean], Vector[Boolean] ⇒ Double] {
+    self: Evolutionary[Vector[Boolean],Vector[Boolean] ⇒ Double] ⇒
 
-    val a = point1 min point2
-    val b = point1 max point2
+    override def crossover(p1: Vector[Boolean], p2: Vector[Boolean]): (Vector[Boolean],Vector[Boolean]) = {
+      val point1 = Random.nextInt(p1.size)
+      val point2 = Random.nextInt(p1.size)
 
-    val c1 = (p1 take a) ++ (p2 take b drop a) ++ (p1 drop b)
-    val c2 = (p2 take a) ++ (p1 take b drop a) ++ (p2 drop b)
+      val a = point1 min point2
+      val b = point1 max point2
 
-    Vector(c1, c2)
+      val c1 = (p1 take a) ++ (p2 take b drop a) ++ (p1 drop b)
+      val c2 = (p2 take a) ++ (p1 take b drop a) ++ (p2 drop b)
+
+      c1 → c2
+    }
   }
 
   /** http://www.geatbx.com/docu/algindex-03.html#P638_39007 */
-  def UniformCrossover(p1: Vector[Boolean], p2: Vector[Boolean]): Seq[Vector[Boolean]] = {
-    val sample = Vector.fill(p1.size) { Random.nextBoolean } zipWithIndex
+  trait UniformCrossover extends CrossoverRecombination[Vector[Boolean], Vector[Boolean] ⇒ Double] {
+    self: Evolutionary[Vector[Boolean],Vector[Boolean] ⇒ Double] ⇒
 
-    val c1 = sample map { case(x,i) ⇒ if ( x) p1(i) else p2(i) }
-    val c2 = sample map { case(x,i) ⇒ if (!x) p1(i) else p2(i) }
+    override def crossover(p1: Vector[Boolean], p2: Vector[Boolean]): (Vector[Boolean],Vector[Boolean]) = {
+      val sample = Vector.fill(p1.size) { Random.nextBoolean } zipWithIndex
 
-    Vector(c1, c2)
+      val c1 = sample map { case(x,i) ⇒ if ( x) p1(i) else p2(i) }
+      val c2 = sample map { case(x,i) ⇒ if (!x) p1(i) else p2(i) }
+
+      c1 → c2
+    }
   }
 
 }
 
 class BinarySolver(val vars: Int, val bits: Int, val lower: Vector[Double], val upper: Vector[Double])
                   (val p: Equation)
-                  (implicit recomb: (Vector[Boolean],Vector[Boolean]) ⇒ Seq[Vector[Boolean]] =
-                     BinarySolver.TwoPointCrossover)
   extends EvolutionarySolver[Boolean] {
-
-  def this(vars: Int, problem: BoundedEquation,
-           recomb: (Vector[Boolean],Vector[Boolean]) ⇒ Seq[Vector[Boolean]]) = this (
-    vars,
-    problem.bits,
-    Vector.fill(vars)(problem.lower),
-    Vector.fill(vars)(problem.upper)
-  )(problem)(recomb)
 
   def this(vars: Int, problem: BoundedEquation) = this (
     vars,
@@ -122,8 +126,5 @@ class BinarySolver(val vars: Int, val bits: Int, val lower: Vector[Double], val 
     //val i = Random.nextInt(g.size)
     //g.updated(i, ! g(i))
   }
-
-  override def recombine(p1: Vector[Boolean], p2: Vector[Boolean]): Seq[Vector[Boolean]] =
-    recomb(p1,p2)
 
 }
