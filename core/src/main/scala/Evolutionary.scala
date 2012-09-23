@@ -52,9 +52,8 @@ trait Evolutionary[G,P] {
   /** Returns a new individual from the given genome.
     *
     * @note The purpose of this method is the convenient creation of a new individual. It is just a
-    * convenience wrapper around [[org.eva4s.package.Individual]] to automatically inject the
-    * fitness according to this evolutionary algorithm. Use it like the factory method of a case
-    * class.
+    * convenience wrapper around the case class to automatically inject the fitness according to
+    * this evolutionary algorithm. Use it like the factory method of a case class.
     */
   final def Individual(genome: G): Individual[G] =
     new Individual(genome, fitness(genome))

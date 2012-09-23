@@ -30,8 +30,14 @@ object eva4s extends Build {
     base      = file ("core"),
     settings  = baseSettings ++ Seq (
       name := "eva4s-core",
-      libraryDependencies ++= Seq ( scalaz, extras ),
-      crossScalaVersions := Seq("2.9.0-1", "2.9.1", "2.9.2", "2.10.0-M5"),
+      crossScalaVersions := Seq("2.9.2", "2.10.0-M7"),
+      libraryDependencies += extras,
+      libraryDependencies <+= scalaVersion { sv ⇒
+        if (sv.startsWith("2.10"))
+          "org.scalaz" % "scalaz-core_2.10.0-M7" % "6.0.4"
+        else
+          "org.scalaz" %% "scalaz-core" % "6.0.4"
+      },
       initialCommands in Compile += """
         import scalay.collection._
         import scalaz._
@@ -102,7 +108,5 @@ object eva4s extends Build {
 object Dependencies {
   lazy val chart  = "org.sfree"                          %% "sfreechart"        % "latest.integration"
   lazy val graph  = "com.assembla.scala-incubator"       %% "graph-core"        % "1.5.1"
-  lazy val scalaz = "org.scalaz"                         %% "scalaz-core"       % "6.0.4"
   lazy val extras = "com.github.scala-collection-extras" %% "collection-extras" % "latest.integration"
-  lazy val specs2 = "org.specs2"                         %% "specs2"            % "1.12.1"  % "test"
 }
