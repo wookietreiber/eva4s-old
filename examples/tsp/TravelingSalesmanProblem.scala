@@ -50,7 +50,7 @@ class TravelingSalesmanProblem[N:Manifest](val problem: Graph[N,WUnDiEdge])
   override def fitness(genome: Graph[N,WDiEdge]) = weight(genome)
 
   override def onlyChildOf(p1: Graph[N,WDiEdge], p2: Graph[N,WDiEdge]): Graph[N,WDiEdge] = {
-    val adjacencies = neighbors(p1) |+| neighbors(p2)
+    val adjacencies = neighbors(p1) ⊹ neighbors(p2)
     val startNode = p1.nodes.head.value
 
     @tailrec

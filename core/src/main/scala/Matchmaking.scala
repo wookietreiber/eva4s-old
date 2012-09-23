@@ -158,7 +158,7 @@ trait Matchmaking {
     }
 
     Vector.fill(pairs) {
-      val ps = winners.fold(Map())(_ |+| _).sortBy(- _._2).take(2).map(_._1)
+      val ps = winners.fold(Map())(_ ⊹ _).sortBy(- _._2).take(2).map(_._1)
       ps.size match {
         case 0 ⇒ parents choosePair
         case 1 ⇒ Pair(ps.head, parents filter { _ != ps.head } minBy { _.fitness })
