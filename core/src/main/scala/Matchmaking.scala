@@ -78,7 +78,7 @@ trait Matchmaking {
   def RandomAcceptanceMatchmaker[G](acceptance: Double)
                                    (parents: Seq[Individual[G]], pairs: Int)
                                     : Seq[Pair[Individual[G],Individual[G]]] =
-    for (i ← 1 to pairs if Random.nextDouble < acceptance) yield parents choosePair
+    for (i ← 1 to pairs if Random.nextDouble < acceptance) yield parents.choosePair
 
   /** Returns pairs based on their rank by fitness. The fitter the individual, the higher is the
     * possibility that it gets chosen.
@@ -93,7 +93,7 @@ trait Matchmaking {
   def RankBasedMatchmaker[G](parents: Seq[Individual[G]], pairs: Int)
                              : Seq[Pair[Individual[G],Individual[G]]] = {
     val ranked = parents sortBy { - _.fitness } zip {
-      ranks(parents.size).inits drop 1 map { _.sum } toList
+      ranks(parents.size).inits.drop(1).map(_.sum).toList
     }
 
     def choosePair(ranked: Seq[Pair[Individual[G],Double]]): (Individual[G],Individual[G]) = {
@@ -160,7 +160,7 @@ trait Matchmaking {
     Vector.fill(pairs) {
       val ps = winners.fold(Map())(_ ⊹ _).sortBy(- _._2).take(2).map(_._1)
       ps.size match {
-        case 0 ⇒ parents choosePair
+        case 0 ⇒ parents.choosePair
         case 1 ⇒ Pair(ps.head, parents filter { _ != ps.head } minBy { _.fitness })
         case _ ⇒ Pair(ps.head, ps.last)
       }

@@ -48,7 +48,7 @@ package object eva4s {
   // aliases
   // -----------------------------------------------------------------------------------------------
 
-  /** Returns Scala's default [[scala.util.Random]] object. */
+  /** Returns Scala's default random object. */
   val Random = scala.util.Random
 
   /** A `Matchmaker` pairs individuals up with each other. It models parental selection.
