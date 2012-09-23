@@ -135,11 +135,11 @@ trait Evolvers extends Matchmaking with Mutagens with Selection {
         if (generation == generations) {
           parents minBy { _.fitness }
         } else {
-          val recombinations = (individuals * (1. - mutagen(generation)) / 2.).round.toInt
+          val recombinations = (individuals * (1.0 - mutagen(generation)) / 2.0).round.toInt
           val mutations      = individuals - (2 * recombinations)
 
           val mutants   = parents choose mutations map Mutant
-          val offspring = matchmaker(parents, recombinations) map procreate flatten
+          val offspring = matchmaker(parents, recombinations).map(procreate).flatten
 
           val nextGen = mutants ++ offspring
 
