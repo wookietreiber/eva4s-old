@@ -100,9 +100,9 @@ object eva4s extends Build {
 }
 
 object Dependencies {
-  lazy val chart  = "org.sfree"                    %% "sfreechart"  % "latest.integration"
-  lazy val graph  = "com.assembla.scala-incubator" %% "graph-core"  % "1.5.1"
-  lazy val scalaz = "org.scalaz"                   %% "scalaz-core" % "6.0.4"
+  lazy val chart  = "org.sfree"                          %% "sfreechart"        % "latest.integration"
+  lazy val graph  = "com.assembla.scala-incubator"       %% "graph-core"        % "1.5.1"
+  lazy val scalaz = "org.scalaz"                         %% "scalaz-core"       % "6.0.4"
   lazy val extras = "com.github.scala-collection-extras" %% "collection-extras" % "latest.integration"
-  lazy val specs2 = "org.specs2"                   %% "specs2"      % "1.12"  % "test"
+  lazy val specs2 = "org.specs2"                         %% "specs2"            % "1.12.1"  % "test"
 }
