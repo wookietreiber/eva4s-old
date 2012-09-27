@@ -29,6 +29,14 @@ package org.eva4s
 import scala.annotation.tailrec
 import scalay.collection._
 
+/** An evolver is to an [[org.eva4s.Evolutionary]] what an executor is to a thread. How an
+  * [[org.eva4s.Evolutionary]] is executed (sequential, parallel, distributed) depends on the actual
+  * evolver implementation.
+  *
+  * @note An [[org.eva4s.Evolver]] implementation should be stateless.
+  *
+  * @see [[org.eva4s.Evolvers]] contains default implementations.
+  */
 trait Evolver {
 
   implicit val DoubleIntegral: Integral[Double] = scala.math.Numeric.DoubleAsIfIntegral
@@ -54,7 +62,7 @@ object Evolvers extends Evolvers
 
 /** $EvolverInfo
   *
-  * @define EvolverInfo To be done.
+  * @define EvolverInfo Contains default [[org.eva4s.Evolver]] implementations.
   */
 trait Evolvers extends Matchmaking with Mutagens with Selection {
 
