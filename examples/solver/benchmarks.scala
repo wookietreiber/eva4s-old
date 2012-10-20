@@ -27,6 +27,9 @@
 package org.eva4s
 package solver
 
+import language.postfixOps
+import language.reflectiveCalls
+
 import scala.collection.mutable.ListBuffer
 
 import org.jfree.chart.JFreeChart

@@ -27,6 +27,8 @@
 package org.eva4s
 package solver
 
+import language.postfixOps
+
 object BinarySolver {
 
   def decode(xs: Vector[Boolean],

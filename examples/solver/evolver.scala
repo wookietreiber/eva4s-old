@@ -27,6 +27,8 @@
 package org.eva4s
 package solver
 
+import language.postfixOps
+
 import scala.annotation.tailrec
 import scalay.collection._
 
@@ -47,7 +49,7 @@ object SplitEvolver extends Evolver {
       if (generation == generations) {
         parents minBy { _.fitness }
       } else {
-        val recombinations = (individuals * (1. - mutagen(generation)) / 2.).round.toInt
+        val recombinations = (individuals * (1.0 - mutagen(generation)) / 2.0).round.toInt
         val mutations      = individuals - (2 * recombinations)
 
         val mutants   = parents choose mutations map Mutant
