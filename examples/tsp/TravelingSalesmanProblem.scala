@@ -27,6 +27,8 @@
 package org.eva4s
 package tsp
 
+import language.postfixOps
+
 import org.eva4s.util.graph._
 
 import scala.annotation.tailrec

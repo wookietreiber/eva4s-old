@@ -27,6 +27,9 @@
 package org.eva4s
 package util
 
+import language.postfixOps
+import language.higherKinds
+
 import scalax.collection._
 import scalax.collection.GraphEdge._
 import scalax.collection.GraphPredef._

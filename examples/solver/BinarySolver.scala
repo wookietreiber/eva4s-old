@@ -27,6 +27,8 @@
 package org.eva4s
 package solver
 
+import language.postfixOps
+
 import Recombination.CrossoverRecombination
 
 object BinarySolver {
