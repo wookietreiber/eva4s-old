@@ -77,7 +77,7 @@ object Benchmark {
       buf.toXYSeries(n.toString)
     } toXYSeriesCollection
 
-    xyChartMod(LineChart(dataset, title = f.toString))
+    xyChartMod(XYLineChart(dataset, title = f.toString))
   }
 
   def population(f: BoundedEquation, ps: Seq[Int] = Seq(5,10,25,50,100,200,500)): JFreeChart = {
@@ -88,7 +88,7 @@ object Benchmark {
       buf.toXYSeries(p.toString)
     } toXYSeriesCollection
 
-    xyChartMod(LineChart(dataset, title = f.toString))
+    xyChartMod(XYLineChart(dataset, title = f.toString))
   }
 
   def matchmaker(f: BoundedEquation): JFreeChart = {
@@ -99,7 +99,7 @@ object Benchmark {
       buf.toXYSeries(name)
     } toXYSeriesCollection
 
-    xyChartMod(LineChart(dataset, title = f.toString))
+    xyChartMod(XYLineChart(dataset, title = f.toString))
   }
 
   def crossover(f: BoundedEquation): JFreeChart = {
@@ -109,7 +109,7 @@ object Benchmark {
       buf.toXYSeries(name)
     } toXYSeriesCollection
 
-    xyChartMod(LineChart(dataset, title = f.toString))
+    xyChartMod(XYLineChart(dataset, title = f.toString))
   }
 
   def mutagen(f: BoundedEquation): JFreeChart = {
@@ -120,7 +120,7 @@ object Benchmark {
       buf.toXYSeries(m.toString)
     } toXYSeriesCollection
 
-    xyChartMod(LineChart(dataset, title = f.toString))
+    xyChartMod(XYLineChart(dataset, title = f.toString))
   }
 
   import Mutagens._
