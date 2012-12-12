@@ -80,8 +80,8 @@ package object eva4s {
   // -----------------------------------------------------------------------------------------------
 
   /** Returns some debugger function. */
-  val printer: Option[(Int,Double) ⇒ Unit] = Some { (g: Int, f: Double) ⇒
-    printf("generation: %5d     average fitness: %f\n", g, f)
+  val printer: Option[(Int,Double,Double) ⇒ Unit] = Some { (g: Int, i: Double, f: Double ) ⇒
+    printf("generation: %5d     selection intensity: % 1.5f     average fitness: %f\n", g, i, f)
   }
 
   private[eva4s] def ranks(size: Int) = Vector.tabulate(size) {
