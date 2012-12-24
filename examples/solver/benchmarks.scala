@@ -31,6 +31,7 @@ import language.postfixOps
 import language.reflectiveCalls
 
 import scala.collection.mutable.ListBuffer
+import scala.swing.Swing
 
 import org.jfree.chart.JFreeChart
 import org.sfree.chart.Charting._
@@ -38,12 +39,14 @@ import org.sfree.chart.Charting._
 object Benchmark {
 
   def xyChartMod(chart: JFreeChart): JFreeChart = {
-    val plot = chart.getXYPlot
-    plot.getDomainAxis.setLabel("generations")
-    plot.getRangeAxis.setLabel("geometric mean fitness")
+    Swing onEDT {
+      chart.domainAxisLabel = "generations"
+      chart.rangeAxisLabel = "geometric mean fitness"
 
-    for { i ← 0 until plot.getDataset.getSeriesCount } swing.Swing.onEDT {
-      plot.getRenderer.setSeriesStroke(i, new java.awt.BasicStroke(1.5f))
+      val plot = chart.getXYPlot
+
+      for { i ← 0 until plot.getDataset.getSeriesCount }
+        plot.getRenderer.setSeriesStroke(i, new java.awt.BasicStroke(1.5f))
     }
 
     chart
@@ -64,7 +67,7 @@ object Benchmark {
       }
     } toXYSeriesCollection
 
-    xyChartMod(LineChart(dataset))
+    xyChartMod(XYLineChart(dataset))
   }
 
   def vectorSize(f: BoundedEquation, ns: Seq[Int] = Seq(5,10,15,20,25,30,40)): JFreeChart = {
@@ -75,7 +78,7 @@ object Benchmark {
       buf.toXYSeries(n.toString)
     } toXYSeriesCollection
 
-    xyChartMod(LineChart(dataset, title = f.toString))
+    xyChartMod(XYLineChart(dataset, title = f.toString))
   }
 
   def population(f: BoundedEquation, ps: Seq[Int] = Seq(5,10,25,50,100,200,500)): JFreeChart = {
@@ -86,7 +89,7 @@ object Benchmark {
       buf.toXYSeries(p.toString)
     } toXYSeriesCollection
 
-    xyChartMod(LineChart(dataset, title = f.toString))
+    xyChartMod(XYLineChart(dataset, title = f.toString))
   }
 
   def matchmaker(f: BoundedEquation): JFreeChart = {
@@ -97,7 +100,7 @@ object Benchmark {
       buf.toXYSeries(name)
     } toXYSeriesCollection
 
-    xyChartMod(LineChart(dataset, title = f.toString))
+    xyChartMod(XYLineChart(dataset, title = f.toString))
   }
 
   def crossover(f: BoundedEquation): JFreeChart = {
@@ -108,7 +111,7 @@ object Benchmark {
       buf.toXYSeries(name)
     } toXYSeriesCollection
 
-    xyChartMod(LineChart(dataset, title = f.toString))
+    xyChartMod(XYLineChart(dataset, title = f.toString))
   }
 
   def mutagen(f: BoundedEquation): JFreeChart = {
@@ -119,7 +122,7 @@ object Benchmark {
       buf.toXYSeries(m.toString)
     } toXYSeriesCollection
 
-    xyChartMod(LineChart(dataset, title = f.toString))
+    xyChartMod(XYLineChart(dataset, title = f.toString))
   }
 
   import Mutagens._
