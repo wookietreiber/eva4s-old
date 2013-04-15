@@ -8,7 +8,7 @@ object BuildSettings {
   lazy val baseSettings = Defaults.defaultSettings ++ Seq (
     organization   := "org.eva4s",
     version        := "0.1.0-SNAPSHOT",
-    scalaVersion   := "2.10.0-RC5",
+    scalaVersion   := "2.10.1",
     initialCommands in (Compile, consoleQuick) <<= initialCommands in Compile,
     initialCommands in Compile in console += """
       import org.eva4s._
@@ -99,8 +99,8 @@ object eva4s extends Build {
 }
 
 object Dependencies {
-  lazy val extras = "com.github.scala-collection-extras"  %% "collection-extras" % "latest.integration"
-  lazy val chart  = "com.github.wookietreiber.sfreechart" %% "sfreechart"        % "0.1.0" cross CrossVersion.full
-  lazy val graph  = "com.assembla.scala-incubator"        %  "graph-core"        % "1.5.2" cross CrossVersion.full
-  lazy val scalaz = "org.scalaz"                          %  "scalaz-core"       % "6.0.4" cross CrossVersion.full
+  lazy val chart  = "com.github.wookietreiber"           %% "scala-chart"       % "0.2.0"
+  lazy val graph  = "com.assembla.scala-incubator"       %% "graph-core"        % "1.6.1"
+  lazy val extras = "com.github.scala-collection-extras" %% "collection-extras" % "latest.integration"
+  lazy val scalaz = "org.scalaz"                         %% "scalaz-core"       % "7.0.0-RC2"
 }

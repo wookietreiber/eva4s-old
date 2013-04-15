@@ -60,8 +60,8 @@ object graph {
     g.edges.foldLeft(0L) { _ + _.weight }
 
   /** Returns the neighbors of all nodes of the given graph. */
-  def neighbors[N,E[X] <: EdgeLikeIn[X]](g: Graph[N,E]): Map[N,collection.Set[N]] = g.nodes map { node ⇒
-    node.value → (node.neighbors map { _.value })
+  def neighbors[N,E[X] <: EdgeLikeIn[X]](g: Graph[N,E]): Map[N,Set[N]] = g.nodes map { node ⇒
+    node.value → node.neighbors.map(_.value).toSet
   } toMap
 
   /** Returns a random hamiltonian cycle of the given complete graph. */

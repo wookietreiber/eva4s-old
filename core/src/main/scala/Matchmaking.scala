@@ -104,7 +104,7 @@ trait Matchmaking {
 
       val r2 = Random.nextDouble
       val (p21,p22) = (p11.init ++ p12) partition { _._2 < r2 }
-      val par2 = if (p21.empty) p22.head._1 else p21.last._1
+      val par2 = if (p21.isEmpty) p22.head._1 else p21.last._1
 
       par1 → par2
     }
