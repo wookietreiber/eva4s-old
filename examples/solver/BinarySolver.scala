@@ -28,8 +28,6 @@ package solver
 
 import language.postfixOps
 
-import Recombination.CrossoverRecombination
-
 object BinarySolver {
 
   def decode(xs: Vector[Boolean],

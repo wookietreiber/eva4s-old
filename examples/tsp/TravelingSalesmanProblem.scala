@@ -43,7 +43,7 @@ import Scalaz._
 
 class TravelingSalesmanProblem[N:Manifest](val problem: Graph[N,WUnDiEdge])
   extends Evolutionary[Graph[N,WDiEdge],Graph[N,WUnDiEdge]]
-  with Recombination.OnlyChildRecombination[Graph[N,WDiEdge],Graph[N,WUnDiEdge]]
+  with OnlyChildRecombination[Graph[N,WDiEdge],Graph[N,WUnDiEdge]]
   with Mutation[Graph[N,WDiEdge],Graph[N,WUnDiEdge]] {
 
   override def ancestor = cycle(problem)

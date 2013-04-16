@@ -139,8 +139,6 @@ object Benchmark {
     ExponentialMutagen(2000)
   )
 
-  import Recombination.CrossoverRecombination
-
   import RealSolver._
 
   def realCrossovers(f: BoundedEquation): Map[String,RealSolver with CrossoverRecombination[Vector[Double],Vector[Double] ⇒ Double]] = Map (

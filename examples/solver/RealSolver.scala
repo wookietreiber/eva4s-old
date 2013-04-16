@@ -26,8 +26,6 @@
 package org.eva4s
 package solver
 
-import Recombination.CrossoverRecombination
-
 object RealSolver {
 
   trait IntermediateCrossover extends CrossoverRecombination[Vector[Double], Vector[Double] ⇒ Double] {

@@ -128,7 +128,7 @@ trait Evolvers extends Matchmaking with Mutagens with Selection {
   }
 
   object SplitEvolver extends Evolver {
-    def apply[G,P](ea: Evolutionary[G,P] with Recombination.CrossoverRecombination[G,P] with Mutation[G,P])
+    def apply[G,P](ea: Evolutionary[G,P] with CrossoverRecombination[G,P] with Mutation[G,P])
                   (generations: Int = 500,
                    individuals: Int = 100)
                   (implicit matchmaker: Matchmaker[G] = RankBasedMatchmaker[G] _,
