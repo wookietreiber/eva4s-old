@@ -1,10 +1,10 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                                               *
  *  Copyright  ©  2012  Nils Foken, Christian Krause                                             *
+ *                2013  Christian Krause                                                         *
  *                                                                                               *
  *  Nils Foken        <nils.foken@it2009.ba-leipzig.de>                                          *
- *  Christian Krause  <christian.krause@it2009.ba-leipzig.de>                                    *
- *                    <kizkizzbangbang@googlemail.com>                                           *
+ *  Christian Krause  <kizkizzbangbang@googlemail.com>                                           *
  *                                                                                               *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                                               *
@@ -33,17 +33,17 @@ import language.reflectiveCalls
 import scala.collection.mutable.ListBuffer
 import scala.swing.Swing
 
-import org.jfree.chart.JFreeChart
-import org.sfree.chart.Charting._
+import scalax.chart._
+import Charting._
 
 object Benchmark {
 
-  def xyChartMod(chart: JFreeChart): JFreeChart = {
+  def xyChartMod(chart: XYChart): XYChart = {
     Swing onEDT {
       chart.domainAxisLabel = "generations"
       chart.rangeAxisLabel = "geometric mean fitness"
 
-      val plot = chart.getXYPlot
+      val plot = chart.plot
 
       for { i ← 0 until plot.getDataset.getSeriesCount }
         plot.getRenderer.setSeriesStroke(i, new java.awt.BasicStroke(1.5f))
@@ -52,7 +52,7 @@ object Benchmark {
     chart
   }
 
-  def plotter(solvers: EvolutionarySolver[_]*): JFreeChart = {
+  def plotter(solvers: EvolutionarySolver[_]*): XYChart = {
     val dataset = solvers map { solver ⇒
       val buf = ListBuffer[(Int,Double)]()
 
@@ -70,7 +70,7 @@ object Benchmark {
     xyChartMod(XYLineChart(dataset))
   }
 
-  def vectorSize(f: BoundedEquation, ns: Seq[Int] = Seq(5,10,15,20,25,30,40)): JFreeChart = {
+  def vectorSize(f: BoundedEquation, ns: Seq[Int] = Seq(5,10,15,20,25,30,40)): XYChart = {
     val dataset = ns map { n ⇒
       val solver = new RealSolver(n, f)
       val buf = ListBuffer[(Int,Double)]()
@@ -81,7 +81,7 @@ object Benchmark {
     xyChartMod(XYLineChart(dataset, title = f.toString))
   }
 
-  def population(f: BoundedEquation, ps: Seq[Int] = Seq(5,10,25,50,100,200,500)): JFreeChart = {
+  def population(f: BoundedEquation, ps: Seq[Int] = Seq(5,10,25,50,100,200,500)): XYChart = {
     val dataset = ps map { p ⇒
       val solver = new RealSolver(5, f)
       val buf = ListBuffer[(Int,Double)]()
@@ -92,7 +92,7 @@ object Benchmark {
     xyChartMod(XYLineChart(dataset, title = f.toString))
   }
 
-  def matchmaker(f: BoundedEquation): JFreeChart = {
+  def matchmaker(f: BoundedEquation): XYChart = {
     val dataset = matchmakers[Vector[Double]] map { case(name,m) ⇒
       val solver = new RealSolver(5, f)
       val buf = ListBuffer[(Int,Double)]()
@@ -103,7 +103,7 @@ object Benchmark {
     xyChartMod(XYLineChart(dataset, title = f.toString))
   }
 
-  def crossover(f: BoundedEquation): JFreeChart = {
+  def crossover(f: BoundedEquation): XYChart = {
     val dataset = realCrossovers map { case (name,cross) ⇒
       val solver = new RealSolver(5, f, cross)
       val buf = ListBuffer[(Int,Double)]()
@@ -114,7 +114,7 @@ object Benchmark {
     xyChartMod(XYLineChart(dataset, title = f.toString))
   }
 
-  def mutagen(f: BoundedEquation): JFreeChart = {
+  def mutagen(f: BoundedEquation): XYChart = {
     val dataset = mutagens map { case m ⇒
       val solver = new RealSolver(5, f)
       val buf = ListBuffer[(Int,Double)]()
