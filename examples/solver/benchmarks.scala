@@ -4,8 +4,7 @@
  *                2013  Christian Krause                                                         *
  *                                                                                               *
  *  Nils Foken        <nils.foken@it2009.ba-leipzig.de>                                          *
- *  Christian Krause  <christian.krause@it2009.ba-leipzig.de>                                    *
- *                    <kizkizzbangbang@googlemail.com>                                           *
+ *  Christian Krause  <kizkizzbangbang@googlemail.com>                                           *
  *                                                                                               *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                                               *
