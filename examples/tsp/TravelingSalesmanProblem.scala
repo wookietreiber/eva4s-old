@@ -50,9 +50,9 @@ class TravelingSalesmanProblem[N:Manifest](val problem: Graph[N,WUnDiEdge])
 
   override def fitness(genome: Graph[N,WDiEdge]) = weight(genome)
 
-  override def onlyChildOf(p1: Graph[N,WDiEdge], p2: Graph[N,WDiEdge]): Graph[N,WDiEdge] = {
-    val adjacencies = neighbors(p1) ⊹ neighbors(p2)
-    val startNode = p1.nodes.head.value
+  override def onlyChildOf(g1: Graph[N,WDiEdge], g2: Graph[N,WDiEdge]): Graph[N,WDiEdge] = {
+    val adjacencies = neighbors(g1) ⊹ neighbors(g2)
+    val startNode = g1.nodes.head.value
 
     @tailrec
     def recurse(have: List[N], currentNode: N, edges: List[WDiEdge[N]]): Graph[N,WDiEdge] = {
@@ -69,7 +69,7 @@ class TravelingSalesmanProblem[N:Manifest](val problem: Graph[N,WUnDiEdge])
             case (key,_) ⇒ have.contains(key)
           } apply node filterNot have.contains size
         } else // in case remainingNodes is empty choose some remaining node
-          p1.nodes.toNodeInSet filterNot have.contains head
+          g1.nodes.toNodeInSet filterNot have.contains head
 
         val nextEdge = (currentNode ~%> nextNode)(problem.get((currentNode ~% nextNode)(0)).toEdgeIn.weight)
 

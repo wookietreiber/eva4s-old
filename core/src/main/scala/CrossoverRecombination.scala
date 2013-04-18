@@ -30,11 +30,11 @@ trait CrossoverRecombination[G,P] extends Recombination[G,P] {
   self: Evolutionary[G,P] ⇒
 
   /** Returns two new genomes by recombining the parents. */
-  def crossover(p1: G, p2: G): (G,G)
+  def crossover(g1: G, g2: G): (G,G)
 
-  override def recombine(p1: G, p2: G): Seq[G] = {
-    val (c1,c2) = crossover(p1, p2)
-    Vector(c1, c2)
+  override final def recombine(g1: G, g2: G): Seq[G] = {
+    val (c1,c2) = crossover(g1,g2)
+    Vector(c1,c2)
   }
 
 }

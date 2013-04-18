@@ -1,8 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                                               *
- *  Copyright  ©  2012  Nils Foken, Christian Krause                                             *
+ *  Copyright  ©  2013  Christian Krause                                                         *
  *                                                                                               *
- *  Nils Foken        <nils.foken@it2009.ba-leipzig.de>                                          *
  *  Christian Krause  <kizkizzbangbang@googlemail.com>                                           *
  *                                                                                               *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -25,36 +24,14 @@
 
 package org.eva4s
 
-/** Provides a mechanism for recombining the genomes of individuals.
+/** Provides a mechanism for point mutation. It is used by [[Recombination]] before each mating.
   *
   * @tparam G the type of the genome of the individuals, represents a solution of the problem
-  * @tparam P input / problem type, represents the problem data structure
-  *
-  * @define HowManyInfo How many will be returned depends solely on the implementing evolutionary
-  * algorithm.
+  * @tparam P inut / problem type, represents the problem data structure
   */
-trait Recombination[G,P] extends PointMutation[G,P] {
+trait PointMutation[G,P] {
 
-  self: Evolutionary[G,P] ⇒
-
-  /** Returns new genomes by recombining the parents.
-    *
-    * @note $HowManyInfo
-    */
-  def recombine(g1: G, g2: G): Seq[G]
-
-  /** Returns new genomes by recombining the parents.
-    *
-    * @note $HowManyInfo
-    */
-  final def recombine(parents: Pair[Individual[G],Individual[G]]): Seq[G] =
-    recombine(pmutate(parents._1.genome), pmutate(parents._2.genome))
-
-  /** Returns new individuals by recombining the parents.
-    *
-    * @note $HowManyInfo
-    */
-  final def procreate(parents: Pair[Individual[G],Individual[G]]): Seq[Individual[G]] =
-    for (genome ← recombine(parents)) yield Individual(genome)
+  /** Returns a new genome by slightly mutating the given genome. */
+  def pmutate(genome: G): G
 
 }

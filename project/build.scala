@@ -99,7 +99,7 @@ object eva4s extends Build {
 }
 
 object Dependencies {
-  lazy val chart  = "com.github.wookietreiber"           %% "scala-chart"       % "0.2.0"
+  lazy val chart  = "com.github.wookietreiber"           %% "scala-chart"       % "0.2.1"
   lazy val graph  = "com.assembla.scala-incubator"       %% "graph-core"        % "1.6.1"
   lazy val extras = "com.github.scala-collection-extras" %% "collection-extras" % "latest.integration"
   lazy val scalaz = "org.scalaz"                         %% "scalaz-core"       % "7.0.0-RC2"

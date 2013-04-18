@@ -30,8 +30,9 @@ trait OnlyChildRecombination[G,P] extends Recombination[G,P] {
   self: Evolutionary[G,P] ⇒
 
   /** Returns a single genome by recombining the parents. */
-  def onlyChildOf(p1: G, p2: G): G
+  def onlyChildOf(g1: G, g2: G): G
 
-  override def recombine(p1: G, p2: G): Seq[G] = Vector(onlyChildOf(p1, p2))
+  override final def recombine(g1: G, g2: G): Seq[G] =
+    Vector(onlyChildOf(g1,g2))
 
 }
