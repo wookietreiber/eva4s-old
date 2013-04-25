@@ -1,6 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                                               *
  *  Copyright  ©  2012  Nils Foken, Christian Krause                                             *
+ *                2013  Christian Krause                                                         *
  *                                                                                               *
  *  Nils Foken        <nils.foken@it2009.ba-leipzig.de>                                          *
  *  Christian Krause  <kizkizzbangbang@googlemail.com>                                           *
@@ -33,9 +34,9 @@ package org.eva4s
   * @define HowManyInfo How many will be returned depends solely on the implementing evolutionary
   * algorithm.
   */
-trait Recombination[G,P] extends PointMutation[G,P] {
+trait Recombination[G,P] {
 
-  self: Evolutionary[G,P] ⇒
+  self: Evolutionary[G,P] with PointMutation[G,P] ⇒
 
   /** Returns new genomes by recombining the parents.
     *

@@ -27,7 +27,7 @@ package org.eva4s
 /** Recombination that per parent pair produces two children. */
 trait CrossoverRecombination[G,P] extends Recombination[G,P] {
 
-  self: Evolutionary[G,P] ⇒
+  self: Evolutionary[G,P] with PointMutation[G,P] ⇒
 
   /** Returns two new genomes by recombining the parents. */
   def crossover(g1: G, g2: G): (G,G)

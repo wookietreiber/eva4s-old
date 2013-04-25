@@ -27,7 +27,7 @@ package org.eva4s
 /** Recombination that per parent pair produces only one child. */
 trait OnlyChildRecombination[G,P] extends Recombination[G,P] {
 
-  self: Evolutionary[G,P] ⇒
+  self: Evolutionary[G,P] with PointMutation[G,P] ⇒
 
   /** Returns a single genome by recombining the parents. */
   def onlyChildOf(g1: G, g2: G): G
