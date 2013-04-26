@@ -1,8 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                                               *
- *  Copyright  ©  2012  Nils Foken, Christian Krause                                             *
+ *  Copyright  ©  2013  Christian Krause                                                         *
  *                                                                                               *
- *  Nils Foken        <nils.foken@it2009.ba-leipzig.de>                                          *
  *  Christian Krause  <kizkizzbangbang@googlemail.com>                                           *
  *                                                                                               *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -25,6 +24,8 @@
 
 package org.eva4s
 
+import language.higherKinds
+
 /** Provides the basic functions of an evolutionary algorithm.
   *
   * @tparam G the type of the genome of the individuals, represents a solution of the problem
@@ -37,7 +38,7 @@ trait Evolutionary[G,P] {
     *
     * @note This data structure should be immutable or not be changed.
     */
-  val problem: P
+  def problem: P
 
   /** Returns the fitness of the given genome. */
   def fitness(genome: G): Double
@@ -48,24 +49,25 @@ trait Evolutionary[G,P] {
     * convenience wrapper around the case class to automatically inject the fitness according to
     * this evolutionary algorithm. Use it like the factory method of a case class.
     */
-  final def Individual(genome: G): Individual[G] =
-    new Individual(genome, fitness(genome))
-
-  // -----------------------------------------------------------------------------------------------
-  // ancestors / initial population
-  // -----------------------------------------------------------------------------------------------
-
-  /** Returns a generated genome.
-    *
-    * @note Ancestors are used for the initial population.
-    */
-  def ancestor: G
-
-  /** Returns the initial population.
-    *
-    * @param n the amount of ancestors to create
-    */
-  final def ancestors(n: Int): Seq[Individual[G]] =
-    Vector.fill(n)(Individual(ancestor))
+  final def Individual(genome: G): Individual[G] = new Individual(genome, fitness(genome))
 
 }
+
+object Evolutionary {
+  def apply[G,P](p: P)(f: P ⇒ G ⇒ Double): Evolutionary[G,P] = new Evolutionary[G,P] {
+    override val problem = p
+    override def fitness(g: G) = f(problem)(g)
+  }
+
+  def simple[G,P](p: P)(f: G ⇒ Double): Evolutionary[G,P] = new Evolutionary[G,P] {
+    override val problem = p
+    override def fitness(g: G) = f(g)
+  }
+}
+
+
+trait Full[G,P,M[_]] extends Evolutionary[G,P]
+    with Creation[G,P]
+    with Mutation[G,P]
+    with PointMutation[G,P]
+    with Recombination[G,P,M]

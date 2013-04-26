@@ -1,8 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                                               *
- *  Copyright  ©  2012  Nils Foken, Christian Krause                                             *
+ *  Copyright  ©  2013  Christian Krause                                                         *
  *                                                                                               *
- *  Nils Foken        <nils.foken@it2009.ba-leipzig.de>                                          *
  *  Christian Krause  <kizkizzbangbang@googlemail.com>                                           *
  *                                                                                               *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -24,6 +23,8 @@
 
 
 package org.eva4s
+
+import language.higherKinds
 
 import scala.annotation.tailrec
 import scalay.collection._
@@ -65,77 +66,78 @@ object Evolvers extends Evolvers
   */
 trait Evolvers extends Matchmaking with Mutagens with Selection {
 
-  object DefaultEvolver extends Evolver {
+  object SingleEvolver extends Matchmaking with Mutagens with Selection {
+    def apply[G,P](generations: Int = 200, survivors: Int = 23, pairs: Int = 100)
+      (implicit
+        evolutionary: Evolutionary[G,P],
+        creator: Creation[G,P],
+        mutator: Mutation[G,P],
+        pmutator: PointMutation[G,P],
+        recombinator: Recombination[G,P,scalaz.Id.Id],
+        matchmaker: Matchmaker[G] = RandomAcceptanceMatchmaker[G](0.7) _,
+        mutagen: Mutagen = ExponentialMutagen(generations),
+        selector: Selector[G] = SurvivalOfTheFittest[G] _)
+        : Individual[G] = {
+      import evolutionary._
+      import creator.Ancestor
+      import mutator.Mutant
+      import pmutator.pmutate
+      import recombinator.recombine
 
-    /**
-      *
-      * @param generations amount of generations until the solution is chosen
-      * @param survivors amount of survivors per generation as well as initial population / ancestors
-      * @param pairs amount of pairs generated per generation
-      * @param matchmaker determines, which parents reproduce new children (strategy pattern, defaults
-      * to [[org.eva4s.Matchmaking#RandomAcceptanceMatchmaker]])
-      * @param mutagen chance of child to mutate as a function from current generation to a floating
-      * point value between 0 and 1, defaults to [[org.eva4s.Mutagens#ExponentialMutagen]] with a
-      * start probability of `0.8` and an end probability of `0.1`
-      * @param selector determines, how the individuals for the next generation are chosen (strategy
-      * pattern, defaults to [[org.eva4s.Selection#SurvivalOfTheFittest]])
-      * @param debugger can be used to do some side effekt with the current generation and its optimal
-      * fitness, e.g. print it: `debugger = printer`
-      */
-    def apply[G,P](ea: Evolutionary[G,P] with Recombination[G,P] with Mutation[G,P])
-                  (generations: Int = 200,
-                   survivors: Int = 23,
-                   pairs: Int = 100)
-                  (implicit matchmaker: Matchmaker[G] = RandomAcceptanceMatchmaker[G](0.7) _,
-                            mutagen: Mutagen = ExponentialMutagen(generations),
-                            selector: Selector[G] = SurvivalOfTheFittest[G] _,
-                            debugger: Option[(Int,Double,Double) ⇒ Unit] = None)
-                   : Individual[G] = {
-      import ea._
+      def ancestors(n: Int): Seq[Individual[G]] = Vector.fill(n)(Ancestor)
 
       @tailrec
       def evolve(parents: Seq[Individual[G]], generation: Int): Individual[G] =
-      if (generation == generations) {
-        parents minBy { _.fitness }
-      } else {
-        val offspring = for {
-          pair   ← matchmaker(parents, pairs)
-          genome ← recombine(pair)
-        } yield if (Random.nextDouble < mutagen(generation))
-          Mutant(genome)
-        else
-          Individual(genome)
+        if (generation == generations) {
+          parents minBy { _.fitness }
+        } else {
+          val offspring = for {
+            (p1,p2) ← matchmaker(parents, pairs)
+            genome  = recombine(pmutate(p1.genome), pmutate(p2.genome))
+          } yield if (Random.nextDouble < mutagen(generation))
+            Mutant(genome)
+          else
+            Individual(genome)
 
-        val nextGen = selector(parents, offspring)
+          val nextGen = selector(parents, offspring)
 
-        // bail out if there is just one individual left
-        if (nextGen.size == 1)
-          return nextGen.head
+          // bail out if there is just one individual left
+          if (nextGen.size == 1)
+            return nextGen.head
 
-        debugger foreach { debug ⇒
-          debug (
-            generation,
-            selectionIntensity(parents ++ offspring, nextGen),
-            nextGen averageBy { _.fitness }
-          )
+          evolve(parents = nextGen, generation = generation + 1)
         }
-
-        evolve(parents = nextGen, generation = generation + 1)
-      }
 
       evolve(parents = ancestors(survivors), generation = 1)
     }
+
+    def full[G,P](full: Full[G,P,scalaz.Id.Id])(generations: Int = 200, survivors: Int = 23, pairs: Int = 100)
+      (implicit matchmaker: Matchmaker[G] = RandomAcceptanceMatchmaker[G](0.7) _,
+        mutagen: Mutagen = ExponentialMutagen(generations),
+        selector: Selector[G] = SurvivalOfTheFittest[G] _)
+        : Individual[G] =
+      apply(generations,survivors,pairs)(full,full,full,full,full,matchmaker,mutagen,selector)
   }
 
   object SplitEvolver extends Evolver {
-    def apply[G,P](ea: Evolutionary[G,P] with CrossoverRecombination[G,P] with Mutation[G,P])
-                  (generations: Int = 500,
-                   individuals: Int = 100)
-                  (implicit matchmaker: Matchmaker[G] = RankBasedMatchmaker[G] _,
-                            mutagen: Mutagen = ExponentialMutagen(generations),
-                            debugger: Option[(Int,Double) ⇒ Unit] = None)
-                   : Individual[G] = {
-      import ea._
+    def apply[G,P](generations: Int = 200, individuals: Int = 100)
+      (implicit
+        evolutionary: Evolutionary[G,P],
+        creator: Creation[G,P],
+        mutator: Mutation[G,P],
+        pmutator: PointMutation[G,P],
+        recombinator: Recombination[G,P,GenomeP],
+        matchmaker: Matchmaker[G] = RandomAcceptanceMatchmaker[G](0.7) _,
+        mutagen: Mutagen = ExponentialMutagen(generations),
+        selector: Selector[G] = SurvivalOfTheFittest[G] _)
+        : Individual[G] = {
+      import evolutionary._
+      import creator.Ancestor
+      import mutator.Mutant
+      import pmutator.pmutate
+      import recombinator.recombine
+
+      def ancestors(n: Int): Seq[Individual[G]] = Vector.fill(n)(Ancestor)
 
       @tailrec
       def evolve(parents: Seq[Individual[G]], generation: Int): Individual[G] =
@@ -146,11 +148,16 @@ trait Evolvers extends Matchmaking with Mutagens with Selection {
           val mutations      = individuals - (2 * recombinations)
 
           val mutants   = parents choose mutations map Mutant
-          val offspring = matchmaker(parents, recombinations).map(procreate).flatten
+
+          val ps: Seq[(Individual[G],Individual[G])] = matchmaker(parents, recombinations)
+
+          val offspring = (for {
+            pair ← matchmaker(parents, recombinations)
+            (g1,g2) = recombine(pair)
+            (c1,c2) = (Individual(g1),Individual(g2))
+          } yield Seq(c1,c2)).flatten
 
           val nextGen = mutants ++ offspring
-
-          debugger foreach { debug ⇒ debug(generation, nextGen geometricMeanBy { _.fitness }) }
 
           evolve(parents = nextGen, generation = generation + 1)
         }

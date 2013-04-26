@@ -24,7 +24,7 @@
 
 package org.eva4s
 
-/** Provides a mechanism for point mutation. It is used by [[Recombination]] before each mating.
+/** Provides a mechanism for point mutation.
   *
   * @tparam G the type of the genome of the individuals, represents a solution of the problem
   * @tparam P inut / problem type, represents the problem data structure
@@ -34,4 +34,28 @@ trait PointMutation[G,P] {
   /** Returns a new genome by slightly mutating the given genome. */
   def pmutate(genome: G): G
 
+  final def PointMutant(genome: G): Individual[G] = Individual(pmutate(genome))
+
+  def problem: P
+  def fitness(genome: G): Double
+  def Individual(genome: G): Individual[G]
+}
+
+trait PointMutator[G,P] extends PointMutation[G,P] {
+  def evolutionary: Evolutionary[G,P]
+  override final def problem: P = evolutionary.problem
+  override final def fitness(genome: G): Double = evolutionary.fitness(genome)
+  override final def Individual(genome: G): Individual[G] = evolutionary.Individual(genome)
+}
+
+object PointMutator {
+  def apply[G,P](ep: Evolutionary[G,P])(f: P ⇒ G ⇒ G): PointMutator[G,P] = new PointMutator[G,P] {
+    override val evolutionary: Evolutionary[G,P] = ep
+    override def pmutate(genome: G): G = f(problem)(genome)
+  }
+
+  def unbiased[G,P](ep: Evolutionary[G,P])(f: G ⇒ G): PointMutator[G,P] = new PointMutator[G,P] {
+    override val evolutionary: Evolutionary[G,P] = ep
+    override def pmutate(genome: G): G = f(genome)
+  }
 }

@@ -24,21 +24,36 @@
 
 package org.eva4s
 
-/** Recombination that per parent pair produces two children. */
-trait CrossoverRecombination[G,P] extends Recombination[G,P,GenomeP] {
+trait Creation[G,P] {
+
+  /** Returns a randomly generated genome.
+    *
+    * @note Ancestors are used for the initial population.
+    */
+  def ancestor: G
+
+  final def Ancestor: Individual[G] = Individual(ancestor)
+
+  def problem: P
+  def fitness(genome: G): Double
+  def Individual(genome: G): Individual[G]
 }
 
-trait CrossoverRecombinator[G,P] extends Recombinator[G,P,GenomeP] {
+trait Creator[G,P] extends Creation[G,P] {
+  def evolutionary: Evolutionary[G,P]
+  override final def problem: P = evolutionary.problem
+  override final def fitness(genome: G): Double = evolutionary.fitness(genome)
+  override final def Individual(genome: G): Individual[G] = evolutionary.Individual(genome)
 }
 
-object CrossoverRecombinator {
-  def apply[G,P](ep: Evolutionary[G,P])(f: P ⇒ (G,G) ⇒ (G,G)) = new CrossoverRecombinator[G,P] {
+object Creator {
+  def apply[G,P](ep: Evolutionary[G,P])(f: P ⇒ G): Creator[G,P] = new Creator[G,P] {
     override val evolutionary: Evolutionary[G,P] = ep
-    override def recombine(g1: G, g2: G): (G,G) = f(evolutionary.problem)(g1,g2)
+    def ancestor: G = f(problem)
   }
 
-  def unbiased[G,P](ep: Evolutionary[G,P])(f: (G,G) ⇒ (G,G)) = new CrossoverRecombinator[G,P] {
+  def unbiased[G, P](ep: Evolutionary[G,P])(f: ⇒ G): Creator[G,P] = new Creator[G,P] {
     override val evolutionary: Evolutionary[G,P] = ep
-    override def recombine(g1: G, g2: G): (G,G) = f(g1,g2)
+    def ancestor: G = f
   }
 }

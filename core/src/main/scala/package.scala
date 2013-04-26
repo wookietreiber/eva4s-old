@@ -32,22 +32,12 @@ package org
   */
 package object eva4s {
 
-  /** Represents an individual with its genome and fitness.
-    *
-    * @tparam G the type of the genome of the individuals
-    *
-    * @param genome Returns the genome of this individual.
-    * @param fitness Returns the fitness of this individual.
-    *
-    * @note [[org.eva4s.Evolutionary]] provides more convenient methods for creating individuals.
-    */
-  case class Individual[G](genome: G, fitness: Double)
-
-  type GenomeP[G] = Pair[G,G]
-
   // -----------------------------------------------------------------------------------------------
   // aliases
   // -----------------------------------------------------------------------------------------------
+
+  /** Type alias for a pair of genomes. */
+  type GenomeP[G] = Pair[G,G]
 
   /** Returns Scala's default random object. */
   val Random = scala.util.Random

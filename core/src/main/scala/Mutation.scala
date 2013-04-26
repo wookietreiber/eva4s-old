@@ -1,8 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                                               *
- *  Copyright  ©  2012  Nils Foken, Christian Krause                                             *
+ *  Copyright  ©  2013  Christian Krause                                                         *
  *                                                                                               *
- *  Nils Foken        <nils.foken@it2009.ba-leipzig.de>                                          *
  *  Christian Krause  <kizkizzbangbang@googlemail.com>                                           *
  *                                                                                               *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -36,8 +35,6 @@ package org.eva4s
   */
 trait Mutation[G,P] {
 
-  self: Evolutionary[G,P] ⇒
-
   /** Returns a new genome by mutating the given one. */
   def mutate(genome: G): G
 
@@ -45,14 +42,35 @@ trait Mutation[G,P] {
     *
     * @note $NewMutantInfo
     */
-  final def Mutant(genome: G): Individual[G] =
-    Individual(mutate(genome))
+  final def Mutant(genome: G): Individual[G] = Individual(mutate(genome))
 
   /** Returns a new individual by mutating the genome of the given individual.
     *
     * @note $NewMutantInfo
     */
-  final def Mutant(individual: Individual[G]): Individual[G] =
-    Mutant(individual.genome)
+  final def Mutant(individual: Individual[G]): Individual[G] = Mutant(individual.genome)
 
+  def problem: P
+  def fitness(genome: G): Double
+  def Individual(genome: G): Individual[G]
+
+}
+
+trait Mutator[G,P] extends Mutation[G,P] {
+  def evolutionary: Evolutionary[G,P]
+  override final def problem: P = evolutionary.problem
+  override final def fitness(genome: G): Double = evolutionary.fitness(genome)
+  override final def Individual(genome: G): Individual[G] = evolutionary.Individual(genome)
+}
+
+object Mutator {
+  def apply[G,P](ep: Evolutionary[G,P])(f: P ⇒ G ⇒ G): Mutator[G,P] = new Mutator[G,P] {
+    override val evolutionary: Evolutionary[G,P] = ep
+    override def mutate(genome: G): G = f(problem)(genome)
+  }
+
+  def unbiased[G,P](ep: Evolutionary[G,P])(f: G ⇒ G): Mutator[G,P] = new Mutator[G,P] {
+    override val evolutionary: Evolutionary[G,P] = ep
+    override def mutate(genome: G): G = f(genome)
+  }
 }

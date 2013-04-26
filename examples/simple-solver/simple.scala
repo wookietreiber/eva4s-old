@@ -23,22 +23,50 @@
 
 
 package org.eva4s
+package simple
 
-/** Recombination that per parent pair produces two children. */
-trait CrossoverRecombination[G,P] extends Recombination[G,P,GenomeP] {
-}
+import language.higherKinds
 
-trait CrossoverRecombinator[G,P] extends Recombinator[G,P,GenomeP] {
-}
+object Main extends App with Evolvers {
+  type Genome = Double
+  type Problem = Double ⇒ Double
 
-object CrossoverRecombinator {
-  def apply[G,P](ep: Evolutionary[G,P])(f: P ⇒ (G,G) ⇒ (G,G)) = new CrossoverRecombinator[G,P] {
-    override val evolutionary: Evolutionary[G,P] = ep
-    override def recombine(g1: G, g2: G): (G,G) = f(evolutionary.problem)(g1,g2)
+  implicit val evolutionary = Evolutionary((x: Double) ⇒ x*x + 4) {
+    (problem: Problem) ⇒ (genome: Double) ⇒ problem(genome)
   }
 
-  def unbiased[G,P](ep: Evolutionary[G,P])(f: (G,G) ⇒ (G,G)) = new CrossoverRecombinator[G,P] {
-    override val evolutionary: Evolutionary[G,P] = ep
-    override def recombine(g1: G, g2: G): (G,G) = f(g1,g2)
+  implicit val creator = Creator.unbiased(evolutionary) {
+    (Random.nextInt(10000) - 5000).toDouble
   }
+
+  implicit val mutator = Mutator.unbiased(evolutionary) {
+    (genome: Double) ⇒ genome + Random.nextInt(9) - 4
+  }
+
+  implicit val pmutator = PointMutator.unbiased(evolutionary) {
+    (genome: Double) ⇒ genome + Random.nextInt(3) - 1
+  }
+
+  implicit val recombinator = OnlyChildRecombinator.unbiased(evolutionary) {
+    (g1: Double, g2: Double) ⇒ (g1 + g2) / 2
+  }
+
+  println(SingleEvolver())
+}
+
+object MainFull extends App with Evolvers {
+  type G = Double
+  type P = Double ⇒ Double
+
+  val full = new Full[G,P,scalaz.Id.Id] {
+    def problem = (x: Double) ⇒ x*x + 4
+    def fitness(genome: Double) = problem(genome)
+
+    def ancestor = (Random.nextInt(10000) - 5000).toDouble
+    def mutate(genome: Double) = genome + Random.nextInt(9) - 4
+    def pmutate(genome: Double) = genome + Random.nextInt(3) - 1
+    def recombine(g1: Double, g2: Double) = (g1 + g2) / 2
+  }
+
+  println(SingleEvolver.full(full)())
 }

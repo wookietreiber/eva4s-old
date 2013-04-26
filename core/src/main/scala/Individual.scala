@@ -24,21 +24,8 @@
 
 package org.eva4s
 
-/** Recombination that per parent pair produces two children. */
-trait CrossoverRecombination[G,P] extends Recombination[G,P,GenomeP] {
-}
-
-trait CrossoverRecombinator[G,P] extends Recombinator[G,P,GenomeP] {
-}
-
-object CrossoverRecombinator {
-  def apply[G,P](ep: Evolutionary[G,P])(f: P ⇒ (G,G) ⇒ (G,G)) = new CrossoverRecombinator[G,P] {
-    override val evolutionary: Evolutionary[G,P] = ep
-    override def recombine(g1: G, g2: G): (G,G) = f(evolutionary.problem)(g1,g2)
-  }
-
-  def unbiased[G,P](ep: Evolutionary[G,P])(f: (G,G) ⇒ (G,G)) = new CrossoverRecombinator[G,P] {
-    override val evolutionary: Evolutionary[G,P] = ep
-    override def recombine(g1: G, g2: G): (G,G) = f(g1,g2)
-  }
-}
+/** Represents an individual with its genome and fitness.
+  *
+  * @tparam Genome the type of the genome of the individuals
+  */
+case class Individual[Genome](genome: Genome, fitness: Double)

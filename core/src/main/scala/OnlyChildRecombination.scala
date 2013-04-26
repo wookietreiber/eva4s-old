@@ -25,14 +25,20 @@
 package org.eva4s
 
 /** Recombination that per parent pair produces only one child. */
-trait OnlyChildRecombination[G,P] extends Recombination[G,P] {
+trait OnlyChildRecombination[G, P] extends Recombinator[G,P,scalaz.Id.Id] {
+}
 
-  self: Evolutionary[G,P] with PointMutation[G,P] ⇒
+trait OnlyChildRecombinator[G, P] extends Recombinator[G,P,scalaz.Id.Id] {
+}
 
-  /** Returns a single genome by recombining the parents. */
-  def onlyChildOf(g1: G, g2: G): G
+object OnlyChildRecombinator {
+  def apply[G,P](ep: Evolutionary[G,P])(f: P ⇒ (G,G) ⇒ G) = new OnlyChildRecombinator[G,P] {
+    override val evolutionary: Evolutionary[G,P] = ep
+    override def recombine(g1: G, g2: G): G = f(evolutionary.problem)(g1,g2)
+  }
 
-  override final def recombine(g1: G, g2: G): Seq[G] =
-    Vector(onlyChildOf(g1,g2))
-
+  def unbiased[G,P](ep: Evolutionary[G,P])(f: (G,G) ⇒ G) = new OnlyChildRecombinator[G,P] {
+    override val evolutionary: Evolutionary[G,P] = ep
+    override def recombine(g1: G, g2: G): G = f(g1,g2)
+  }
 }

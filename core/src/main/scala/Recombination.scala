@@ -1,9 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                                               *
- *  Copyright  ©  2012  Nils Foken, Christian Krause                                             *
- *                2013  Christian Krause                                                         *
+ *  Copyright  ©  2013  Christian Krause                                                         *
  *                                                                                               *
- *  Nils Foken        <nils.foken@it2009.ba-leipzig.de>                                          *
  *  Christian Krause  <kizkizzbangbang@googlemail.com>                                           *
  *                                                                                               *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -26,6 +24,8 @@
 
 package org.eva4s
 
+import language.higherKinds
+
 /** Provides a mechanism for recombining the genomes of individuals.
   *
   * @tparam G the type of the genome of the individuals, represents a solution of the problem
@@ -34,28 +34,29 @@ package org.eva4s
   * @define HowManyInfo How many will be returned depends solely on the implementing evolutionary
   * algorithm.
   */
-trait Recombination[G,P] {
-
-  self: Evolutionary[G,P] with PointMutation[G,P] ⇒
+trait Recombination[G,P,M[_]] {
 
   /** Returns new genomes by recombining the parents.
     *
     * @note $HowManyInfo
     */
-  def recombine(g1: G, g2: G): Seq[G]
+  def recombine(g1: G, g2: G): M[G]
 
   /** Returns new genomes by recombining the parents.
     *
     * @note $HowManyInfo
     */
-  final def recombine(parents: Pair[Individual[G],Individual[G]]): Seq[G] =
-    recombine(pmutate(parents._1.genome), pmutate(parents._2.genome))
+  final def recombine(parents: Pair[Individual[G],Individual[G]]): M[G] =
+    recombine(parents._1.genome, parents._2.genome)
 
-  /** Returns new individuals by recombining the parents.
-    *
-    * @note $HowManyInfo
-    */
-  final def procreate(parents: Pair[Individual[G],Individual[G]]): Seq[Individual[G]] =
-    for (genome ← recombine(parents)) yield Individual(genome)
+  def problem: P
+//  def fitness(genome: G): Double
+//  def Individual(genome: G): Individual[G]
+}
 
+trait Recombinator[G,P,M[_]] extends Recombination[G,P,M] {
+  def evolutionary: Evolutionary[G,P]
+  override final def problem: P = evolutionary.problem
+//  override final def fitness(genome: G): Double = evolutionary.fitness(genome)
+//  override final def Individual(genome: G): Individual[G] = evolutionary.Individual(genome)
 }
