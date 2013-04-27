@@ -62,8 +62,7 @@ trait Matchmaking {
     * @param parents $parents
     * @param pairs $pairs
     */
-  def RandomForcedMatchmaker[G](parents: Seq[Individual[G]], pairs: Int)
-                                : Seq[Pair[Individual[G],Individual[G]]] =
+  def RandomForcedMatchmaker[G](parents: Seq[Individual[G]], pairs: Int): Seq[IndividualP[G]] =
     Vector.fill(pairs) { parents.choosePair }
 
   /** Returns a varying amount of arbitrary pairs of individuals.
@@ -74,9 +73,7 @@ trait Matchmaking {
     * @param parents $parents
     * @param pairs $pairs
     */
-  def RandomAcceptanceMatchmaker[G](acceptance: Double)
-                                   (parents: Seq[Individual[G]], pairs: Int)
-                                    : Seq[Pair[Individual[G],Individual[G]]] =
+  def RandomAcceptanceMatchmaker[G](acceptance: Double)(parents: Seq[Individual[G]], pairs: Int): Seq[IndividualP[G]] =
     for (i ← 1 to pairs if Random.nextDouble < acceptance) yield parents.choosePair
 
   /** Returns pairs based on their rank by fitness. The fitter the individual, the higher is the
@@ -89,13 +86,12 @@ trait Matchmaking {
     *
     * @todo needs performance improvement
     */
-  def RankBasedMatchmaker[G](parents: Seq[Individual[G]], pairs: Int)
-                             : Seq[Pair[Individual[G],Individual[G]]] = {
+  def RankBasedMatchmaker[G](parents: Seq[Individual[G]], pairs: Int): Seq[IndividualP[G]] = {
     val ranked = parents sortBy { - _.fitness } zip {
       ranks(parents.size).inits.drop(1).map(_.sum).toList
     }
 
-    def choosePair(ranked: Seq[Pair[Individual[G],Double]]): (Individual[G],Individual[G]) = {
+    def choosePair(ranked: Seq[Pair[Individual[G],Double]]): IndividualP[G] = {
       // improve this to not use partition
       val r1 = Random.nextDouble
       val (p11,p12) = ranked partition { _._2 < r1 }
@@ -123,9 +119,7 @@ trait Matchmaking {
     * @param parents $parents
     * @param pairs $pairs
     */
-  def TournamentMatchmaker[G](participants: Int)
-                             (parents: Seq[Individual[G]], pairs: Int)
-                              : Seq[Pair[Individual[G],Individual[G]]] = {
+  def TournamentMatchmaker[G](participants: Int)(parents: Seq[Individual[G]], pairs: Int): Seq[IndividualP[G]] = {
     require(participants >= 2, "participants must be greater or equal to 2")
 
     Vector.fill(pairs) {
@@ -148,9 +142,7 @@ trait Matchmaking {
     * @param parents $parents
     * @param pairs $pairs
     */
-  def MultipleTournamentMatchmaker[G](participants: Int)
-                                     (parents: Seq[Individual[G]], pairs: Int)
-                                      : Seq[Pair[Individual[G],Individual[G]]] = {
+  def MultipleTournamentMatchmaker[G](participants: Int)(parents: Seq[Individual[G]], pairs: Int): Seq[IndividualP[G]] = {
     def winners = parents map { parent ⇒
       val ps = Seq(parent) ++ (parents filter { _ != parent } choose participants)
       Map(Pair(ps.minBy(_.fitness), 1))

@@ -28,6 +28,7 @@ import language.higherKinds
 
 import scala.annotation.tailrec
 import scalay.collection._
+import scalaz.Functor
 
 /** An evolver is to an [[org.eva4s.Evolutionary]] what an executor is to a thread. How an
   * [[org.eva4s.Evolutionary]] is executed (sequential, parallel, distributed) depends on the actual
@@ -135,9 +136,14 @@ trait Evolvers extends Matchmaking with Mutagens with Selection {
       import creator.Ancestor
       import mutator.Mutant
       import pmutator.pmutate
-      import recombinator.recombine
+      import recombinator.procreate
+
+      implicit val genomePF = new Functor[GenomeP] {
+        override def map[A,B](gs: GenomeP[A])(f: A ⇒ B): GenomeP[B] = (f(gs._1),f(gs._2))
+      }
 
       def ancestors(n: Int): Seq[Individual[G]] = Vector.fill(n)(Ancestor)
+      def tuple2seq[G](xs: (G,G)) = Seq(xs._1,xs._2)
 
       @tailrec
       def evolve(parents: Seq[Individual[G]], generation: Int): Individual[G] =
@@ -148,14 +154,7 @@ trait Evolvers extends Matchmaking with Mutagens with Selection {
           val mutations      = individuals - (2 * recombinations)
 
           val mutants   = parents choose mutations map Mutant
-
-          val ps: Seq[(Individual[G],Individual[G])] = matchmaker(parents, recombinations)
-
-          val offspring = (for {
-            pair ← matchmaker(parents, recombinations)
-            (g1,g2) = recombine(pair)
-            (c1,c2) = (Individual(g1),Individual(g2))
-          } yield Seq(c1,c2)).flatten
+          val offspring = matchmaker(parents, recombinations).map(procreate).flatten(tuple2seq)
 
           val nextGen = mutants ++ offspring
 

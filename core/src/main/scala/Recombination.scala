@@ -26,6 +26,8 @@ package org.eva4s
 
 import language.higherKinds
 
+import scalaz.Functor
+
 /** Provides a mechanism for recombining the genomes of individuals.
   *
   * @tparam G the type of the genome of the individuals, represents a solution of the problem
@@ -46,17 +48,20 @@ trait Recombination[G,P,M[_]] {
     *
     * @note $HowManyInfo
     */
-  final def recombine(parents: Pair[Individual[G],Individual[G]]): M[G] =
+  final def recombine(parents: IndividualP[G]): M[G] =
     recombine(parents._1.genome, parents._2.genome)
 
   def problem: P
-//  def fitness(genome: G): Double
-//  def Individual(genome: G): Individual[G]
+  def fitness(genome: G): Double
+  def Individual(genome: G): Individual[G]
+
+  final def procreate(parents: IndividualP[G])(implicit f: Functor[M]): M[Individual[G]] =
+    f.map(recombine(parents))(g ⇒ Individual(g))
 }
 
 trait Recombinator[G,P,M[_]] extends Recombination[G,P,M] {
   def evolutionary: Evolutionary[G,P]
   override final def problem: P = evolutionary.problem
-//  override final def fitness(genome: G): Double = evolutionary.fitness(genome)
-//  override final def Individual(genome: G): Individual[G] = evolutionary.Individual(genome)
+  override final def fitness(genome: G): Double = evolutionary.fitness(genome)
+  override final def Individual(genome: G): Individual[G] = evolutionary.Individual(genome)
 }

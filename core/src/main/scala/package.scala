@@ -39,6 +39,9 @@ package object eva4s {
   /** Type alias for a pair of genomes. */
   type GenomeP[G] = Pair[G,G]
 
+  /** Type alias for a pair of individuals. */
+  type IndividualP[G] = Pair[Individual[G],Individual[G]]
+
   /** Returns Scala's default random object. */
   val Random = scala.util.Random
 
@@ -48,7 +51,7 @@ package object eva4s {
     *
     * @see [[org.eva4s.Matchmaking]] $defaults
     */
-  type Matchmaker[G] = (Seq[Individual[G]],Int) ⇒ Seq[Pair[Individual[G],Individual[G]]]
+  type Matchmaker[G] = (Seq[Individual[G]],Int) ⇒ Seq[IndividualP[G]]
 
   /** A `Mutagen` determines the probability with which individuals mutate, depending on the current
     * generation.
