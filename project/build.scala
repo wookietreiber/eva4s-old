@@ -42,7 +42,7 @@ object eva4s extends Build {
   lazy val examples = Project (
     id        = "examples",
     base      = file ("examples"),
-    aggregate = Seq ( template, tsp, solver ),
+    aggregate = Seq ( template, tsp, simple, solver ),
     settings  = baseSettings ++ Seq (
       name := "eva4s-examples"
     )
@@ -54,6 +54,15 @@ object eva4s extends Build {
     dependencies = Seq ( core ),
     settings     = baseSettings ++ Seq (
       name := "eva4s-example-template"
+    )
+  )
+
+  lazy val simple = Project (
+    id           = "simple",
+    base         = file ("examples/simple-solver"),
+    dependencies = Seq ( core ),
+    settings     = baseSettings ++ Seq (
+      name := "eva4s-simple"
     )
   )
 
