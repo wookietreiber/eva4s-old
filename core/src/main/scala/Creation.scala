@@ -24,36 +24,75 @@
 
 package org.eva4s
 
+/** Provides the creation of randomly generated individuals.
+  *
+  * @tparam G the type of the genome of the individuals, represents a solution of the problem
+  * @tparam P inut / problem type, represents the problem data structure
+  */
 trait Creation[G,P] {
 
-  /** Returns a randomly generated genome.
-    *
-    * @note Ancestors are used for the initial population.
-    */
+  /** Returns a randomly generated genome. */
   def ancestor: G
 
+  /** Returns a randomly generated individual. */
   final def Ancestor: Individual[G] = Individual(ancestor)
 
+  /** Returns the problem that needs to be solved. */
   def problem: P
+
+  /** Returns the fitness of the given genome. */
   def fitness(genome: G): Double
+
+  /** Returns a new individual from the given genome. */
   def Individual(genome: G): Individual[G]
+
 }
 
+/** Standalone [[Creation]] building block. */
 trait Creator[G,P] extends Creation[G,P] {
+
+  /** Returns the evolutionary used to provide the problem and the fitness function. */
   def evolutionary: Evolutionary[G,P]
+
   override final def problem: P = evolutionary.problem
   override final def fitness(genome: G): Double = evolutionary.fitness(genome)
   override final def Individual(genome: G): Individual[G] = evolutionary.Individual(genome)
+
 }
 
+/** Factory for [[Creator]] instances.
+  *
+  * @define genome the type of the genome of the individuals, represents a solution of the problem
+  * @define problem input / problem type, represents the problem data structure
+  * @define evolutionary evolutionary providing the problem and the fitness function
+  * @define creation creation function for generating a random genome
+  */
 object Creator {
-  def apply[G,P](ep: Evolutionary[G,P])(f: P ⇒ G): Creator[G,P] = new Creator[G,P] {
-    override val evolutionary: Evolutionary[G,P] = ep
+
+  /** Creates a new [[Creator]].
+    *
+    * @tparam G $genome
+    * @tparam P $problem
+    *
+    * @param e $evolutionary
+    * @param f $creation, depending on the problem
+    */
+  def apply[G,P](e: Evolutionary[G,P])(f: P ⇒ G): Creator[G,P] = new Creator[G,P] {
+    override val evolutionary: Evolutionary[G,P] = e
     def ancestor: G = f(problem)
   }
 
-  def unbiased[G, P](ep: Evolutionary[G,P])(f: ⇒ G): Creator[G,P] = new Creator[G,P] {
-    override val evolutionary: Evolutionary[G,P] = ep
+  /** Creates a new [[Creator]].
+    *
+    * @tparam G $genome
+    * @tparam P $problem
+    *
+    * @param e $evolutionary
+    * @param f $creation
+    */
+  def independent[G, P](e: Evolutionary[G,P])(f: ⇒ G): Creator[G,P] = new Creator[G,P] {
+    override val evolutionary: Evolutionary[G,P] = e
     def ancestor: G = f
   }
+
 }

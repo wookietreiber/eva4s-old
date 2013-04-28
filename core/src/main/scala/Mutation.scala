@@ -50,27 +50,62 @@ trait Mutation[G,P] {
     */
   final def Mutant(individual: Individual[G]): Individual[G] = Mutant(individual.genome)
 
+  /** Returns the problem that needs to be solved. */
   def problem: P
+
+  /** Returns the fitness of the given genome. */
   def fitness(genome: G): Double
+
+  /** Returns a new individual from the given genome. */
   def Individual(genome: G): Individual[G]
 
 }
 
+/** Standalone [[Mutation]] building block. */
 trait Mutator[G,P] extends Mutation[G,P] {
+
+  /** Returns the evolutionary used to provide the problem and the fitness function. */
   def evolutionary: Evolutionary[G,P]
+
   override final def problem: P = evolutionary.problem
   override final def fitness(genome: G): Double = evolutionary.fitness(genome)
   override final def Individual(genome: G): Individual[G] = evolutionary.Individual(genome)
+
 }
 
+/** Factory for [[Mutator]] instances.
+  *
+  * @define genome the type of the genome of the individuals, represents a solution of the problem
+  * @define problem input / problem type, represents the problem data structure
+  * @define evolutionary evolutionary providing the problem and the fitness function
+  * @define mutation mutation function
+  */
 object Mutator {
-  def apply[G,P](ep: Evolutionary[G,P])(f: P ⇒ G ⇒ G): Mutator[G,P] = new Mutator[G,P] {
-    override val evolutionary: Evolutionary[G,P] = ep
+
+  /** Creates a new [[Mutator]].
+    *
+    * @tparam G $genome
+    * @tparam P $problem
+    *
+    * @param e $evolutionary
+    * @param f $mutation, depending on the problem
+    */
+  def apply[G,P](e: Evolutionary[G,P])(f: P ⇒ G ⇒ G): Mutator[G,P] = new Mutator[G,P] {
+    override val evolutionary: Evolutionary[G,P] = e
     override def mutate(genome: G): G = f(problem)(genome)
   }
 
-  def unbiased[G,P](ep: Evolutionary[G,P])(f: G ⇒ G): Mutator[G,P] = new Mutator[G,P] {
-    override val evolutionary: Evolutionary[G,P] = ep
+  /** Creates a new [[Mutator]].
+    *
+    * @tparam G $genome
+    * @tparam P $problem
+    *
+    * @param e $evolutionary
+    * @param f $mutation
+    */
+  def independent[G,P](e: Evolutionary[G,P])(f: G ⇒ G): Mutator[G,P] = new Mutator[G,P] {
+    override val evolutionary: Evolutionary[G,P] = e
     override def mutate(genome: G): G = f(genome)
   }
+
 }

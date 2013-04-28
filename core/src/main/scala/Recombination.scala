@@ -32,36 +32,38 @@ import scalaz.Functor
   *
   * @tparam G the type of the genome of the individuals, represents a solution of the problem
   * @tparam P input / problem type, represents the problem data structure
-  *
-  * @define HowManyInfo How many will be returned depends solely on the implementing evolutionary
-  * algorithm.
+  * @tparam M container for the offspring; declares how many genomes/individuals are created per coupling
   */
 trait Recombination[G,P,M[_]] {
 
-  /** Returns new genomes by recombining the parents.
-    *
-    * @note $HowManyInfo
-    */
+  /** Returns new genomes by recombining the parents. */
   def recombine(g1: G, g2: G): M[G]
 
-  /** Returns new genomes by recombining the parents.
-    *
-    * @note $HowManyInfo
-    */
+  /** Returns new genomes by recombining the parents. */
   final def recombine(parents: IndividualP[G]): M[G] =
     recombine(parents._1.genome, parents._2.genome)
 
+  /** Returns the problem that needs to be solved. */
   def problem: P
+
+  /** Returns the fitness of the given genome. */
   def fitness(genome: G): Double
+
+  /** Returns a new individual from the given genome. */
   def Individual(genome: G): Individual[G]
 
   final def procreate(parents: IndividualP[G])(implicit f: Functor[M]): M[Individual[G]] =
     f.map(recombine(parents))(g ⇒ Individual(g))
 }
 
+/** Standalone [[Recombination]] building block. */
 trait Recombinator[G,P,M[_]] extends Recombination[G,P,M] {
+
+  /** Returns the evolutionary used to provide the problem and the fitness function. */
   def evolutionary: Evolutionary[G,P]
+
   override final def problem: P = evolutionary.problem
   override final def fitness(genome: G): Double = evolutionary.fitness(genome)
   override final def Individual(genome: G): Individual[G] = evolutionary.Individual(genome)
+
 }

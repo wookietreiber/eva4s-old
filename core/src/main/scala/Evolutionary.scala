@@ -34,10 +34,7 @@ import language.higherKinds
   */
 trait Evolutionary[G,P] {
 
-  /** Returns the data structure representing the problem that needs to be solved.
-    *
-    * @note This data structure should be immutable or not be changed.
-    */
+  /** Returns the problem that needs to be solved. */
   def problem: P
 
   /** Returns the fitness of the given genome. */

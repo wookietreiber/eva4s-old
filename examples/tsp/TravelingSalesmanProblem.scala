@@ -1,6 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                                               *
  *  Copyright  ©  2012  Nils Foken, Christian Krause                                             *
+ *                2013  Christian Krause                                                         *
  *                                                                                               *
  *  Nils Foken        <nils.foken@it2009.ba-leipzig.de>                                          *
  *  Christian Krause  <kizkizzbangbang@googlemail.com>                                           *
@@ -38,24 +39,30 @@ import scalax.collection.GraphEdge._
 import scalax.collection.edge._
 import scalax.collection.edge.Implicits._
 
+import scalaz.Id.Id
+
 import scalaz._
 import Scalaz._
 
-class TravelingSalesmanProblem[N:Manifest](val problem: Graph[N,WUnDiEdge])
-  extends Evolutionary[Graph[N,WDiEdge],Graph[N,WUnDiEdge]]
-  with OnlyChildRecombination[Graph[N,WDiEdge],Graph[N,WUnDiEdge]]
-  with Mutation[Graph[N,WDiEdge],Graph[N,WUnDiEdge]] {
+object TravelingSalesmanProblem {
+  type G[N] = Graph[N,WDiEdge]
+  type P[N] = Graph[N,WUnDiEdge]
+}
+
+import TravelingSalesmanProblem._
+
+class TravelingSalesmanProblem[N:Manifest](val problem: P[N]) extends Full[G[N],P[N],Id] {
 
   override def ancestor = cycle(problem)
 
-  override def fitness(genome: Graph[N,WDiEdge]) = weight(genome)
+  override def fitness(genome: G[N]) = weight(genome)
 
-  override def onlyChildOf(g1: Graph[N,WDiEdge], g2: Graph[N,WDiEdge]): Graph[N,WDiEdge] = {
+  override def recombine(g1: G[N], g2: G[N]) = {
     val adjacencies = neighbors(g1) ⊹ neighbors(g2)
     val startNode = g1.nodes.head.value
 
     @tailrec
-    def recurse(have: List[N], currentNode: N, edges: List[WDiEdge[N]]): Graph[N,WDiEdge] = {
+    def recurse(have: List[N], currentNode: N, edges: List[WDiEdge[N]]): G[N] = {
       if (have.size == problem.nodes.size) {
         val nextEdge = (currentNode ~%> startNode)(problem.get((currentNode ~% startNode)(0)).toEdgeIn.weight)
         Graph from (
@@ -80,7 +87,9 @@ class TravelingSalesmanProblem[N:Manifest](val problem: Graph[N,WUnDiEdge])
     recurse(List(startNode), startNode, Nil)
   }
 
-  override def mutate(genome: Graph[N,WDiEdge]) = {
+  override def pmutate(genome: G[N]): G[N] = ???
+
+  override def mutate(genome: G[N]) = {
     val nodes = genome.nodes.toIndexedSeq
     val s = nodes.size
 

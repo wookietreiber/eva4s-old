@@ -163,5 +163,12 @@ trait Evolvers extends Matchmaking with Mutagens with Selection {
 
       evolve(parents = ancestors(individuals), generation = 1)
     }
+
+    def full[G,P](full: Full[G,P,GenomeP])(generations: Int = 200, individuals: Int = 100)
+      (implicit matchmaker: Matchmaker[G] = RandomAcceptanceMatchmaker[G](0.7) _,
+        mutagen: Mutagen = ExponentialMutagen(generations),
+        selector: Selector[G] = SurvivalOfTheFittest[G] _)
+        : Individual[G] =
+      apply(generations,individuals)(full,full,full,full,full,matchmaker,mutagen,selector)
   }
 }

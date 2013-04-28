@@ -37,7 +37,7 @@ object CrossoverRecombinator {
     override def recombine(g1: G, g2: G): (G,G) = f(evolutionary.problem)(g1,g2)
   }
 
-  def unbiased[G,P](ep: Evolutionary[G,P])(f: (G,G) ⇒ (G,G)) = new CrossoverRecombinator[G,P] {
+  def independent[G,P](ep: Evolutionary[G,P])(f: (G,G) ⇒ (G,G)) = new CrossoverRecombinator[G,P] {
     override val evolutionary: Evolutionary[G,P] = ep
     override def recombine(g1: G, g2: G): (G,G) = f(g1,g2)
   }

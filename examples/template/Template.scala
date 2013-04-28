@@ -8,20 +8,16 @@ object Foo {
 
 import Foo._
 
-class Foo(val problem: Problem) extends Evolutionary[Genome,Problem]
-  with Recombination[Genome,Problem]
-  with Mutation[Genome,Problem] {
+class Foo(val problem: Problem) extends Full[Genome,Problem,GenomeP] {
 
-  override def ancestor: Genome =
-    sys error "unimplemented"
+  override def ancestor: Genome = ???
 
-  override def fitness(genome: Genome): Double =
-    sys error "unimplemented"
+  override def fitness(genome: Genome): Double = ???
 
-  override def mutate(genome: Genome): Genome =
-    sys error "unimplemented"
+  override def mutate(genome: Genome): Genome = ???
 
-  override def recombine(g1: Genome, g2: Genome): Seq[Genome] =
-    sys error "unimplemented"
+  override def pmutate(genome: Genome): Genome = ???
+
+  override def recombine(g1: Genome, g2: Genome): (Genome,Genome) = ???
 
 }

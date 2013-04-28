@@ -27,7 +27,7 @@ package org
 
 /** This package brings evolutionary algorithms to Scala.
   *
-  * @define genome the type of the genome of the individuals
+  * @define genome the type of the genome of the individuals, represents a solution of the problem
   * @define defaults contains default implementations.
   */
 package object eva4s {

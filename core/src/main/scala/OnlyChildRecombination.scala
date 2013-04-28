@@ -24,11 +24,13 @@
 
 package org.eva4s
 
+import scalaz.Id.Id
+
 /** Recombination that per parent pair produces only one child. */
-trait OnlyChildRecombination[G, P] extends Recombinator[G,P,scalaz.Id.Id] {
+trait OnlyChildRecombination[G,P] extends Recombination[G,P,Id] {
 }
 
-trait OnlyChildRecombinator[G, P] extends Recombinator[G,P,scalaz.Id.Id] {
+trait OnlyChildRecombinator[G,P] extends Recombinator[G,P,Id] {
 }
 
 object OnlyChildRecombinator {
@@ -37,7 +39,7 @@ object OnlyChildRecombinator {
     override def recombine(g1: G, g2: G): G = f(evolutionary.problem)(g1,g2)
   }
 
-  def unbiased[G,P](ep: Evolutionary[G,P])(f: (G,G) ⇒ G) = new OnlyChildRecombinator[G,P] {
+  def independent[G,P](ep: Evolutionary[G,P])(f: (G,G) ⇒ G) = new OnlyChildRecombinator[G,P] {
     override val evolutionary: Evolutionary[G,P] = ep
     override def recombine(g1: G, g2: G): G = f(g1,g2)
   }

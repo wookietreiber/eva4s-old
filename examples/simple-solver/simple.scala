@@ -35,19 +35,19 @@ object Main extends App with Evolvers {
     (problem: Problem) ⇒ (genome: Double) ⇒ problem(genome)
   }
 
-  implicit val creator = Creator.unbiased(evolutionary) {
+  implicit val creator = Creator.independent(evolutionary) {
     (Random.nextInt(10000) - 5000).toDouble
   }
 
-  implicit val mutator = Mutator.unbiased(evolutionary) {
+  implicit val mutator = Mutator.independent(evolutionary) {
     (genome: Double) ⇒ genome + Random.nextInt(9) - 4
   }
 
-  implicit val pmutator = PointMutator.unbiased(evolutionary) {
+  implicit val pmutator = PointMutator.independent(evolutionary) {
     (genome: Double) ⇒ genome + Random.nextInt(3) - 1
   }
 
-  implicit val recombinator = OnlyChildRecombinator.unbiased(evolutionary) {
+  implicit val recombinator = OnlyChildRecombinator.independent(evolutionary) {
     (g1: Double, g2: Double) ⇒ (g1 + g2) / 2
   }
 
