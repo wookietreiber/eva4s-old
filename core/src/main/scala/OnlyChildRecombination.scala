@@ -30,7 +30,7 @@ import scalaz.Id.Id
 trait OnlyChildRecombination[G,P] extends Recombination[G,P,Id] {
 }
 
-trait OnlyChildRecombinator[G,P] extends Recombinator[G,P,Id] {
+trait OnlyChildRecombinator[G,P] extends OnlyChildRecombination[G,P] with Recombinator[G,P,Id] {
 }
 
 object OnlyChildRecombinator {

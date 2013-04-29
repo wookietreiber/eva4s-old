@@ -24,21 +24,47 @@
 
 package org.eva4s
 
-/** Recombination that per parent pair produces two children. */
+/** Recombination that per parent pair produces exactly two children. */
 trait CrossoverRecombination[G,P] extends Recombination[G,P,GenomeP] {
 }
 
-trait CrossoverRecombinator[G,P] extends Recombinator[G,P,GenomeP] {
+/** Standalone [[CrossoverRecombination]] building block. */
+trait CrossoverRecombinator[G,P] extends CrossoverRecombination[G,P] with Recombinator[G,P,GenomeP] {
 }
 
+/** Factory for [[CrossoverRecombination]] instances.
+  *
+  * @define genome the type of the genome of the individuals, represents a solution of the problem
+  * @define problem input / problem type, represents the problem data structure
+  * @define evolutionary evolutionary providing the problem and the fitness function
+  * @define recombination recombination function for generating a random genome
+  */
 object CrossoverRecombinator {
-  def apply[G,P](ep: Evolutionary[G,P])(f: P ⇒ (G,G) ⇒ (G,G)) = new CrossoverRecombinator[G,P] {
-    override val evolutionary: Evolutionary[G,P] = ep
+
+  /** Creates a new [[CrossoverRecombinator]].
+    *
+    * @tparam G $genome
+    * @tparam P $problem
+    *
+    * @param e $evolutionary
+    * @param f $recombination, depending on the problem
+    */
+  def apply[G,P](e: Evolutionary[G,P])(f: P ⇒ (G,G) ⇒ (G,G)) = new CrossoverRecombinator[G,P] {
+    override val evolutionary: Evolutionary[G,P] = e
     override def recombine(g1: G, g2: G): (G,G) = f(evolutionary.problem)(g1,g2)
   }
 
-  def independent[G,P](ep: Evolutionary[G,P])(f: (G,G) ⇒ (G,G)) = new CrossoverRecombinator[G,P] {
-    override val evolutionary: Evolutionary[G,P] = ep
+  /** Creates a new [[CrossoverRecombinator]].
+    *
+    * @tparam G $genome
+    * @tparam P $problem
+    *
+    * @param e $evolutionary
+    * @param f $recombination
+    */
+  def independent[G,P](e: Evolutionary[G,P])(f: (G,G) ⇒ (G,G)) = new CrossoverRecombinator[G,P] {
+    override val evolutionary: Evolutionary[G,P] = e
     override def recombine(g1: G, g2: G): (G,G) = f(g1,g2)
   }
+
 }
