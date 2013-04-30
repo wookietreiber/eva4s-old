@@ -25,6 +25,8 @@
 
 package org
 
+import scalaz.Id.Id
+
 /** This package brings evolutionary algorithms to Scala.
   *
   * @define genome the type of the genome of the individuals, represents a solution of the problem
@@ -49,14 +51,14 @@ package object eva4s {
     *
     * @tparam G $genome
     *
-    * @see [[org.eva4s.Matchmaking]] $defaults
+    * @see [[Matchmaking]] $defaults
     */
   type Matchmaker[G] = (Seq[Individual[G]],Int) ⇒ Seq[IndividualP[G]]
 
   /** A `Mutagen` determines the probability with which individuals mutate, depending on the current
     * generation.
     *
-    * @see [[org.eva4s.Mutagens]] $defaults
+    * @see [[Mutagens]] $defaults
     */
   type Mutagen = Int ⇒ Double
 
@@ -65,9 +67,21 @@ package object eva4s {
     *
     * @tparam G $genome
     *
-    * @see [[org.eva4s.Selection]] $defaults
+    * @see [[Selection]] $defaults
     */
   type Selector[G] = (Seq[Individual[G]],Seq[Individual[G]]) ⇒ Seq[Individual[G]]
+
+  /** Recombination that per parent pair produces exactly one children. */
+  type OnlyChildRecombination[G,P] = Recombination[G,P,Id]
+
+  /** Standalone [[OnlyChildRecombination]] building block. */
+  type OnlyChildRecombinator[G,P] = Recombinator[G,P,Id]
+
+  /** Recombination that per parent pair produces exactly two children. */
+  type CrossoverRecombination[G,P] = Recombination[G,P,GenomeP]
+
+  /** Standalone [[CrossoverRecombination]] building block. */
+  type CrossoverRecombinator[G,P] = Recombinator[G,P,GenomeP]
 
   // -----------------------------------------------------------------------------------------------
   // others

@@ -24,23 +24,39 @@
 
 package org.eva4s
 
-import scalaz.Id.Id
-
-/** Recombination that per parent pair produces only one child. */
-trait OnlyChildRecombination[G,P] extends Recombination[G,P,Id] {
-}
-
-trait OnlyChildRecombinator[G,P] extends OnlyChildRecombination[G,P] with Recombinator[G,P,Id] {
-}
-
+/** Factory for [[OnlyChildRecombination]] instances.
+  *
+  * @define genome the type of the genome of the individuals, represents a solution of the problem
+  * @define problem input / problem type, represents the problem data structure
+  * @define evolutionary evolutionary providing the problem and the fitness function
+  * @define recombination recombination function
+  */
 object OnlyChildRecombinator {
+
+  /** Creates a new [[OnlyChildRecombinator]].
+    *
+    * @tparam G $genome
+    * @tparam P $problem
+    *
+    * @param e $evolutionary
+    * @param f $recombination, depending on the problem
+    */
   def apply[G,P](ep: Evolutionary[G,P])(f: P ⇒ (G,G) ⇒ G) = new OnlyChildRecombinator[G,P] {
     override val evolutionary: Evolutionary[G,P] = ep
     override def recombine(g1: G, g2: G): G = f(evolutionary.problem)(g1,g2)
   }
 
+  /** Creates a new [[OnlyChildRecombinator]].
+    *
+    * @tparam G $genome
+    * @tparam P $problem
+    *
+    * @param e $evolutionary
+    * @param f $recombination
+    */
   def independent[G,P](ep: Evolutionary[G,P])(f: (G,G) ⇒ G) = new OnlyChildRecombinator[G,P] {
     override val evolutionary: Evolutionary[G,P] = ep
     override def recombine(g1: G, g2: G): G = f(g1,g2)
   }
+
 }

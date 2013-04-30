@@ -30,13 +30,48 @@ import scala.annotation.tailrec
 import scalay.collection._
 import scalaz.Functor
 
-/** An evolver is to an [[org.eva4s.Evolutionary]] what an executor is to a thread. How an
-  * [[org.eva4s.Evolutionary]] is executed (sequential, parallel, distributed) depends on the actual
-  * evolver implementation.
+import Matchmaking._
+import Mutagens._
+import Selection._
+
+/** Executes an [[Evolutionary]] algorithm. An evolver is to an [[Evolutionary]] what an executor is
+  * to a thread. How an [[Evolutionary]] is executed (sequential, parallel, distributed) depends on
+  * the actual [[Evolver]] implementation.
   *
-  * @note An [[org.eva4s.Evolver]] implementation should be stateless.
+  * @note An [[Evolver]] implementation should be stateless.
   *
-  * @see [[org.eva4s.Evolvers]] contains default implementations.
+  * @see [[Evolvers]] contains default implementations.
+  *
+  * @define generations amount of generations until the fittest individual is chosen for as the
+  * solution
+  *
+  * @define survivors amount of survivors per generation as well as initial population /
+  * ancestors
+  *
+  * @define pairs amount of pairs generated per generation
+  *
+  * @define matchmaker determines, which parents reproduce new children
+  *
+  * @define mutagen chance of child to mutate as a function from current generation to a floating
+  * point value between 0 and 1
+  *
+  * @define selector determines, how the individuals for the next generation are chosen
+  *
+  * @define full full implementation of evolutionary functions
+  *
+  * @define evolutionary recombination building block
+  *
+  * @define creator creation building block
+  *
+  * @define mutator mutation building block
+  *
+  * @define pmutator point mutation building block
+  *
+  * @define recombinator recombination building block
+  *
+  * @define crossoverrecombinator crossover recombination building block
+  *
+  * @define onlychildrecombinator only child recombination building block
   */
 trait Evolver {
 
@@ -63,18 +98,33 @@ object Evolvers extends Evolvers
 
 /** $EvolverInfo
   *
-  * @define EvolverInfo Contains default [[org.eva4s.Evolver]] implementations.
+  * @define EvolverInfo Contains default [[Evolver]] implementations.
   */
-trait Evolvers extends Matchmaking with Mutagens with Selection {
+trait Evolvers {
 
-  object SingleEvolver extends Matchmaking with Mutagens with Selection {
+  object SingleEvolver extends Evolver {
+
+    /** Executes an evolutionary algorithm, standalone variant.
+      *
+      * @param evolutionary $evolutionary
+      * @param creator $creator
+      * @param mutator $mutator
+      * @param pmutator $pmutator
+      * @param recombinator $onlychildrecombinator
+      * @param generations $generations
+      * @param survivors $survivors
+      * @param pairs $pairs
+      * @param matchmaker $matchmaker
+      * @param mutagen $mutagen
+      * @param selector $selector
+      */
     def apply[G,P](generations: Int = 200, survivors: Int = 23, pairs: Int = 100)
       (implicit
         evolutionary: Evolutionary[G,P],
         creator: Creation[G,P],
         mutator: Mutation[G,P],
         pmutator: PointMutation[G,P],
-        recombinator: Recombination[G,P,scalaz.Id.Id],
+        recombinator: OnlyChildRecombination[G,P],
         matchmaker: Matchmaker[G] = RandomAcceptanceMatchmaker[G](0.7) _,
         mutagen: Mutagen = ExponentialMutagen(generations),
         selector: Selector[G] = SurvivalOfTheFittest[G] _)
@@ -112,25 +162,47 @@ trait Evolvers extends Matchmaking with Mutagens with Selection {
       evolve(parents = ancestors(survivors), generation = 1)
     }
 
-    def full[G,P](full: Full[G,P,scalaz.Id.Id])(generations: Int = 200, survivors: Int = 23, pairs: Int = 100)
+    /** Executes an evolutionary algorithm, full variant.
+      *
+      * @param f $full
+      * @param generations $generations
+      * @param survivors $survivors
+      * @param pairs $pairs
+      * @param matchmaker $matchmaker
+      * @param mutagen $mutagen
+      * @param selector $selector
+      */
+    def full[G,P](f: Full[G,P,scalaz.Id.Id])(generations: Int = 200, survivors: Int = 23, pairs: Int = 100)
       (implicit matchmaker: Matchmaker[G] = RandomAcceptanceMatchmaker[G](0.7) _,
         mutagen: Mutagen = ExponentialMutagen(generations),
         selector: Selector[G] = SurvivalOfTheFittest[G] _)
         : Individual[G] =
-      apply(generations,survivors,pairs)(full,full,full,full,full,matchmaker,mutagen,selector)
+      apply(generations,survivors,pairs)(f,f,f,f,f,matchmaker,mutagen,selector)
   }
 
   object SplitEvolver extends Evolver {
+
+    /** Executes an evolutionary algorithm, standalone variant.
+      *
+      * @param evolutionary $evolutionary
+      * @param creator $creator
+      * @param mutator $mutator
+      * @param pmutator $pmutator
+      * @param recombinator $crossoverrecombinator
+      * @param generations $generations
+      * @param individuals $survivors
+      * @param matchmaker $matchmaker
+      * @param mutagen $mutagen
+      */
     def apply[G,P](generations: Int = 200, individuals: Int = 100)
       (implicit
         evolutionary: Evolutionary[G,P],
         creator: Creation[G,P],
         mutator: Mutation[G,P],
         pmutator: PointMutation[G,P],
-        recombinator: Recombination[G,P,GenomeP],
+        recombinator: CrossoverRecombination[G,P],
         matchmaker: Matchmaker[G] = RandomAcceptanceMatchmaker[G](0.7) _,
-        mutagen: Mutagen = ExponentialMutagen(generations),
-        selector: Selector[G] = SurvivalOfTheFittest[G] _)
+        mutagen: Mutagen = ExponentialMutagen(generations))
         : Individual[G] = {
       import evolutionary._
       import creator.Ancestor
@@ -164,11 +236,20 @@ trait Evolvers extends Matchmaking with Mutagens with Selection {
       evolve(parents = ancestors(individuals), generation = 1)
     }
 
-    def full[G,P](full: Full[G,P,GenomeP])(generations: Int = 200, individuals: Int = 100)
+    /** Executes an evolutionary algorithm, full variant.
+      *
+      * @param f $full
+      * @param generations $generations
+      * @param individuals $survivors
+      * @param matchmaker $matchmaker
+      * @param mutagen $mutagen
+      */
+    def full[G,P](f: Full[G,P,GenomeP])(generations: Int = 200, individuals: Int = 100)
       (implicit matchmaker: Matchmaker[G] = RandomAcceptanceMatchmaker[G](0.7) _,
-        mutagen: Mutagen = ExponentialMutagen(generations),
-        selector: Selector[G] = SurvivalOfTheFittest[G] _)
+        mutagen: Mutagen = ExponentialMutagen(generations))
         : Individual[G] =
-      apply(generations,individuals)(full,full,full,full,full,matchmaker,mutagen,selector)
+      apply(generations,individuals)(f,f,f,f,f,matchmaker,mutagen)
+
   }
+
 }

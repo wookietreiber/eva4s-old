@@ -50,19 +50,47 @@ trait Evolutionary[G,P] {
 
 }
 
+/** Factory for standalone [[Evolutionary]] instances.
+  *
+  * @define genome the type of the genome of the individuals, represents a solution of the problem
+  * @define problemT input / problem type, represents the problem data structure
+  * @define problem the problem to solve
+  * @define fitness fitness function
+  */
 object Evolutionary {
+
+  /** Creates a new [[Evolutionary]].
+    *
+    * @tparam G $genome
+    * @tparam P $problemT
+    *
+    * @param p $problem
+    * @param f $fitness, depending on the problem
+    */
   def apply[G,P](p: P)(f: P ⇒ G ⇒ Double): Evolutionary[G,P] = new Evolutionary[G,P] {
     override val problem = p
     override def fitness(g: G) = f(problem)(g)
   }
 
+  /** Creates a new [[Evolutionary]].
+    *
+    * @tparam G $genome
+    * @tparam P $problemT
+    *
+    * @param p $problem
+    * @param f $fitness
+    */
   def simple[G,P](p: P)(f: G ⇒ Double): Evolutionary[G,P] = new Evolutionary[G,P] {
     override val problem = p
     override def fitness(g: G) = f(g)
   }
+
 }
 
-
+/** Fully setup [[Evolutionary]].
+  *
+  * Use this trait for an all-in-one implementation of an evolutionary algorithm.
+  */
 trait Full[G,P,M[_]] extends Evolutionary[G,P]
     with Creation[G,P]
     with Mutation[G,P]

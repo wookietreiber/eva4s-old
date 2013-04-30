@@ -1,6 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                                               *
  *  Copyright  ©  2012  Nils Foken, Christian Krause                                             *
+ *                2013  Christian Krause                                                         *
  *                                                                                               *
  *  Nils Foken        <nils.foken@it2009.ba-leipzig.de>                                          *
  *  Christian Krause  <kizkizzbangbang@googlemail.com>                                           *
@@ -32,13 +33,13 @@ object Selection extends Selection
 
 /** $SelectionInfo
   *
-  * @define SelectionInfo Contains default [[org.eva4s.Selector]] implementations which define
-  * environmental selection.
+  * @define SelectionInfo Contains default [[Selector]] implementations which define environmental
+  * selection.
   *
   * The idiomatic usage of the functions defined here is to fill in the parameters of the first
-  * parameter list(s) and use the remaining function as a [[org.eva4s.Selector]].
+  * parameter list(s) and use the remaining function as a [[Selector]].
   *
-  * @see [[org.eva4s.Selector]]
+  * @see [[Selector]]
   *
   * @define genome the type of the genome of the individuals
   * @define mu the amount of chosen children
@@ -98,14 +99,14 @@ trait Selection {
                        : Seq[Individual[G]] =
     (parents ++ offspring) sortBy { _.fitness } take parents.size
 
-  /** Returns the fittest individuals. This is an alias for [[org.eva4s.Selection#PlusSelection]].
+  /** Returns the fittest individuals. This is an alias for [[Selection!.PlusSelection]].
     *
     * @tparam G $genome
     *
     * @param parents $parents, determines `μ = parents.size`
     * @param offspring $offspring, determines `λ = offspring.size`
     *
-    * @see [[org.eva4s.Selection#PlusSelection]]
+    * @see [[Selection!.PlusSelection]]
     */
   def SurvivalOfTheFittest[G](parents: Seq[Individual[G]],
                               offspring: Seq[Individual[G]])

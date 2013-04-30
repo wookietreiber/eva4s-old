@@ -35,7 +35,7 @@ trait Creation[G,P] {
   def ancestor: G
 
   /** Returns a randomly generated individual. */
-  final def Ancestor: Individual[G] = Individual(ancestor)
+  final def Ancestor(): Individual[G] = Individual(ancestor)
 
   /** Returns the problem that needs to be solved. */
   def problem: P

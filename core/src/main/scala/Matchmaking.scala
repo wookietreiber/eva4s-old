@@ -1,6 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                                               *
  *  Copyright  ©  2012  Nils Foken, Christian Krause                                             *
+ *                2013  Christian Krause                                                         *
  *                                                                                               *
  *  Nils Foken        <nils.foken@it2009.ba-leipzig.de>                                          *
  *  Christian Krause  <kizkizzbangbang@googlemail.com>                                           *
@@ -35,13 +36,13 @@ object Matchmaking extends Matchmaking
 
 /** $MatchmakingInfo
   *
-  * @define MatchmakingInfo Contains default [[org.eva4s.Matchmaker]] implementations which define
-  * parental selection.
+  * @define MatchmakingInfo Contains default [[Matchmaker]] implementations which define parental
+  * selection.
   *
   * The idiomatic usage of the functions defined here is to input the parameters of the first
-  * parameter list(s) and use the remaining function as a [[org.eva4s.Matchmaker]].
+  * parameter list(s) and use the remaining function as a [[Matchmaker]].
   *
-  * @see [[org.eva4s.Matchmaker]]
+  * @see [[Matchmaker]]
   *
   * @define acceptance chance of a pair accepting the match
   * @define genome the type of the genome of the individuals

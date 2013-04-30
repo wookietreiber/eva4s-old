@@ -24,20 +24,12 @@
 
 package org.eva4s
 
-/** Recombination that per parent pair produces exactly two children. */
-trait CrossoverRecombination[G,P] extends Recombination[G,P,GenomeP] {
-}
-
-/** Standalone [[CrossoverRecombination]] building block. */
-trait CrossoverRecombinator[G,P] extends CrossoverRecombination[G,P] with Recombinator[G,P,GenomeP] {
-}
-
 /** Factory for [[CrossoverRecombination]] instances.
   *
   * @define genome the type of the genome of the individuals, represents a solution of the problem
   * @define problem input / problem type, represents the problem data structure
   * @define evolutionary evolutionary providing the problem and the fitness function
-  * @define recombination recombination function for generating a random genome
+  * @define recombination recombination function
   */
 object CrossoverRecombinator {
 

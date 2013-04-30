@@ -1,6 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                                               *
  *  Copyright  ©  2012  Nils Foken, Christian Krause                                             *
+ *                2013  Christian Krause                                                         *
  *                                                                                               *
  *  Nils Foken        <nils.foken@it2009.ba-leipzig.de>                                          *
  *  Christian Krause  <kizkizzbangbang@googlemail.com>                                           *
@@ -32,10 +33,10 @@ object Mutagens extends Mutagens
 
 /** $MutagenInfo
   *
-  * @define MutagenInfo Contains default [[org.eva4s.Mutagen]] implementations which determine the
-  * mutation probability depending on the generation.
+  * @define MutagenInfo Contains default [[Mutagen]] implementations which determine the mutation
+  * probability depending on the generation.
   *
-  * @see [[org.eva4s.Mutagen]]
+  * @see [[Mutagen]]
   *
   * @define start the mutation probability at generation zero
   * @define end the mutation probability at generation `generations`
