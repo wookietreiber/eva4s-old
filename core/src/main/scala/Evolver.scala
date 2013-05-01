@@ -102,6 +102,14 @@ object Evolvers extends Evolvers
   */
 trait Evolvers {
 
+  /** An evolver that recombines by using a fixed amount of pairs and reduces all individuals,
+    * including the parent generation, to a fixed population size. Each parent is point mutated
+    * before recombination and each child may be mutated by the probability given by the
+    * [[Mutator]].
+    *
+    * Both environmental and parental selection drive this evolver, though it depends on the amount
+    * of survivors and pairs in which ratio.
+    */
   object SingleEvolver extends Evolver {
 
     /** Executes an evolutionary algorithm, standalone variant.
@@ -142,13 +150,12 @@ trait Evolvers {
         if (generation == generations) {
           parents minBy { _.fitness }
         } else {
+          val mutprob = mutagen(generation)
+
           val offspring = for {
             (p1,p2) ← matchmaker(parents, pairs)
             genome  = recombine(pmutate(p1.genome), pmutate(p2.genome))
-          } yield if (Random.nextDouble < mutagen(generation))
-            Mutant(genome)
-          else
-            Individual(genome)
+          } yield if (Random.nextDouble < mutprob) Mutant(genome) else Individual(genome)
 
           val nextGen = selector(parents, offspring)
 
@@ -180,6 +187,16 @@ trait Evolvers {
       apply(generations,survivors,pairs)(f,f,f,f,f,matchmaker,mutagen,selector)
   }
 
+  /** An evolver that splits each generation into one part to be mutated and another part to be
+    * recombined. This evolver picks always all new individuals for the next generation. This way
+    * the population size always stays the same and there is no environmental selection involved in
+    * this process. The chosen [[Mutagen]] determines the ratio of how many individuals recombine
+    * and how many individuals mutate per generation, so the ratio should favor recombination
+    * because parental selection is the driving force to improve the fitness.
+    *
+    * Since the recombination of two individuals has to produce another two individuals to keep the
+    * population size the same you can use only [[CrossoverRecombination]] with this evolver.
+    */
   object SplitEvolver extends Evolver {
 
     /** Executes an evolutionary algorithm, standalone variant.
@@ -225,10 +242,18 @@ trait Evolvers {
           val recombinations = (individuals * (1.0 - mutagen(generation)) / 2.0).round.toInt
           val mutations      = individuals - (2 * recombinations)
 
-          val mutants   = parents choose mutations map Mutant
-          val offspring = matchmaker(parents, recombinations).map(procreate).flatten(tuple2seq)
+          val mutants = parents choose mutations map Mutant
 
-          val nextGen = mutants ++ offspring
+          val offspring: Seq[IndividualP[G]] = for {
+            (p1,p2) ← matchmaker(parents, recombinations)
+            g1 = pmutate(p1.genome)
+            g2 = pmutate(p2.genome)
+            children = procreate(g1,g2)
+          } yield children
+
+// no point mutation variant: val offspring = matchmaker(parents, recombinations).map(procreate).flatten(tuple2seq)
+
+          val nextGen = mutants ++ (offspring.flatten(tuple2seq))
 
           evolve(parents = nextGen, generation = generation + 1)
         }

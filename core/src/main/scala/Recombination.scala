@@ -43,6 +43,14 @@ trait Recombination[G,P,M[_]] {
   final def recombine(parents: IndividualP[G]): M[G] =
     recombine(parents._1.genome, parents._2.genome)
 
+  /** Returns new individuals by recombining the parents. */
+  final def procreate(g1: G, g2: G)(implicit f: Functor[M]): M[Individual[G]] =
+    f.map(recombine(g1,g2))(g ⇒ Individual(g))
+
+  /** Returns new individuals by recombining the parents. */
+  final def procreate(parents: IndividualP[G])(implicit f: Functor[M]): M[Individual[G]] =
+    f.map(recombine(parents))(g ⇒ Individual(g))
+
   /** Returns the problem that needs to be solved. */
   def problem: P
 
@@ -52,8 +60,6 @@ trait Recombination[G,P,M[_]] {
   /** Returns a new individual from the given genome. */
   def Individual(genome: G): Individual[G]
 
-  final def procreate(parents: IndividualP[G])(implicit f: Functor[M]): M[Individual[G]] =
-    f.map(recombine(parents))(g ⇒ Individual(g))
 }
 
 /** Standalone [[Recombination]] building block. */
