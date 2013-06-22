@@ -58,15 +58,15 @@ object MainFull extends App with Evolvers {
   type G = Double
   type P = Double ⇒ Double
 
-  val full = new Full[G,P,scalaz.Id.Id] {
-    def problem = (x: Double) ⇒ x*x + 4
+  class Solver(val problem: P) extends Full[G,P,scalaz.Id.Id] {
     def fitness(genome: Double) = problem(genome)
-
     def ancestor = (Random.nextInt(10000) - 5000).toDouble
     def mutate(genome: Double) = genome + Random.nextInt(9) - 4
     def pmutate(genome: Double) = genome + Random.nextInt(3) - 1
     def recombine(g1: Double, g2: Double) = (g1 + g2) / 2
   }
 
-  println(SingleEvolver.full(full)())
+  val solver = new Solver((x: Double) ⇒ x*x + 4)
+
+  println(SingleEvolver.full(solver)())
 }
