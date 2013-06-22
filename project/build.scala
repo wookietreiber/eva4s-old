@@ -8,7 +8,7 @@ object BuildSettings {
   lazy val baseSettings = Defaults.defaultSettings ++ Seq (
     organization   := "org.eva4s",
     version        := "0.1.0-SNAPSHOT",
-    scalaVersion   := "2.10.1",
+    scalaVersion   := "2.10.2",
     initialCommands in (Compile, consoleQuick) <<= initialCommands in Compile,
     initialCommands in Compile in console += """
       import org.eva4s._
