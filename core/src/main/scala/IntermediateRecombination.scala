@@ -52,7 +52,7 @@ object IntermediateRecombination {
     *
     * @param scaling basis for the scaling factors
     */
-  def recombine[F[_]](scaling: Double = defaultScaling)(g1: F[Double], g2: F[Double])(implicit F: Functor[F], Z: Zip[F]) = {
+  def recombine[F[_]](scaling: Double = defaultScaling)(g1: F[Double], g2: F[Double])(implicit F: Functor[F], Z: Zip[F]): F[Double] = {
     Z.zipWith(g1,g2) { (gene1,gene2) ⇒
       val s = sample(scaling)
       gene1 * s + gene2 * (1 - s)

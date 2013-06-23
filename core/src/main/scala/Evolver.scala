@@ -232,7 +232,7 @@ trait Evolvers {
       }
 
       def ancestors(n: Int): Seq[Individual[G]] = Vector.fill(n)(Ancestor)
-      def tuple2seq[G](xs: (G,G)) = Seq(xs._1,xs._2)
+      def tuple2seq[G](xs: (G,G)): Seq[G] = Seq(xs._1,xs._2)
 
       @tailrec
       def evolve(parents: Seq[Individual[G]], generation: Int): Individual[G] =

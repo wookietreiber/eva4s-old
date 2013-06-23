@@ -102,7 +102,7 @@ trait Mutagens {
     * @param probability the constant mutation probability
     */
   def ConstantMutagen(probability: Double): Mutagen = new Function[Int,Double] {
-    override def apply(generation: Int) = probability
+    override def apply(generation: Int): Double = probability
 
     override def toString = "ConstantMutagen(probability=%s)".format(probability)
   }

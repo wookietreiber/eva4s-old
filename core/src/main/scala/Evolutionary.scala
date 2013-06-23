@@ -68,8 +68,8 @@ object Evolutionary {
     * @param f $fitness, depending on the problem
     */
   def apply[G,P](p: P)(f: P ⇒ G ⇒ Double): Evolutionary[G,P] = new Evolutionary[G,P] {
-    override val problem = p
-    override def fitness(g: G) = f(problem)(g)
+    override val problem: P = p
+    override def fitness(g: G): Double = f(problem)(g)
   }
 
   /** Creates a new [[Evolutionary]].
@@ -81,8 +81,8 @@ object Evolutionary {
     * @param f $fitness
     */
   def simple[G,P](p: P)(f: G ⇒ Double): Evolutionary[G,P] = new Evolutionary[G,P] {
-    override val problem = p
-    override def fitness(g: G) = f(g)
+    override val problem: P = p
+    override def fitness(g: G): Double = f(g)
   }
 
 }
