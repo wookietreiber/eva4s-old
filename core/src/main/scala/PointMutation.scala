@@ -97,8 +97,8 @@ object PointMutator {
     * @param e $evolutionary
     * @param f $mutation, depending on the problem
     */
-  def apply[G,P](ep: Evolutionary[G,P])(f: P ⇒ G ⇒ G): PointMutator[G,P] = new PointMutator[G,P] {
-    override val evolutionary: Evolutionary[G,P] = ep
+  def apply[G,P](e: Evolutionary[G,P])(f: P ⇒ G ⇒ G): PointMutator[G,P] = new PointMutator[G,P] {
+    override val evolutionary: Evolutionary[G,P] = e
     override def pmutate(genome: G): G = f(problem)(genome)
   }
 
@@ -110,8 +110,8 @@ object PointMutator {
     * @param e $evolutionary
     * @param f $mutation
     */
-  def independent[G,P](ep: Evolutionary[G,P])(f: G ⇒ G): PointMutator[G,P] = new PointMutator[G,P] {
-    override val evolutionary: Evolutionary[G,P] = ep
+  def independent[G,P](e: Evolutionary[G,P])(f: G ⇒ G): PointMutator[G,P] = new PointMutator[G,P] {
+    override val evolutionary: Evolutionary[G,P] = e
     override def pmutate(genome: G): G = f(genome)
   }
 

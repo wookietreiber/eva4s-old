@@ -41,8 +41,8 @@ object OnlyChildRecombinator {
     * @param e $evolutionary
     * @param f $recombination, depending on the problem
     */
-  def apply[G,P](ep: Evolutionary[G,P])(f: P ⇒ (G,G) ⇒ G): OnlyChildRecombinator[G,P] = new OnlyChildRecombinator[G,P] {
-    override val evolutionary: Evolutionary[G,P] = ep
+  def apply[G,P](e: Evolutionary[G,P])(f: P ⇒ (G,G) ⇒ G): OnlyChildRecombinator[G,P] = new OnlyChildRecombinator[G,P] {
+    override val evolutionary: Evolutionary[G,P] = e
     override def recombine(g1: G, g2: G): G = f(evolutionary.problem)(g1,g2)
   }
 
@@ -54,8 +54,8 @@ object OnlyChildRecombinator {
     * @param e $evolutionary
     * @param f $recombination
     */
-  def independent[G,P](ep: Evolutionary[G,P])(f: (G,G) ⇒ G): OnlyChildRecombinator[G,P] = new OnlyChildRecombinator[G,P] {
-    override val evolutionary: Evolutionary[G,P] = ep
+  def independent[G,P](e: Evolutionary[G,P])(f: (G,G) ⇒ G): OnlyChildRecombinator[G,P] = new OnlyChildRecombinator[G,P] {
+    override val evolutionary: Evolutionary[G,P] = e
     override def recombine(g1: G, g2: G): G = f(g1,g2)
   }
 
