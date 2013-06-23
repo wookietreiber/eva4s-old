@@ -91,8 +91,8 @@ object Evolutionary {
   *
   * Use this trait for an all-in-one implementation of an evolutionary algorithm.
   */
-trait Full[G,P,M[_]] extends Evolutionary[G,P]
+trait Full[G,P,F[_]] extends Evolutionary[G,P]
     with Creation[G,P]
     with Mutation[G,P]
     with PointMutation[G,P]
-    with Recombination[G,P,M]
+    with Recombination[G,P,F]

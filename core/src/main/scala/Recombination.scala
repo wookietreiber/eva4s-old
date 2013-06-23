@@ -32,23 +32,23 @@ import scalaz.Functor
   *
   * @tparam G the type of the genome of the individuals, represents a solution of the problem
   * @tparam P input / problem type, represents the problem data structure
-  * @tparam M container for the offspring; declares how many genomes/individuals are created per coupling
+  * @tparam F container for the offspring; declares how many genomes/individuals are created per coupling
   */
-trait Recombination[G,P,M[_]] {
+trait Recombination[G,P,F[_]] {
 
   /** Returns new genomes by recombining the parents. */
-  def recombine(g1: G, g2: G): M[G]
+  def recombine(g1: G, g2: G): F[G]
 
   /** Returns new genomes by recombining the parents. */
-  final def recombine(parents: IndividualP[G]): M[G] =
+  final def recombine(parents: IndividualP[G]): F[G] =
     recombine(parents._1.genome, parents._2.genome)
 
   /** Returns new individuals by recombining the parents. */
-  final def procreate(g1: G, g2: G)(implicit f: Functor[M]): M[Individual[G]] =
+  final def procreate(g1: G, g2: G)(implicit f: Functor[F]): F[Individual[G]] =
     f.map(recombine(g1,g2))(g ⇒ Individual(g))
 
   /** Returns new individuals by recombining the parents. */
-  final def procreate(parents: IndividualP[G])(implicit f: Functor[M]): M[Individual[G]] =
+  final def procreate(parents: IndividualP[G])(implicit f: Functor[F]): F[Individual[G]] =
     f.map(recombine(parents))(g ⇒ Individual(g))
 
   /** Returns the problem that needs to be solved. */
@@ -63,7 +63,7 @@ trait Recombination[G,P,M[_]] {
 }
 
 /** Standalone [[Recombination]] building block. */
-trait Recombinator[G,P,M[_]] extends Recombination[G,P,M] {
+trait Recombinator[G,P,F[_]] extends Recombination[G,P,F] {
 
   /** Returns the evolutionary used to provide the problem and the fitness function. */
   def evolutionary: Evolutionary[G,P]
