@@ -41,7 +41,7 @@ object CrossoverRecombinator {
     * @param e $evolutionary
     * @param f $recombination, depending on the problem
     */
-  def apply[G,P](e: Evolutionary[G,P])(f: P ⇒ (G,G) ⇒ (G,G)) = new CrossoverRecombinator[G,P] {
+  def apply[G,P](e: Evolutionary[G,P])(f: P ⇒ (G,G) ⇒ (G,G)): CrossoverRecombinator[G,P] = new CrossoverRecombinator[G,P] {
     override val evolutionary: Evolutionary[G,P] = e
     override def recombine(g1: G, g2: G): (G,G) = f(evolutionary.problem)(g1,g2)
   }
@@ -54,9 +54,24 @@ object CrossoverRecombinator {
     * @param e $evolutionary
     * @param f $recombination
     */
-  def independent[G,P](e: Evolutionary[G,P])(f: (G,G) ⇒ (G,G)) = new CrossoverRecombinator[G,P] {
+  def independent[G,P](e: Evolutionary[G,P])(f: (G,G) ⇒ (G,G)): CrossoverRecombinator[G,P] = new CrossoverRecombinator[G,P] {
     override val evolutionary: Evolutionary[G,P] = e
     override def recombine(g1: G, g2: G): (G,G) = f(g1,g2)
+  }
+
+  /** Creates a new [[CrossoverRecombinator]].
+    *
+    * @tparam G $genome
+    * @tparam P $problem
+    *
+    * @param recombinator recombinator to use to create two distinct children
+    */
+  def biovular[G,P](recombinator: OnlyChildRecombinator[G,P]): CrossoverRecombinator[G,P] = new CrossoverRecombinator[G,P] {
+    override val evolutionary: Evolutionary[G,P] = recombinator.evolutionary
+    override def recombine(g1: G, g2: G): (G,G) = {
+      def child = recombinator.recombine(g1,g2)
+      (child,child)
+    }
   }
 
 }
