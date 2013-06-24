@@ -29,63 +29,39 @@ import language.higherKinds
 import scalaz.Functor
 import scalaz.Zip
 
-/** Factory for [[OnlyChildRecombination]] instances.
+/** Line recombination randomly chooses offspring around and between the parents. It is applicable
+  * to real number types only.
   *
-  * @define genome the type of the genome of the individuals, represents a solution of the problem
-  * @define problem input / problem type, represents the problem data structure
-  * @define gene gene container
-  * @define evolutionary evolutionary providing the problem and the fitness function
-  * @define recombination recombination function
-  * @define scaling basis for the scaling factors
+  * == Scaling ==
+  *
+  * The scaling argument determines how much around the parents the offspring will be. A value of
+  * zero will constrain the offspring to the same dimensions as the parents. The default scaling
+  * value is chosen to be 0.25 because it allows the offspring to be a little around the parents,
+  * thus to vary a little bit more.
+  *
+  * @todo abstract over value type, currently only `Double`
   */
-object OnlyChildRecombinator {
+object LineRecombination {
 
-  /** Creates a new [[OnlyChildRecombinator]].
+  /** Returns the default basis for the scaling factor. */
+  def defaultScaling: Double = 0.25
+
+  /** Returns a new genome by line recombination.
     *
-    * @tparam G $genome
-    * @tparam P $problem
+    * @tparam F gene container
     *
-    * @param e $evolutionary
-    * @param f $recombination, depending on the problem
+    * @param scaling basis for the scaling factors
     */
-  def apply[G,P](e: Evolutionary[G,P])(f: P ⇒ (G,G) ⇒ G): OnlyChildRecombinator[G,P] = new OnlyChildRecombinator[G,P] {
-    override val evolutionary: Evolutionary[G,P] = e
-    override def recombine(g1: G, g2: G): G = f(evolutionary.problem)(g1,g2)
+  def recombine[F[_]](scaling: Double = defaultScaling)(g1: F[Double], g2: F[Double])(implicit F: Functor[F], Z: Zip[F]): F[Double] = {
+    val s = sample(scaling)
+    Z.zipWith(g1,g2) { (gene1,gene2) ⇒
+      gene1 * s + gene2 * (1 - s)
+    }
   }
 
-  /** Creates a new [[OnlyChildRecombinator]].
-    *
-    * @tparam G $genome
-    * @tparam P $problem
-    *
-    * @param e $evolutionary
-    * @param f $recombination
-    */
-  def independent[G,P](e: Evolutionary[G,P])(f: (G,G) ⇒ G): OnlyChildRecombinator[G,P] = new OnlyChildRecombinator[G,P] {
-    override val evolutionary: Evolutionary[G,P] = e
-    override def recombine(g1: G, g2: G): G = f(g1,g2)
-  }
+  private def sample(x: Double): Double = nextDoubleWithin(-x, 1 + x)
 
-  /** Creates a new [[OnlyChildRecombinator]].
-    *
-    * @tparam F $gene
-    * @tparam P $problem
-    *
-    * @param e $evolutionary
-    * @param scaling $scaling
-    */
-  def intermediate[F[_],P](e: Evolutionary[F[Double],P])(scaling: Double = IntermediateRecombination.defaultScaling)(implicit F: Functor[F], Z: Zip[F]): OnlyChildRecombinator[F[Double],P] =
-    independent(e)(IntermediateRecombination.recombine(scaling))
-
-  /** Creates a new [[OnlyChildRecombinator]].
-    *
-    * @tparam F $gene
-    * @tparam P $problem
-    *
-    * @param e $evolutionary
-    * @param scaling $scaling
-    */
-  def line[F[_],P](e: Evolutionary[F[Double],P])(scaling: Double = LineRecombination.defaultScaling)(implicit F: Functor[F], Z: Zip[F]): OnlyChildRecombinator[F[Double],P] =
-    independent(e)(LineRecombination.recombine(scaling))
+  private def nextDoubleWithin(lower: Double, upper: Double): Double =
+    lower + (upper - lower) * Random.nextDouble
 
 }
