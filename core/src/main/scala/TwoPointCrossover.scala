@@ -33,8 +33,8 @@ import scalaz.Length
 import scalaz.Unzip
 import scalaz.Zip
 
-/** Two point crossover chooses two random points and distributes genes around these point between
-  * the offspring.
+/** Two point crossover randomly selects two crossover points and interchanges the two parents at
+  * these points to produce two new children.
   */
 object TwoPointCrossover {
 
