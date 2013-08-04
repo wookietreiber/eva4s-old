@@ -27,6 +27,7 @@ package org.eva4s
 import language.higherKinds
 
 import scalaz.Functor
+import scalaz.Length
 import scalaz.Unzip
 import scalaz.Zip
 
@@ -99,9 +100,29 @@ object CrossoverRecombinator {
     * @tparam P $problem
     *
     * @param e $evolutionary
-    * @param scaling $scaling
+    */
+  def onePoint[F[_] : Functor : Length : Unzip : Zip,A,P](e: Evolutionary[F[A],P])(mixingRatio: Double = UniformCrossover.defaultMixingRatio): CrossoverRecombinator[F[A],P] =
+    independent(e)(OnePointCrossover.recombine)
+
+  /** Creates a new [[CrossoverRecombinator]].
+    *
+    * @tparam F $gene
+    * @tparam P $problem
+    *
+    * @param e $evolutionary
+    * @param mixingRatio determines gene distribution between the children
     */
   def uniform[F[_] : Functor : Unzip : Zip,A,P](e: Evolutionary[F[A],P])(mixingRatio: Double = UniformCrossover.defaultMixingRatio): CrossoverRecombinator[F[A],P] =
     independent(e)(UniformCrossover.recombine(mixingRatio))
+
+  /** Creates a new [[CrossoverRecombinator]].
+    *
+    * @tparam F $gene
+    * @tparam P $problem
+    *
+    * @param e $evolutionary
+    */
+  def twoPoint[F[_] : Functor : Length : Unzip : Zip,A,P](e: Evolutionary[F[A],P])(mixingRatio: Double = UniformCrossover.defaultMixingRatio): CrossoverRecombinator[F[A],P] =
+    independent(e)(TwoPointCrossover.recombine)
 
 }
