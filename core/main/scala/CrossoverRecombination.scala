@@ -101,7 +101,7 @@ object CrossoverRecombinator {
     *
     * @param e $evolutionary
     */
-  def onePoint[F[_] : Functor : Length : Unzip : Zip,A,P](e: Evolutionary[F[A],P])(mixingRatio: Double = UniformCrossover.defaultMixingRatio): CrossoverRecombinator[F[A],P] =
+  def onePoint[F[_] : Functor : Length : Unzip : Zip,A,P](e: Evolutionary[F[A],P]): CrossoverRecombinator[F[A],P] =
     independent(e)(OnePointCrossover.recombine)
 
   /** Creates a new [[CrossoverRecombinator]].
@@ -122,7 +122,7 @@ object CrossoverRecombinator {
     *
     * @param e $evolutionary
     */
-  def twoPoint[F[_] : Functor : Length : Unzip : Zip,A,P](e: Evolutionary[F[A],P])(mixingRatio: Double = UniformCrossover.defaultMixingRatio): CrossoverRecombinator[F[A],P] =
+  def twoPoint[F[_] : Functor : Length : Unzip : Zip,A,P](e: Evolutionary[F[A],P]): CrossoverRecombinator[F[A],P] =
     independent(e)(TwoPointCrossover.recombine)
 
 }

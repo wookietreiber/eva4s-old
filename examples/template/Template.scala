@@ -1,23 +1,26 @@
-package org.eva4s
-package foo
+package org.example
+package evo
 
-object Foo {
-  type Genome  = Int
-  type Problem = Int
-}
+import org.eva4s.api._
 
-import Foo._
+object Template extends EvolutionaryApp.Sequential {
 
-class Foo(val problem: Problem) extends Full[Genome,Problem,GenomeP] {
+  type Genome  = Nothing
+  type Problem = Nothing
 
-  override def ancestor: Genome = ???
+  val problem: Problem =
+    ???
 
-  override def fitness(genome: Genome): Double = ???
+  def fitness(genome: Genome) =
+    ???
 
-  override def mutate(genome: Genome): Genome = ???
+  def creator: Genome =
+    ???
 
-  override def pmutate(genome: Genome): Genome = ???
+  def mutator(genome: Genome): Genome =
+    ???
 
-  override def recombine(g1: Genome, g2: Genome): (Genome,Genome) = ???
+  def recombinator(g1: Genome, g2: Genome): Genome =
+    ???
 
 }

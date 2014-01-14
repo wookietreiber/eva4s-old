@@ -29,7 +29,7 @@ package org.eva4s
   *
   * == Uses Cases ==
   *
-  * - [[Evolvers]] may use point mutation just before recombination to provide more diversity
+  * - An [[Evolver]] may use point mutation just before recombination to provide more diversity
   *
   * - point mutation may also be used to model external events / natural mutagens like gamma rays
   *
