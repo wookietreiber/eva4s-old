@@ -1,35 +1,12 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *                                                                                               *
- *  Copyright  ©  2013  Christian Krause                                                         *
- *                                                                                               *
- *  Christian Krause  <kizkizzbangbang@googlemail.com>                                           *
- *                                                                                               *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *                                                                                               *
- *  This file is part of 'eva4s'.                                                                *
- *                                                                                               *
- *  This project is free software: you can redistribute it and/or modify it under the terms      *
- *  of the GNU General Public License as published by the Free Software Foundation, either       *
- *  version 3 of the License, or any later version.                                              *
- *                                                                                               *
- *  This project is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;    *
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.    *
- *  See the GNU General Public License for more details.                                         *
- *                                                                                               *
- *  You should have received a copy of the GNU General Public License along with this project.   *
- *  If not, see <http://www.gnu.org/licenses/>.                                                  *
- *                                                                                               *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
 package org.eva4s
 
-/** Provides a mechanism for point mutation. It differs from [[Mutation]] in the aspect that it
+/** Provides a mechanism for point mutation. It differs from [[Mutator]] in the aspect that it
   * mutates genomes only slightly.
   *
   * == Uses Cases ==
   *
-  * - An [[Evolver]] may use point mutation just before recombination to provide more diversity
+  * - An [[evolving.Evolver]] may use point mutation just before recombination to provide more
+  *   diversity.
   *
   * - point mutation may also be used to model external events / natural mutagens like gamma rays
   *
@@ -40,7 +17,10 @@ package org.eva4s
   * it like the factory method of a case class. This method performs the mutation on its own, it is
   * not needed to do this in advance.
   */
-trait PointMutation[G,P] {
+trait PointMutator[G,P] {
+
+  /** Returns the evolutionary used to provide the problem and the fitness function. */
+  def evolutionary: Evolutionary[G,P]
 
   /** Returns a new genome by slightly mutating the given genome. */
   def pmutate(genome: G): G
@@ -49,34 +29,30 @@ trait PointMutation[G,P] {
     *
     * @note $NewMutantInfo
     */
-  final def PointMutant(genome: G): Individual[G] = Individual(pmutate(genome))
+  final def PointMutant(genome: G): Individual[G] =
+    Individual(pmutate(genome))
 
   /** Returns a new individual by point mutating the genome of the given individual.
     *
     * @note $NewMutantInfo
     */
-  final def PointMutant(individual: Individual[G]): Individual[G] = PointMutant(individual.genome)
+  final def PointMutant(individual: Individual[G]): Individual[G] =
+    PointMutant(individual.genome)
 
   /** Returns the problem that needs to be solved. */
-  def problem: P
+  // def problem: P
+  final def problem: P =
+    evolutionary.problem
 
   /** Returns the fitness of the given genome. */
-  def fitness(genome: G): Double
+  // def fitness(genome: G): Double
+  final def fitness(genome: G): Double =
+    evolutionary.fitness(genome)
 
   /** Returns a new individual from the given genome. */
-  def Individual(genome: G): Individual[G]
-
-}
-
-/** Standalone [[PointMutation]] building block. */
-trait PointMutator[G,P] extends PointMutation[G,P] {
-
-  /** Returns the evolutionary used to provide the problem and the fitness function. */
-  def evolutionary: Evolutionary[G,P]
-
-  override final def problem: P = evolutionary.problem
-  override final def fitness(genome: G): Double = evolutionary.fitness(genome)
-  override final def Individual(genome: G): Individual[G] = evolutionary.Individual(genome)
+  // def Individual(genome: G): Individual[G]
+  final def Individual(genome: G): Individual[G] =
+    evolutionary.Individual(genome)
 
 }
 

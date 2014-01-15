@@ -1,4 +1,5 @@
-package org.example.evo.app
+package org.example
+package evo
 
 import org.eva4s.api._
 
@@ -7,17 +8,19 @@ object EvoSolver extends EvolutionaryApp.Sequential {
   type Genome = Double
   type Problem = Double => Double
 
-  val problem = (x: Double) => x * x + 4
+  val problem: Problem =
+    (x: Double) => x * x + 4
 
-  def fitness(genome: Genome) =
+  def fitness(genome: Genome): Double =
     problem(genome)
 
-  def creator = (Random.nextInt(10000) - 5000).toDouble
+  def create: Genome =
+    (util.Random.nextInt(10000) - 5000).toDouble
 
-  def mutator(genome: Genome) =
-    genome + Random.nextInt(9) - 4
+  def mutate(genome: Genome): Genome =
+    genome + util.Random.nextInt(9) - 4
 
-  def recombinator(g1: Genome, g2: Genome) =
+  def recombine(g1: Genome, g2: Genome): Genome =
     (g1 + g2) / 2
 
 }

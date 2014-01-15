@@ -3,7 +3,10 @@ package simple
 
 import language.higherKinds
 
+import scala.util.Random
+
 object Main extends App {
+
   type Genome = Double
   type Problem = Double => Double
 
@@ -23,9 +26,10 @@ object Main extends App {
     (genome: Double) => genome + Random.nextInt(3) - 1
   }
 
-  implicit val recombinator = OnlyChildRecombinator.independent(evolutionary) {
+  implicit val recombinator = recombining.OnlyChildRecombinator.independent(evolutionary) {
     (g1: Double, g2: Double) => (g1 + g2) / 2
   }
 
-  println(evolver.SingleEvolver())
+  println(evolving.SingleEvolver())
+
 }

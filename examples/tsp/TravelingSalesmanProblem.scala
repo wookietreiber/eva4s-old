@@ -1,37 +1,9 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *                                                                                               *
- *  Copyright  ©  2012  Nils Foken, Christian Krause                                             *
- *                2013  Christian Krause                                                         *
- *                                                                                               *
- *  Nils Foken        <nils.foken@it2009.ba-leipzig.de>                                          *
- *  Christian Krause  <kizkizzbangbang@googlemail.com>                                           *
- *                                                                                               *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *                                                                                               *
- *  This file is part of 'eva4s'.                                                                *
- *                                                                                               *
- *  This project is free software: you can redistribute it and/or modify it under the terms      *
- *  of the GNU General Public License as published by the Free Software Foundation, either       *
- *  version 3 of the License, or any later version.                                              *
- *                                                                                               *
- *  This project is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;    *
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.    *
- *  See the GNU General Public License for more details.                                         *
- *                                                                                               *
- *  You should have received a copy of the GNU General Public License along with this project.   *
- *  If not, see <http://www.gnu.org/licenses/>.                                                  *
- *                                                                                               *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-package org.eva4s
 package tsp
 
-import language.postfixOps
-
-import org.eva4s.util.graph._
+import util.graph._
 
 import scala.annotation.tailrec
+import scala.util.Random
 
 import scalax.collection._
 import scalax.collection.GraphPredef._
@@ -39,57 +11,25 @@ import scalax.collection.GraphEdge._
 import scalax.collection.edge._
 import scalax.collection.edge.Implicits._
 
-import scalaz.Id.Id
-
 import scalaz._
 import Scalaz._
 
-object TravelingSalesmanProblem {
+trait TravelingSalesmanProblem[N] {
+
   type G[N] = Graph[N,WDiEdge]
   type P[N] = Graph[N,WUnDiEdge]
-}
 
-import TravelingSalesmanProblem._
+  implicit def manifest: Manifest[N]
 
-class TravelingSalesmanProblem[N:Manifest](val problem: P[N]) extends Full[G[N],P[N],Id] {
+  def problem: P[N]
 
-  override def ancestor = cycle(problem)
+  def fitness(genome: G[N]): Double =
+    weight(genome)
 
-  override def fitness(genome: G[N]) = weight(genome)
+  def create: G[N] =
+    cycle(problem)
 
-  override def recombine(g1: G[N], g2: G[N]) = {
-    val adjacencies = neighbors(g1) ⊹ neighbors(g2)
-    val startNode = g1.nodes.head.value
-
-    @tailrec
-    def recurse(have: List[N], currentNode: N, edges: List[WDiEdge[N]]): G[N] = {
-      if (have.size == problem.nodes.size) {
-        val nextEdge = (currentNode ~%> startNode)(problem.get((currentNode ~% startNode)(0)).toEdgeIn.weight)
-        Graph from (
-          edges = nextEdge :: edges
-        )
-      } else {
-        val remainingNodes = adjacencies(currentNode) filterNot have.contains
-
-        val nextNode = if (remainingNodes.nonEmpty) remainingNodes minBy { node ⇒
-          adjacencies filterNot {
-            case (key,_) ⇒ have.contains(key)
-          } apply node filterNot have.contains size
-        } else // in case remainingNodes is empty choose some remaining node
-          g1.nodes.toNodeInSet filterNot have.contains head
-
-        val nextEdge = (currentNode ~%> nextNode)(problem.get((currentNode ~% nextNode)(0)).toEdgeIn.weight)
-
-        recurse(nextNode :: have, nextNode, nextEdge :: edges)
-      }
-    }
-
-    recurse(List(startNode), startNode, Nil)
-  }
-
-  override def pmutate(genome: G[N]): G[N] = ???
-
-  override def mutate(genome: G[N]) = {
+  def mutate(genome: G[N]): G[N] = {
     val nodes = genome.nodes.toIndexedSeq
     val s = nodes.size
 
@@ -122,6 +62,36 @@ class TravelingSalesmanProblem[N:Manifest](val problem: P[N]) extends Full[G[N],
         genome -- (rmes) ++ (nstart :: nend :: nedges.toList)
       }
     }
+  }
+
+  def recombine(g1: G[N], g2: G[N]): G[N] = {
+    val adjacencies = neighbors(g1) |+| neighbors(g2)
+    val startNode = g1.nodes.head.value
+
+    @tailrec
+    def recurse(have: List[N], currentNode: N, edges: List[WDiEdge[N]]): G[N] = {
+      if (have.size == problem.nodes.size) {
+        val nextEdge = (currentNode ~%> startNode)(problem.get((currentNode ~% startNode)(0)).toEdgeIn.weight)
+        Graph from (
+          edges = nextEdge :: edges
+        )
+      } else {
+        val remainingNodes = adjacencies(currentNode) filterNot have.contains
+
+        val nextNode = if (remainingNodes.nonEmpty) remainingNodes minBy { node ⇒
+          adjacencies.filterNot({
+            case (key,_) ⇒ have.contains(key)
+          }).apply(node).filterNot(have.contains).size
+        } else // in case remainingNodes is empty choose some remaining node
+          g1.nodes.toNodeInSet.filterNot(have.contains).head
+
+        val nextEdge = (currentNode ~%> nextNode)(problem.get((currentNode ~% nextNode)(0)).toEdgeIn.weight)
+
+        recurse(nextNode :: have, nextNode, nextEdge :: edges)
+      }
+    }
+
+    recurse(List(startNode), startNode, Nil)
   }
 
 }

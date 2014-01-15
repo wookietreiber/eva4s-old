@@ -12,8 +12,8 @@ package org.eva4s
   * The [[Individual!.fitness fitness]] of an individual, in biology, describes its ability to both
   * survive and reproduce. In the context of evolutionary algorithms it serves as a value describing
   * how optimal a candidate solution is for solving a given [[Evolutionary!.problem problem]]. The
-  * fitness of an individual is used by both [[Selection environmental selection]] and
-  * [[Matchmaking parental selection]].
+  * fitness of an individual is used by both [[selecting environmental selection]] and
+  * [[matchmaking parental selection]].
   *
   * @tparam G the type of the genome of the individuals
   *

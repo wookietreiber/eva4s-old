@@ -11,16 +11,16 @@ object Template extends EvolutionaryApp.Sequential {
   val problem: Problem =
     ???
 
-  def fitness(genome: Genome) =
+  def fitness(genome: Genome): Double =
     ???
 
-  def creator: Genome =
+  def create: Genome =
     ???
 
-  def mutator(genome: Genome): Genome =
+  def mutate(genome: Genome): Genome =
     ???
 
-  def recombinator(g1: Genome, g2: Genome): Genome =
+  def recombine(g1: Genome, g2: Genome): Genome =
     ???
 
 }

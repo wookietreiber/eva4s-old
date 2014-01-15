@@ -6,7 +6,6 @@ import language.higherKinds
   *
   * @tparam G the type of the genome of the individuals, represents a solution of the problem
   * @tparam P input / problem type, represents the problem data structure
-  *
   */
 trait Evolutionary[G,P] {
 
@@ -22,7 +21,8 @@ trait Evolutionary[G,P] {
     * convenience wrapper around the case class to automatically inject the fitness according to
     * this evolutionary algorithm. Use it like the factory method of a case class.
     */
-  final def Individual(genome: G): Individual[G] = new Individual(genome, fitness(genome))
+  final def Individual(genome: G): Individual[G] =
+    new Individual(genome, fitness(genome))
 
 }
 

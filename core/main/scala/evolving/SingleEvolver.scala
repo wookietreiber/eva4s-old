@@ -1,11 +1,10 @@
 package org.eva4s
-package evolver
+package evolving
 
 import scala.annotation.tailrec
+import scala.util.Random
 
-import Matchmaking._
-import Mutagens._
-import Selection._
+import scalaz.Id.Id
 
 /** An evolver that recombines by using a fixed amount of pairs and reduces all individuals,
   * including the parent generation, to a fixed population size. Each parent is point mutated before
@@ -33,13 +32,13 @@ object SingleEvolver extends Evolver {
   def apply[G,P](generations: Int = 200, survivors: Int = 23, pairs: Int = 100)
     (implicit
       evolutionary: Evolutionary[G,P],
-      creator: Creation[G,P],
-      mutator: Mutation[G,P],
-      pmutator: PointMutation[G,P],
-      recombinator: OnlyChildRecombination[G,P],
-      matchmaker: Matchmaker[G] = RandomAcceptanceMatchmaker[G](0.7) _,
-      mutagen: Mutagen = ExponentialMutagen(generations),
-      selector: Selector[G] = SurvivalOfTheFittest[G] _)
+      creator: Creator[G,P],
+      mutator: Mutator[G,P],
+      pmutator: PointMutator[G,P],
+      recombinator: Recombinator[G,P,Id],
+      matchmaker: matchmaking.Matchmaker[G] = matchmaking.RandomAcceptanceMatchmaking[G](0.7) _,
+      mutagen: mutating.Mutagen = mutating.ExponentialMutagen(generations),
+      selector: selecting.Selector[G] = selecting.SurvivalOfTheFittest[G] _)
       : Individual[G] = {
     import evolutionary._
     import creator.Ancestor

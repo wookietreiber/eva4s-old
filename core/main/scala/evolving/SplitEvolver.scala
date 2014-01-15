@@ -1,5 +1,5 @@
 package org.eva4s
-package evolver
+package evolving
 
 import scala.annotation.tailrec
 
@@ -7,19 +7,16 @@ import scalay.collection._
 
 import scalaz.Functor
 
-import Matchmaking._
-import Mutagens._
-import Selection._
-
 /** An evolver that splits each generation into one part to be mutated and another part to be
   * recombined. This evolver picks always all new individuals for the next generation. This way the
   * population size always stays the same and there is no environmental selection involved in this
-  * process. The chosen [[Mutagen]] determines the ratio of how many individuals recombine and how
-  * many individuals mutate per generation, so the ratio should favor recombination because parental
-  * selection is the driving force to improve the fitness.
+  * process. The chosen [[mutating.Mutagen]] determines the ratio of how many individuals recombine
+  * and how many individuals mutate per generation, so the ratio should favor recombination because
+  * parental selection is the driving force to improve the fitness.
   *
   * Since the recombination of two individuals has to produce another two individuals to keep the
-  * population size the same you can use only [[CrossoverRecombination]] with this evolver.
+  * population size the same you can use only [[recombining.CrossoverRecombinator]] with this
+  * evolver.
   */
 object SplitEvolver extends Evolver {
 
@@ -38,12 +35,12 @@ object SplitEvolver extends Evolver {
   def apply[G,P](generations: Int = 200, individuals: Int = 100)
     (implicit
       evolutionary: Evolutionary[G,P],
-      creator: Creation[G,P],
-      mutator: Mutation[G,P],
-      pmutator: PointMutation[G,P],
-      recombinator: CrossoverRecombination[G,P],
-      matchmaker: Matchmaker[G] = RandomAcceptanceMatchmaker[G](0.7) _,
-      mutagen: Mutagen = ExponentialMutagen(generations))
+      creator: Creator[G,P],
+      mutator: Mutator[G,P],
+      pmutator: PointMutator[G,P],
+      recombinator: Recombinator[G,P,GenomeP],
+      matchmaker: matchmaking.Matchmaker[G] = matchmaking.RandomAcceptanceMatchmaking[G](0.7) _,
+      mutagen: mutating.Mutagen = mutating.ExponentialMutagen(generations))
       : Individual[G] = {
     import evolutionary._
     import creator.Ancestor
