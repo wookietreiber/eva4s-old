@@ -1,11 +1,13 @@
-package org.eva4s
+package eva4s
 
 import language.higherKinds
+
+import scalaz.Id.Id
 
 abstract class EvolutionaryApp {
   type Genome
   type Problem
-  type F[_]
+  type F[Genome]
 
   def problem: Problem
 
@@ -19,31 +21,52 @@ abstract class EvolutionaryApp {
 
   def recombine(g1: Genome, g2: Genome): F[Genome]
 
-  def evolver: evolving.Evolver
+  def evolver: Evolver[Genome,Problem]
 
-  def main(args: Array[String]): Unit
+  def logger: Logger
+
+  def reporter: Reporter
+
+  def main(args: Array[String]): Unit = {
+    val fittest = evolver(problem)
+    println(fittest)
+  }
 }
 
 object EvolutionaryApp {
 
   abstract class Sequential extends EvolutionaryApp {
-    type F[_] = scalaz.Id.Id[Genome]
+    type F[_] = Id[Genome]
 
-    val evolver = evolving.SingleEvolver
+    def generations = 200
+    def pairs = 100
+    def survivors = 23
 
-    def pmutate(genome: Genome) = identity(genome)
+    implicit def f = Fitness(fitness)
+    implicit def c = Creator(create)
+    implicit def m = Mutator(mutate)
+    implicit def p = PointMutator(pmutate)
+    implicit def r = Recombinator[Genome,Id](recombine)
+    implicit def sel = selecting.PlusSelector[Genome]
+    implicit def mat = matchmaking.RandomAcceptanceMatchmaker[Genome]()
+    implicit def mut = mutating.ExponentialMutagen(generations)
 
-    override final def main(args: Array[String]) = {
-      implicit val e = Evolutionary.simple[Genome,Problem](problem)(fitness)
-      implicit val c = Creator.independent(e)(create)
-      implicit val m = Mutator.independent(e)(mutate)
-      implicit val p = PointMutator.independent(e)(pmutate)
-      implicit val r = recombining.OnlyChildRecombinator.independent(e)(recombine)
+    def evolver = new evolving.SingleEvolver[Genome,Problem](generations, survivors, pairs)
 
-      val fittest = evolver()
+    def pmutate(genome: Genome) =
+      identity(genome)
 
-      println(fittest)
-    }
+    def logger = Logger.None
+    def reporter = Reporter.None
+  }
+
+  abstract class Split extends EvolutionaryApp {
+
+    def generations: Int
+
+    implicit def matchmaker[G] = matchmaking.RandomAcceptanceMatchmaker[G]()
+    implicit def mutagen = mutating.ExponentialMutagen(generations)
+
   }
 
 }

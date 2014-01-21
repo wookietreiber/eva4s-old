@@ -4,35 +4,28 @@ import Dependencies._
 
 lazy val root = (
   Eva4sProject("eva4s", ".")
-  aggregate(core, benchmark, examples)
+  aggregate(core, examples)
 )
 
 lazy val core = (
   Eva4sProject("eva4s-core", "core")
   settings(
-    libraryDependencies ++= Seq ( extras, scalaz ),
+    libraryDependencies ++= Seq(chart, scalaz),
     initialCommands in Compile += """
-      import scalay.collection._
+      import scalax.chart._
+      import scalax.chart.Charting._
       import scalaz._
       import Scalaz._
-    """
-  )
-)
-
-lazy val benchmark = (
-  Eva4sProject("eva4s-benchmark", "benchmark")
-  dependsOn(core)
-  settings(
-    libraryDependencies += chart,
+    """,
     initialCommands in Compile in console += """
-      import org.eva4s.benchmark._
+      import eva4s._
     """
   )
 )
 
 lazy val examples = (
   Eva4sProject("eva4s-examples", "examples")
-  aggregate(template, tsp, simple, solver)
+  aggregate(template, tsp, simple)
 )
 
 lazy val template = (
@@ -58,22 +51,8 @@ lazy val tsp = (
       import scalax.collection.edge.Implicits._
     """,
     initialCommands in Compile in console += """
-      import org.eva4s.util.graph._
-      import org.eva4s.tsp._
-    """
-  )
-)
-
-lazy val solver = (
-  Eva4sProject("eva4s-example-solver", "examples/solver")
-  dependsOn(core)
-  settings(
-    libraryDependencies += chart,
-    initialCommands in Compile += """
-      import scalax.chart.Charting._
-    """,
-    initialCommands in Compile in console += """
-      import org.eva4s.solver._
+      import eva4s.util.graph._
+      import eva4s.tsp._
     """
   )
 )

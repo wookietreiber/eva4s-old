@@ -1,4 +1,4 @@
-package org.eva4s
+package eva4s
 package evolving
 
 import scala.annotation.tailrec
@@ -13,34 +13,20 @@ import scalaz.Id.Id
   * Both environmental and parental selection drive this evolver, though it depends on the amount of
   * survivors and pairs in which ratio.
   */
-object SingleEvolver extends Evolver {
+class SingleEvolver[G,P](generations: Int = 200, survivors: Int = 23, pairs: Int = 100)
+  (implicit
+    fitness: Fitness[G],
+    val creator: Creator[G],
+    mutator: Mutator[G],
+    pmutator: PointMutator[G],
+    recombinator: Recombinator[G,Id],
+    selector: Selector[G],
+    matchmaker: Matchmaker[G],
+    mutagen: Mutagen)
+    extends Evolver[G,P] {
 
-  /** Executes an evolutionary algorithm, standalone variant.
-    *
-    * @param evolutionary $evolutionary
-    * @param creator $creator
-    * @param mutator $mutator
-    * @param pmutator $pmutator
-    * @param recombinator $onlychildrecombinator
-    * @param generations $generations
-    * @param survivors $survivors
-    * @param pairs $pairs
-    * @param matchmaker $matchmaker
-    * @param mutagen $mutagen
-    * @param selector $selector
-    */
-  def apply[G,P](generations: Int = 200, survivors: Int = 23, pairs: Int = 100)
-    (implicit
-      evolutionary: Evolutionary[G,P],
-      creator: Creator[G,P],
-      mutator: Mutator[G,P],
-      pmutator: PointMutator[G,P],
-      recombinator: Recombinator[G,P,Id],
-      matchmaker: matchmaking.Matchmaker[G] = matchmaking.RandomAcceptanceMatchmaking[G](0.7) _,
-      mutagen: mutating.Mutagen = mutating.ExponentialMutagen(generations),
-      selector: selecting.Selector[G] = selecting.SurvivalOfTheFittest[G] _)
-      : Individual[G] = {
-    import evolutionary._
+  def apply(problem: P): Individual[G] = {
+    import fitness.Individual
     import creator.Ancestor
     import mutator.Mutant
     import pmutator.pmutate
@@ -56,7 +42,7 @@ object SingleEvolver extends Evolver {
         val mutprob = mutagen(generation)
 
         val offspring = for {
-          (p1,p2) ← matchmaker(parents, pairs)
+          (p1,p2) <- matchmaker(parents, pairs)
           genome  = recombine(pmutate(p1.genome), pmutate(p2.genome))
         } yield if (Random.nextDouble < mutprob) Mutant(genome) else Individual(genome)
 

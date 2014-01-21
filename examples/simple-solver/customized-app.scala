@@ -1,12 +1,14 @@
 package org.example
 package evo
 
-import org.eva4s.api._
+import eva4s.api.app._
 
-object EvoSolver extends EvolutionaryApp.Sequential {
+object CustomizedEvoSolver extends EvolutionaryApp.Sequential {
 
   type Genome = Double
   type Problem = Double => Double
+
+  val selector = PlusSelector[Genome]()
 
   val problem: Problem =
     (x: Double) => x * x + 4

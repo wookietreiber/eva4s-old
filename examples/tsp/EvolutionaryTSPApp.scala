@@ -1,6 +1,6 @@
 package tsp
 
-import org.eva4s.api._
+import eva4s.api.app._
 
 object EvolutionaryTSPApp extends EvolutionaryApp.Sequential with TravelingSalesmanProblem[Int] {
 

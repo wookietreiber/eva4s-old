@@ -1,9 +1,9 @@
-package org.eva4s
+package eva4s
 package recombining
 
 import language.higherKinds
 
-import scalay.collection._
+import eva4s.util._
 
 import scalaz.Functor
 import scalaz.Length
@@ -13,13 +13,10 @@ import scalaz.Zip
 /** Two point crossover randomly selects two crossover points and interchanges the two parents at
   * these points to produce two new children.
   */
-object TwoPointCrossover {
+case class TwoPointCrossover[F[_],A](implicit val fitness: Fitness[F[A]], F: Functor[F], L: Length[F], U: Unzip[F], Z: Zip[F])
+  extends CrossoverRecombinator[F[A]] {
 
-  /** Returns two new genomes by two point crossover.
-    *
-    * @tparam F gene container
-    */
-  def recombine[F[_],X](g1: F[X], g2: F[X])(implicit F: Functor[F], L: Length[F], U: Unzip[F], Z: Zip[F]): GenomeP[F[X]] = {
+  override def recombine(g1: F[A], g2: F[A]): GenomeP[F[A]] = {
     val size = L.length(g1)
 
     val points = (1 to (size-1)).choose(2).sorted

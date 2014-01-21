@@ -1,15 +1,15 @@
-package org.eva4s
+package eva4s
 package recombining
 
 import language.higherKinds
-
-import scala.util.Random
 
 import scalaz.Functor
 import scalaz.Zip
 
 /** Intermediate recombination randomly chooses offspring around and between the parents. It is
   * applicable to real number types only.
+  *
+  * @param scaling Returns the scaling factor.
   *
   * == Scaling ==
   *
@@ -20,27 +20,14 @@ import scalaz.Zip
   *
   * @todo abstract over value type, currently only `Double`
   */
-object IntermediateRecombinator {
+case class IntermediateRecombinator[F[_]](scaling: Double = 0.25)(implicit val fitness: Fitness[F[Double]], F: Functor[F], Z: Zip[F])
+  extends OnlyChildRecombinator[F[Double]] {
 
-  /** Returns the default basis for the scaling factors. */
-  def defaultScaling: Double = 0.25
-
-  /** Returns a new genome by intermediate recombination.
-    *
-    * @tparam F gene container
-    *
-    * @param scaling basis for the scaling factors
-    */
-  def recombine[F[_]](scaling: Double = defaultScaling)(g1: F[Double], g2: F[Double])(implicit F: Functor[F], Z: Zip[F]): F[Double] = {
+  override def recombine(g1: F[Double], g2: F[Double]): F[Double] = {
     Z.zipWith(g1,g2) { (gene1,gene2) ⇒
       val s = sample(scaling)
       gene1 * s + gene2 * (1 - s)
     }
   }
-
-  private def sample(x: Double): Double = nextDoubleWithin(-x, 1 + x)
-
-  private def nextDoubleWithin(lower: Double, upper: Double): Double =
-    lower + (upper - lower) * Random.nextDouble
 
 }

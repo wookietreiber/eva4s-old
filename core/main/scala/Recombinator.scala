@@ -1,4 +1,4 @@
-package org.eva4s
+package eva4s
 
 import language.higherKinds
 
@@ -10,10 +10,7 @@ import scalaz.Functor
   * @tparam P input / problem type, represents the problem data structure
   * @tparam F container for the offspring; declares how many genomes/individuals are created per coupling
   */
-trait Recombinator[G,P,F[_]] {
-
-  /** Returns the evolutionary used to provide the problem and the fitness function. */
-  def evolutionary: Evolutionary[G,P]
+trait Recombinator[G,F[_]] {
 
   /** Returns new genomes by recombining the parents. */
   def recombine(g1: G, g2: G): F[G]
@@ -24,25 +21,21 @@ trait Recombinator[G,P,F[_]] {
 
   /** Returns new individuals by recombining the parents. */
   final def procreate(g1: G, g2: G)(implicit f: Functor[F]): F[Individual[G]] =
-    f.map(recombine(g1,g2))(g ⇒ Individual(g))
+    f.map(recombine(g1,g2))(g => fitness.Individual(g))
 
   /** Returns new individuals by recombining the parents. */
   final def procreate(parents: IndividualP[G])(implicit f: Functor[F]): F[Individual[G]] =
-    f.map(recombine(parents))(g ⇒ Individual(g))
+    f.map(recombine(parents))(g => fitness.Individual(g))
 
-  /** Returns the problem that needs to be solved. */
-  // def problem: P
-  final def problem: P =
-    evolutionary.problem
+  def fitness: Fitness[G]
 
-  /** Returns the fitness of the given genome. */
-  // def fitness(genome: G): Double
-  final def fitness(genome: G): Double =
-    evolutionary.fitness(genome)
+}
 
-  /** Returns a new individual from the given genome. */
-  // def Individual(genome: G): Individual[G]
-  final def Individual(genome: G): Individual[G] =
-    evolutionary.Individual(genome)
+object Recombinator {
+
+  def apply[G,F[_]](f: (G,G) => F[G])(implicit fit: Fitness[G]): Recombinator[G,F] = new Recombinator[G,F] {
+    val fitness = fit
+    def recombine(g1: G, g2: G): F[G] = f(g1,g2)
+  }
 
 }

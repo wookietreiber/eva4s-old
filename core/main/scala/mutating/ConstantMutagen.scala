@@ -1,18 +1,13 @@
-package org.eva4s
+package eva4s
 package mutating
 
-object ConstantMutagen extends DocDummy {
+/** A mutagen that always uses the same probability. */
+case class ConstantMutagen(probability: Double) extends Mutagen {
 
-  /** Returns a `Mutagen` that always uses the same probability.
-    *
-    * @param probability the constant mutation probability
-    */
-  def apply(probability: Double): Mutagen = new Function[Int,Double] {
-    override def apply(generation: Int): Double =
-      probability
+  override def apply(generation: Int): Double =
+    probability
 
-    override def toString: String =
-      "ConstantMutagen(probability=%s)".format(probability)
-  }
+  override def toString: String =
+    s"""ConstantMutagen(probability=$probability)"""
 
 }

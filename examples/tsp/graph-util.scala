@@ -12,7 +12,7 @@ import scalax.collection.GraphPredef._
 import scalax.collection.edge._
 import scalax.collection.edge.Implicits._
 
-import scalay.collection._
+import eva4s.util._
 
 object graph {
 

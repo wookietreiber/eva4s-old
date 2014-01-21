@@ -1,55 +1,43 @@
-package org.eva4s
+package eva4s
 package evolving
 
 import scala.annotation.tailrec
 
-import scalay.collection._
+import eva4s.util._
 
 import scalaz.Functor
 
 /** An evolver that splits each generation into one part to be mutated and another part to be
   * recombined. This evolver picks always all new individuals for the next generation. This way the
   * population size always stays the same and there is no environmental selection involved in this
-  * process. The chosen [[mutating.Mutagen]] determines the ratio of how many individuals recombine
-  * and how many individuals mutate per generation, so the ratio should favor recombination because
-  * parental selection is the driving force to improve the fitness.
+  * process. The chosen [[Mutagen]] determines the ratio of how many individuals recombine and how
+  * many individuals mutate per generation, so the ratio should favor recombination because parental
+  * selection is the driving force to improve the fitness.
   *
   * Since the recombination of two individuals has to produce another two individuals to keep the
   * population size the same you can use only [[recombining.CrossoverRecombinator]] with this
   * evolver.
   */
-object SplitEvolver extends Evolver {
+class SplitEvolver[G,P](generations: Int = 200, individuals: Int = 100)
+  (implicit
+    fitness: Fitness[G],
+    val creator: Creator[G],
+    mutator: Mutator[G],
+    pmutator: PointMutator[G],
+    recombinator: Recombinator[G,GenomeP],
+    matchmaker: Matchmaker[G],
+    mutagen: Mutagen)
+    extends Evolver[G,P] {
 
-  /** Executes an evolutionary algorithm, standalone variant.
-    *
-    * @param evolutionary $evolutionary
-    * @param creator $creator
-    * @param mutator $mutator
-    * @param pmutator $pmutator
-    * @param recombinator $crossoverrecombinator
-    * @param generations $generations
-    * @param individuals $survivors
-    * @param matchmaker $matchmaker
-    * @param mutagen $mutagen
-    */
-  def apply[G,P](generations: Int = 200, individuals: Int = 100)
-    (implicit
-      evolutionary: Evolutionary[G,P],
-      creator: Creator[G,P],
-      mutator: Mutator[G,P],
-      pmutator: PointMutator[G,P],
-      recombinator: Recombinator[G,P,GenomeP],
-      matchmaker: matchmaking.Matchmaker[G] = matchmaking.RandomAcceptanceMatchmaking[G](0.7) _,
-      mutagen: mutating.Mutagen = mutating.ExponentialMutagen(generations))
-      : Individual[G] = {
-    import evolutionary._
+  def apply(problem: P): Individual[G] = {
+    import fitness.Individual
     import creator.Ancestor
     import mutator.Mutant
     import pmutator.pmutate
     import recombinator.procreate
 
     implicit val genomePF = new Functor[GenomeP] {
-      override def map[A,B](gs: GenomeP[A])(f: A ⇒ B): GenomeP[B] = (f(gs._1),f(gs._2))
+      override def map[A,B](gs: GenomeP[A])(f: A => B): GenomeP[B] = (f(gs._1),f(gs._2))
     }
 
     def ancestors(n: Int): Seq[Individual[G]] = Vector.fill(n)(Ancestor)

@@ -1,4 +1,4 @@
-package org.eva4s
+package eva4s
 package recombining
 
 import language.higherKinds
@@ -11,6 +11,8 @@ import scalaz.Zip
 
 /** Uniform crossover randomly distributes genes between the offspring based on a fixed mixing
   * ratio.
+  *
+  * @param mixingRatio Returns the mixing ratio.
   *
   * == Mixing Ratio ==
   *
@@ -25,18 +27,10 @@ import scalaz.Zip
   * - a value of 0.5 (which is the default) will equally distribute the genes between the children,
   *   where each child will contain half of the genes of each parent
   */
-object UniformCrossover {
+case class UniformCrossover[F[_],A](mixingRatio: Double = 0.5)(implicit val fitness: Fitness[F[A]], F: Functor[F], U: Unzip[F], Z: Zip[F])
+  extends CrossoverRecombinator[F[A]] {
 
-  /** Returns the default mixing ratio for the crossover. */
-  def defaultMixingRatio: Double = 0.5
-
-  /** Returns two new genomes by uniform crossover.
-    *
-    * @tparam F gene container
-    *
-    * @param mixingRatio determines gene distribution between the children
-    */
-  def recombine[F[_],A](mixingRatio: Double = defaultMixingRatio)(g1: F[A], g2: F[A])(implicit F: Functor[F], U: Unzip[F], Z: Zip[F]): GenomeP[F[A]] = {
+  override def recombine(g1: F[A], g2: F[A]): GenomeP[F[A]] = {
     val cs = Z.zipWith(g1,g2) { (gene1,gene2) ⇒
       val s = Random.nextDouble
 
