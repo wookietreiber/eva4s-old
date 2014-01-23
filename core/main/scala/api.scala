@@ -27,11 +27,13 @@ object api {
     type SplitEvolver[G,P] = evolving.SplitEvolver[G,P]
     val  SplitEvolver      = evolving.SplitEvolver
 
-    type Logger = eva4s.Logger
-    val  Logger = eva4s.Logger
-
     type Reporter = eva4s.Reporter
     val  Reporter = eva4s.Reporter
+
+    val  ChartReporter = eva4s.reporting.ChartReporter
+
+    type StreamReporter = eva4s.reporting.StreamReporter
+    val  StreamReporter = eva4s.reporting.StreamReporter
 
     type MultipleTournamentMatchmaker[G] = matchmaking.MultipleTournamentMatchmaker[G]
     val  MultipleTournamentMatchmaker    = matchmaking.MultipleTournamentMatchmaker

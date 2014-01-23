@@ -22,7 +22,8 @@ class SingleEvolver[G,P](generations: Int = 200, survivors: Int = 23, pairs: Int
     recombinator: Recombinator[G,Id],
     selector: Selector[G],
     matchmaker: Matchmaker[G],
-    mutagen: Mutagen)
+    mutagen: Mutagen,
+    val reporter: Reporter)
     extends Evolver[G,P] {
 
   def apply(problem: P): Individual[G] = {
@@ -52,6 +53,7 @@ class SingleEvolver[G,P](generations: Int = 200, survivors: Int = 23, pairs: Int
         if (nextGen.size == 1)
           return nextGen.head
 
+        reporter.report(generation, parents, nextGen)
         evolve(parents = nextGen, generation = generation + 1)
       }
 

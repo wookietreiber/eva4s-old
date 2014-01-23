@@ -5,6 +5,7 @@ import language.higherKinds
 import scalaz.Id.Id
 
 abstract class EvolutionaryApp {
+
   type Genome
   type Problem
   type F[Genome]
@@ -23,50 +24,56 @@ abstract class EvolutionaryApp {
 
   def evolver: Evolver[Genome,Problem]
 
-  def logger: Logger
-
   def reporter: Reporter
 
   def main(args: Array[String]): Unit = {
     val fittest = evolver(problem)
     println(fittest)
   }
+
+  implicit final def FitnessI = Fitness(fitness)
+  implicit final def CreatorI = Creator(create)
+  implicit final def MutatarI = Mutator(mutate)
+  implicit final def PointMutatorI = PointMutator(pmutate)
+  implicit final def RecombinatorI = Recombinator[Genome,F](recombine)
+  implicit final def ReporterI = reporter
+
 }
 
 object EvolutionaryApp {
 
   abstract class Sequential extends EvolutionaryApp {
-    type F[_] = Id[Genome]
+    type F[Genome] = Id[Genome]
 
     def generations = 200
     def pairs = 100
     def survivors = 23
 
-    implicit def f = Fitness(fitness)
-    implicit def c = Creator(create)
-    implicit def m = Mutator(mutate)
-    implicit def p = PointMutator(pmutate)
-    implicit def r = Recombinator[Genome,Id](recombine)
+    def pmutate(genome: Genome): Genome = identity(genome)
+
+    def reporter: Reporter = Reporter.Console
+
     implicit def sel = selecting.PlusSelector[Genome]
     implicit def mat = matchmaking.RandomAcceptanceMatchmaker[Genome]()
     implicit def mut = mutating.ExponentialMutagen(generations)
 
     def evolver = new evolving.SingleEvolver[Genome,Problem](generations, survivors, pairs)
-
-    def pmutate(genome: Genome) =
-      identity(genome)
-
-    def logger = Logger.None
-    def reporter = Reporter.None
   }
 
   abstract class Split extends EvolutionaryApp {
+    type F[Genome] = GenomeP[Genome]
 
-    def generations: Int
+    def generations = 200
+    def individuals = 100
 
-    implicit def matchmaker[G] = matchmaking.RandomAcceptanceMatchmaker[G]()
-    implicit def mutagen = mutating.ExponentialMutagen(generations)
+    def pmutate(genome: Genome): Genome = identity(genome)
 
+    def reporter: Reporter = Reporter.Console
+
+    implicit def mat = matchmaking.TournamentMatchmaker[Genome](participants = 5)
+    implicit def mut = mutating.ExponentialMutagen(generations)
+
+    def evolver = new evolving.SplitEvolver[Genome,Problem](generations, individuals)
   }
 
 }

@@ -10,7 +10,7 @@ object EvolutionaryTSPApp extends EvolutionaryApp.Sequential with TravelingSales
   type Problem = P[Int]
 
   val problem: Problem = util.graph.completeWUnDiGraph (
-    nodes = Seq(1,2,3,4,5),
+    nodes = 1 to 5,
     maxWeight = 5
   )
 

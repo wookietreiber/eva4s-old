@@ -26,7 +26,8 @@ class SplitEvolver[G,P](generations: Int = 200, individuals: Int = 100)
     pmutator: PointMutator[G],
     recombinator: Recombinator[G,GenomeP],
     matchmaker: Matchmaker[G],
-    mutagen: Mutagen)
+    mutagen: Mutagen,
+    val reporter: Reporter)
     extends Evolver[G,P] {
 
   def apply(problem: P): Individual[G] = {
@@ -64,6 +65,7 @@ class SplitEvolver[G,P](generations: Int = 200, individuals: Int = 100)
 
         val nextGen = mutants ++ (offspring.flatten(tuple2seq))
 
+        reporter.report(generation, parents, nextGen)
         evolve(parents = nextGen, generation = generation + 1)
       }
 
