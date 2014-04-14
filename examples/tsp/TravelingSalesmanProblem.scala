@@ -44,17 +44,17 @@ trait TravelingSalesmanProblem[N] {
       if (path.edges.size == genome.edges.size - 1) {
         Graph from (
           edges = genome.edges map { e ⇒
-            (e.edge._2.value ~%> e.edge._1.value)(problem.get((e.edge._2.value ~% e.edge._1.value)(0)).toEdgeIn.weight)
+            (e.edge._2.value ~%> e.edge._1.value)(problem.get((e.edge._2.value ~% e.edge._1.value)(0)).toOuter.weight)
           }
         )
       } else {
         val pred  = start.diPredecessors.head
         val succ  = end.diSuccessors.head
 
-        val nend   = (start.value ~%> succ.value)(problem.get((start.value ~% succ.value)(0)).toEdgeIn.weight)
-        val nstart = (pred.value  ~%> end.value )(problem.get((pred.value  ~% end.value )(0)).toEdgeIn.weight)
+        val nend   = (start.value ~%> succ.value)(problem.get((start.value ~% succ.value)(0)).toOuter.weight)
+        val nstart = (pred.value  ~%> end.value )(problem.get((pred.value  ~% end.value )(0)).toOuter.weight)
         val nedges = path.edges map { e ⇒
-          (e.edge._2.value ~%> e.edge._1.value)(problem.get((e.edge._2.value ~% e.edge._1.value)(0)).toEdgeIn.weight)
+          (e.edge._2.value ~%> e.edge._1.value)(problem.get((e.edge._2.value ~% e.edge._1.value)(0)).toOuter.weight)
         }
 
         val rmes = pred.pathTo(succ) map { _.edges } getOrElse { genome.edges }
@@ -71,7 +71,7 @@ trait TravelingSalesmanProblem[N] {
     @tailrec
     def recurse(have: List[N], currentNode: N, edges: List[WDiEdge[N]]): G[N] = {
       if (have.size == problem.nodes.size) {
-        val nextEdge = (currentNode ~%> startNode)(problem.get((currentNode ~% startNode)(0)).toEdgeIn.weight)
+        val nextEdge = (currentNode ~%> startNode)(problem.get((currentNode ~% startNode)(0)).toOuter.weight)
         Graph from (
           edges = nextEdge :: edges
         )
@@ -83,9 +83,9 @@ trait TravelingSalesmanProblem[N] {
             case (key,_) ⇒ have.contains(key)
           }).apply(node).filterNot(have.contains).size
         } else // in case remainingNodes is empty choose some remaining node
-          g1.nodes.toNodeInSet.filterNot(have.contains).head
+          g1.nodes.toOuter.filterNot(have.contains).head
 
-        val nextEdge = (currentNode ~%> nextNode)(problem.get((currentNode ~% nextNode)(0)).toEdgeIn.weight)
+        val nextEdge = (currentNode ~%> nextNode)(problem.get((currentNode ~% nextNode)(0)).toOuter.weight)
 
         recurse(nextNode :: have, nextNode, nextEdge :: edges)
       }

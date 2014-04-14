@@ -42,7 +42,7 @@ object graph {
 
   /** Returns a random hamiltonian cycle of the given complete graph. */
   def cycle[N: Manifest](g: Graph[N,WUnDiEdge]): Graph[N,WDiEdge] = {
-    val nodes = g.nodes.toNodeInSet.toIndexedSeq.shuffle
+    val nodes = g.nodes.toOuter.toIndexedSeq.shuffle
 
     Graph from (
       edges = for {
