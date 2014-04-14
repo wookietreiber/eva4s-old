@@ -6,7 +6,7 @@ import language.higherKinds
   * thread. How an evolutionary is executed (sequential, parallel, distributed) depends on the
   * actual [[Evolver]] implementation.
   */
-trait Evolver[G,P] extends DocDummy {
+trait Evolver[G,P] extends DocMacros {
 
   def reporter: Reporter
 
