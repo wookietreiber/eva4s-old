@@ -34,7 +34,10 @@ object CustomizedEvoSolver extends EvolutionaryApp {
   def recombine(g1: Genome, g2: Genome): F[Genome] =
     (g1 + g2) / 2
 
-  def reporter = Reporter.Composite(Reporter.Console, ChartReporter.Line("f(x) = x^2 + 4"))
+  def reporter = Reporter.Composite (
+    Reporter.Console,
+    ChartReporter.Line("f(x) = x^2 + 4")
+  )
 
   val gs = 200
 

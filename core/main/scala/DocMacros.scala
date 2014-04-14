@@ -9,12 +9,13 @@ package eva4s
   * @define mutagen chance of child to mutate as a function from current generation to a floating point value between 0 and 1
   * @define matchmaker determines, which parents reproduce new children
   * @define mu the amount of chosen children
-  * @define offspring the offspring of the generation
   * @define pairs the amount of pairs generated
-  * @define parents the parents of the generation
   * @define selector determines, how the individuals for the next generation are chosen
   * @define start the mutation probability at generation zero
   * @define survivors amount of survivors per generation as well as initial population / ancestors
+  *
+  * @define parents the parents of the current generation
+  * @define offspring the offspring of the current generation
   *
   * @define creator creation building block
   * @define mutator mutation building block
