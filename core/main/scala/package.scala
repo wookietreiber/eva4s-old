@@ -36,11 +36,6 @@ package object eva4s {
   // others
   // -----------------------------------------------------------------------------------------------
 
-  /** Returns some debugger function. */
-  val printer: Option[(Int,Double,Double) => Unit] = Some { (g: Int, i: Double, f: Double ) =>
-    printf("generation: %5d     selection intensity: % 1.5f     average fitness: %f\n", g, i, f)
-  }
-
   private[eva4s] def ranks(size: Int) = Vector.tabulate(size) {
     i => 2.0 / size * (1 - i.toDouble / (size - 1.0))
   }
