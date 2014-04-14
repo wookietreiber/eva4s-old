@@ -10,22 +10,16 @@ lazy val root = (
 lazy val core = (
   Eva4sProject("eva4s-core", "core")
   settings(
-    libraryDependencies ++= Seq(chart, scalaz),
+    libraryDependencies ++= Seq(chart, scalaz) ++ Akka(scalaVersion.value),
     initialCommands in Compile += """
-      import scalax.chart._
-      import scalax.chart.Charting._
-      import scalaz._
-      import Scalaz._
-    """,
-    initialCommands in Compile in console += """
-      import eva4s._
+      import scalax.chart.api._
     """
   )
 )
 
 lazy val examples = (
   Eva4sProject("eva4s-examples", "examples")
-  aggregate(template, tsp, simple)
+  aggregate(template, tsp, simple/*, solver*/)
 )
 
 lazy val template = (
@@ -53,6 +47,16 @@ lazy val tsp = (
     initialCommands in Compile in console += """
       import eva4s.util.graph._
       import eva4s.tsp._
+    """
+  )
+)
+
+lazy val solver = (
+  Eva4sProject("eva4s-example-solver", "examples/solver")
+  dependsOn(core)
+  settings(
+    initialCommands in Compile in console += """
+      import eva4s.solver._
     """
   )
 )
