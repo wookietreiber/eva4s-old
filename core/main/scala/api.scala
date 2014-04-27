@@ -11,14 +11,6 @@ object api {
     val  EvolutionaryApp = eva4s.EvolutionaryApp
   }
 
-  /** API for self-contained command line applications with configuration parsing. */
-  object cli extends Imports {
-  }
-
-  /** API for REPL usage. */
-  object console extends Imports {
-  }
-
   /** Contains common imports. */
   private[api] trait Imports {
     type SingleEvolver[G,P] = evolving.SingleEvolver[G,P]
