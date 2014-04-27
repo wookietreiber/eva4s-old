@@ -9,7 +9,7 @@ import scala.util.Random
 trait Mixer[M[_]] {
   def shuffle[A](xs: M[A]): M[A]
   def choose[A](xs: M[A], n: Int): M[A]
-  def choosePair[A](xs: M[A]): Pair[A,A]
+  def choosePair[A](xs: M[A]): (A,A)
 }
 
 trait MixerLow {
@@ -19,9 +19,9 @@ trait MixerLow {
       shuffled.force.asInstanceOf[CC[A]]
     }
     override def choose[A](xs: CC[A], n: Int): CC[A] = shuffle(xs).take(n).asInstanceOf[CC[A]]
-    override def choosePair[A](xs: CC[A]): Pair[A,A] = {
+    override def choosePair[A](xs: CC[A]): (A,A) = {
       val two = choose(xs, 2).toIndexedSeq
-      Pair(two(0), two(1))
+      (two(0), two(1))
     }
   }
 }

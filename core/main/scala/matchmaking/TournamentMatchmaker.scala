@@ -19,7 +19,7 @@ case class TournamentMatchmaker[G](participants: Int) extends Matchmaker[G] {
   override def apply(parents: Seq[Individual[G]], pairs: Int): Seq[IndividualP[G]] = {
     Vector.fill(pairs) {
       val winners = parents choose participants sortBy { _.fitness } take 2
-      Pair(winners.head, winners.last)
+      (winners.head, winners.last)
     }
   }
 

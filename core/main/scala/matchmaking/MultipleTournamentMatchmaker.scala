@@ -21,15 +21,15 @@ case class MultipleTournamentMatchmaker[G](participants: Int) extends Matchmaker
   override def apply(parents: Seq[Individual[G]], pairs: Int): Seq[IndividualP[G]] = {
     def winners = parents map { parent =>
       val ps = Seq(parent) ++ (parents filter { _ != parent } choose participants)
-      Map(Pair(ps.minBy(_.fitness), 1))
+      Map((ps.minBy(_.fitness), 1))
     }
 
     Vector.fill(pairs) {
       val ps = winners.view.fold(Map())(_ ⊹ _).toSeq.sortBy(- _._2).take(2).map(_._1)
       ps.size match {
         case 0 => parents.choosePair
-        case 1 => Pair(ps.head, parents filter { _ != ps.head } minBy { _.fitness })
-        case _ => Pair(ps.head, ps.last)
+        case 1 => (ps.head, parents filter { _ != ps.head } minBy { _.fitness })
+        case _ => (ps.head, ps.last)
       }
     }
   }

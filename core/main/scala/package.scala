@@ -8,10 +8,10 @@ package object eva4s {
   // -----------------------------------------------------------------------------------------------
 
   /** Type alias for a pair of genomes. */
-  type GenomeP[G] = Pair[G,G]
+  type GenomeP[G] = (G,G)
 
   /** Type alias for a pair of individuals. */
-  type IndividualP[G] = Pair[Individual[G],Individual[G]]
+  type IndividualP[G] = (Individual[G],Individual[G])
 
   /** A `Matchmaker` pairs individuals up with each other. It models parental selection.
     *

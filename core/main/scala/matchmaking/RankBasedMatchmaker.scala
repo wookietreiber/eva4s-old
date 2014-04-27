@@ -13,7 +13,7 @@ case class RankBasedMatchmaker[G]() extends Matchmaker[G] {
       ranks(parents.size).inits.drop(1).map(_.sum).toList
     }
 
-    def choosePair(ranked: Seq[Pair[Individual[G],Double]]): IndividualP[G] = {
+    def choosePair(ranked: Seq[(Individual[G],Double)]): IndividualP[G] = {
       // TODO improve this to not use partition
       val r1 = Random.nextDouble
       val (p11,p12) = ranked partition { _._2 < r1 }

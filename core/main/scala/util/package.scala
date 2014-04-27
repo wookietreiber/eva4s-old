@@ -29,7 +29,7 @@ package object util {
     def choose(n: Int)(implicit mixer: Mixer[M]): M[A] =
       mixer.choose(value, n)
 
-    def choosePair(implicit mixer: Mixer[M]): Pair[A,A] =
+    def choosePair(implicit mixer: Mixer[M]): (A,A) =
       mixer.choosePair(value)
 
     // ---------------------------------------------------------------------------------------------
