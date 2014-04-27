@@ -5,7 +5,7 @@ import language.higherKinds
 /** Contains eva4s APIs. */
 object api {
 
-  /** API for a self-contained application with a hard-coded configuration. */
+  /** API for self-contained applications with hard-coded configuration. */
   object app extends Imports {
     type EvolutionaryApp = eva4s.EvolutionaryApp
     val  EvolutionaryApp = eva4s.EvolutionaryApp
