@@ -16,16 +16,24 @@ package object eva4s {
   /** A `Matchmaker` pairs individuals up with each other. It models parental selection.
     *
     * @tparam G the type of the genome of the individuals, represents a solution of the problem
+    *
+    * @see [[matchmaking]]
     */
   type Matchmaker[G] = (Seq[Individual[G]],Int) => Seq[IndividualP[G]]
 
-  /** A `Mutagen` determines the probability with which individuals mutate, depending on the current generation. */
+  /** A mutagen determines the probability with which individuals mutate, depending on the current
+    * generation.
+    *
+    * @see [[mutating]]
+    */
   type Mutagen = Int => Double
 
   /** A `Selector` determines how the individuals for the next generation are chosen. It models
     * environmental selection.
     *
     * @tparam G the type of the genome of the individuals, represents a solution of the problem
+    *
+    * @see [[selecting]]
     */
   type Selector[G] = (Seq[Individual[G]],Seq[Individual[G]]) => Seq[Individual[G]]
 
