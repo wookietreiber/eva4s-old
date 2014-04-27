@@ -10,7 +10,7 @@ lazy val root = (
 lazy val core = (
   Eva4sProject("eva4s-core", "core")
   settings(
-    libraryDependencies ++= Seq(chart, scalaz) ++ Akka(scalaVersion.value),
+    libraryDependencies ++= Seq(chart, scalaz),
     initialCommands in Compile += """
       import scalax.chart.api._
     """
